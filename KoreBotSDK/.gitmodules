@@ -1,0 +1,6 @@
+[submodule "Carthage/Checkouts/AFNetworking"]
+	url = https://github.com/AFNetworking/AFNetworking.git
+[submodule "Carthage/Checkouts/Mantle"]
+	url = https://github.com/Mantle/Mantle.git
+[submodule "Carthage/Checkouts/SocketRocket"]
+	url = https://github.com/facebook/SocketRocket.git
