@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>KoreBotSDK.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>isShown</key>
+			<true/>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>KoreBotSDKCarthage.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>9BA78BFD1E0A9A3100B40310</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9BA78C051E0A9A3200B40310</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9BB49F121E027B3D005273F6</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9BB49F1A1E027B3D005273F6</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D1200F141CC9F721009BBB1A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D1200F1E1CC9F721009BBB1A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>
