@@ -24,3 +24,9 @@ DerivedData
 # CocoaPods
 Pods
 Podfile.lock
+
+# Swift Package Manager
+.build/
+
+# Carthage
+Carthage/Build
