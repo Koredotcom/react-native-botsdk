@@ -12,8 +12,8 @@
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "REDACTED_ID",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
     "REDACTED_ID" : "KoreBotSDK\/Carthage\/Checkouts\/Mantle\/",
-    "REDACTED_ID" : "KoreBotSDK\/Carthage\/Checkouts\/SocketRocket\/",
     "REDACTED_ID" : "",
+    "REDACTED_ID" : "KoreBotSDK\/Carthage\/Checkouts\/SocketRocket\/",
     "REDACTED_ID" : "KoreBotSDK\/Carthage\/Checkouts\/AFNetworking\/",
     "REDACTED_ID" : "KoreBotSDK\/Carthage\/Checkouts\/Mantle\/Carthage\/Checkouts\/xcconfigs\/"
   },
