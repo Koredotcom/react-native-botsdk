@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		1EDBDD599C450F1295B07890 /* Pods_KoreBotSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B67EB11CAA6E8647EA822D9F /* Pods_KoreBotSDK.framework */; };
+		9B5771B81E127088005D0D78 /* libSocketRocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B5771B71E127088005D0D78 /* libSocketRocket.a */; };
+		9B5771BA1E12711D005D0D78 /* AFNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B5771B91E12711D005D0D78 /* AFNetworking.framework */; };
+		9B5771BC1E127124005D0D78 /* Mantle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B5771BB1E127124005D0D78 /* Mantle.framework */; };
+		9B5771BE1E12712B005D0D78 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B5771BD1E12712B005D0D78 /* SocketRocket.framework */; };
+		9B5771C01E12712F005D0D78 /* libSocketRocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B5771BF1E12712F005D0D78 /* libSocketRocket.a */; };
 		9B7D32E31E0BFAD5009FC9BB /* AFNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B7D32E21E0BFAD5009FC9BB /* AFNetworking.framework */; };
 		9B7D32E51E0BFAE3009FC9BB /* Mantle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B7D32E41E0BFAE3009FC9BB /* Mantle.framework */; };
 		9B7D32E71E0BFAE8009FC9BB /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B7D32E61E0BFAE8009FC9BB /* SocketRocket.framework */; };
@@ -39,6 +44,11 @@
 
 /* Begin PBXFileReference section */
 		452DE2F43AE2C1807370F4D0 /* Pods-KoreBotSDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KoreBotSDK.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KoreBotSDK/Pods-KoreBotSDK.debug.xcconfig"; sourceTree = "<group>"; };
+		9B5771B71E127088005D0D78 /* libSocketRocket.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSocketRocket.a; path = "Carthage/Checkouts/SocketRocket/build/Debug-iphoneos/libSocketRocket.a"; sourceTree = "<group>"; };
+		9B5771B91E12711D005D0D78 /* AFNetworking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AFNetworking.framework; path = "DerivedData/KoreBotSDK/Build/Products/Debug-iphonesimulator/AFNetworking.framework"; sourceTree = "<group>"; };
+		9B5771BB1E127124005D0D78 /* Mantle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Mantle.framework; path = "DerivedData/KoreBotSDK/Build/Products/Debug-iphonesimulator/Mantle.framework"; sourceTree = "<group>"; };
+		9B5771BD1E12712B005D0D78 /* SocketRocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketRocket.framework; path = "DerivedData/KoreBotSDK/Build/Products/Debug-iphonesimulator/SocketRocket.framework"; sourceTree = "<group>"; };
+		9B5771BF1E12712F005D0D78 /* libSocketRocket.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSocketRocket.a; path = "Carthage/Checkouts/SocketRocket/build/Debug-iphoneos/libSocketRocket.a"; sourceTree = "<group>"; };
 		9B7D32E21E0BFAD5009FC9BB /* AFNetworking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AFNetworking.framework; path = "Carthage/Checkouts/AFNetworking/build/Debug-iphoneos/AFNetworking.framework"; sourceTree = "<group>"; };
 		9B7D32E41E0BFAE3009FC9BB /* Mantle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Mantle.framework; path = "Carthage/Checkouts/Mantle/build/Debug-iphoneos/Mantle.framework"; sourceTree = "<group>"; };
 		9B7D32E61E0BFAE8009FC9BB /* SocketRocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SocketRocket.framework; path = "Carthage/Checkouts/SocketRocket/build/Debug-iphoneos/SocketRocket.framework"; sourceTree = "<group>"; };
@@ -68,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B5771B81E127088005D0D78 /* libSocketRocket.a in Frameworks */,
 				9B7D32E71E0BFAE8009FC9BB /* SocketRocket.framework in Frameworks */,
 				9B7D32E51E0BFAE3009FC9BB /* Mantle.framework in Frameworks */,
 				9B7D32E31E0BFAD5009FC9BB /* AFNetworking.framework in Frameworks */,
@@ -79,6 +90,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B5771C01E12712F005D0D78 /* libSocketRocket.a in Frameworks */,
+				9B5771BE1E12712B005D0D78 /* SocketRocket.framework in Frameworks */,
+				9B5771BC1E127124005D0D78 /* Mantle.framework in Frameworks */,
+				9B5771BA1E12711D005D0D78 /* AFNetworking.framework in Frameworks */,
 				D1200F201CC9F721009BBB1A /* KoreBotSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -187,6 +202,11 @@
 		DB656AD2952DCB1FF8287946 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9B5771BF1E12712F005D0D78 /* libSocketRocket.a */,
+				9B5771BD1E12712B005D0D78 /* SocketRocket.framework */,
+				9B5771BB1E127124005D0D78 /* Mantle.framework */,
+				9B5771B91E12711D005D0D78 /* AFNetworking.framework */,
+				9B5771B71E127088005D0D78 /* libSocketRocket.a */,
 				9B7D32E61E0BFAE8009FC9BB /* SocketRocket.framework */,
 				9B7D32E41E0BFAE3009FC9BB /* Mantle.framework */,
 				9B7D32E21E0BFAD5009FC9BB /* AFNetworking.framework */,
@@ -504,9 +524,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = "";
 				INFOPLIST_FILE = KoreBotSDK/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/SocketRocket/build/Debug-iphoneos",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kore.Kore.KoreBotSDK;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -522,9 +547,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = "";
 				INFOPLIST_FILE = KoreBotSDK/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/SocketRocket/build/Debug-iphoneos",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kore.Kore.KoreBotSDK;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -535,8 +565,16 @@
 		D1200F2D1CC9F721009BBB1A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DerivedData/KoreBotSDK/Build/Products/Debug-iphonesimulator",
+				);
 				INFOPLIST_FILE = KoreBotSDKTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/SocketRocket/build/Debug-iphoneos",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kore.Kore.KoreBotSDKTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -545,8 +583,16 @@
 		D1200F2E1CC9F721009BBB1A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DerivedData/KoreBotSDK/Build/Products/Debug-iphonesimulator",
+				);
 				INFOPLIST_FILE = KoreBotSDKTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Checkouts/SocketRocket/build/Debug-iphoneos",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kore.Kore.KoreBotSDKTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
