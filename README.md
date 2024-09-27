@@ -9,6 +9,7 @@ Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web sock
 
 ##### #Supported react-native versions
 1.For react-native versions 0.72 & above
+
 2.For react-native versions below 0.72 the sdk will coming soon..
 
 
@@ -33,16 +34,22 @@ Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web sock
 ### Configuration changes
 * Setting up clientId, clientSecret, botId, botName and identity in BotConfig.tsx file
 
-Client id - Copy this id from Bot Builder SDK Settings ex. cs-5250bdc9-6bfe-5ece-92c9-ab54aa2d4285
+#Client id - Copy this id from Bot Builder SDK Settings ex. cs-5250bdc9-6bfe-5ece-92c9-ab54aa2d4285
 
-Client secret - copy this value from Bot Builder SDK Settings ex. Wibn3ULagYyq0J10LCndswYycHGLuIWbwHvTRSfLwhs=
+#Client secret - copy this value from Bot Builder SDK Settings ex. Wibn3ULagYyq0J10LCndswYycHGLuIWbwHvTRSfLwhs=
  
 #User identity - This should represent the subject for JWT token that could be an email or phone number in case of known user. In case of anonymous user, this can be a randomly generated unique id.
+
 #Bot name - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. "Demo Bot"
+
 #Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-acecd91f-b009-5f3f-9c15-7249186d827d
+
 #Server URL - replace it with your server URL, if required
-#Anonymous user - if not anonymous, assign same identity (such as email or phone number) while making a connection
+
+#Anonymous user - if not anonymous, assign same identity (such as email or phone number) while making a connection.
+
 #JWT Server URL - specify the server URL for JWT token generation. This token is used to authorize the SDK client. Refer to documentation on how to setup the JWT server for token generation - e.g. https://jwt-token-server.example.com/
+
  ```
 export const botConfig: BotConfigModel = {
   botName: 'Bot name here',
