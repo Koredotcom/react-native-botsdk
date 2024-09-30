@@ -106,18 +106,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation project(path: ':react-native-fast-image')
-    implementation project(path: ':react-native-pure-jwt')
-    implementation project(path: ':react-native-reanimated')
-    implementation project(path: ':react-native-track-player')
-    implementation project(path: ':react-native-orientation-locker')
-    implementation project(path: ':react-native-gesture-handler')
-    implementation project(path: ':react-native-user-agent')
-    implementation project(path: ':react-native-svg')
-    implementation project(path: ':react-native-charts-wrapper')
-    implementation project(path: ':react-native-video')
-    implementation project(path: ':react-native-document-picker')
-    implementation project(path: ':react-native-permissions')
+    
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
@@ -131,5 +120,7 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
