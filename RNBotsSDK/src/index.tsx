@@ -5,8 +5,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BackHandler, SafeAreaView} from 'react-native';
 import {botConfig} from './config/BotConfig';
 import KoreChat, {HeaderIconsId, TEMPLATE_TYPES} from 'rn-kore-bot-sdk';
-import CustomButton from './customTemplates/CustomButton';
-//import CarouselTemplate from './customTemplates/CustomCarousel';
+//import CustomButton from './customTemplates/CustomButton';
 
 interface AppState {}
 interface AppProps {
@@ -43,10 +42,9 @@ class App extends React.Component<AppProps, AppState> {
         break;
     }
   };
-  getCustomTemplates() {
+  private getCustomTemplates() {
     const hashMap = new Map();
     //hashMap.set(TEMPLATE_TYPES.BUTTON, CustomButton);
-    //hashMap.set(TEMPLATE_TYPES.CAROUSEL_TEMPLATE, CarouselTemplate);
 
     return hashMap;
   }

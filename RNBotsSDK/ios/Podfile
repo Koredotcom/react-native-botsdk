@@ -101,23 +101,7 @@ target 'MySdkTest' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
-    #`sed -i -e  $'s/__IPHONE_10_0/__IPHONE_12_0/' Pods/RCT-Folly/folly/portability/Time.h`
-
-    # installer.pods_project.targets.each do |target|
-    #   target.build_configurations.each do |config|
-    #     config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = IOS_VERSION
-    #     config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
-    #     config.build_settings["ONLY_ACTIVE_ARCH"] = "YES"
-    #   end
   
-    #   case target.name
-    #   when 'RCT-Folly'
-    #     target.build_configurations.each do |config|
-    #       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
-    #     end
-    #   end
-    # end
-
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         case target.name
