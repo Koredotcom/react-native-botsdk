@@ -76,13 +76,12 @@ export const botConfig: BotConfigModel = {
    
 ```
     "rn-kore-bot-sdk": "^0.0.2",
-    "rn-kore-bot-socket-sdk": "^0.0.1",
-
 ```
 2. Import KoreChat and render your BotChat component as shown below
 ```
 import KoreChat, {HeaderIconsId, TEMPLATE_TYPES} from 'rn-kore-bot-sdk';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+//IMPORT BOT CONFIG
 .......
 .......
 render() {
@@ -99,7 +98,209 @@ render() {
     );
   }
 ```
+3. The following dependent node modules need to be installed to integrate the SDK.
+```
+"@gorhom/bottom-sheet": "^4.6.1",
+"@react-native-async-storage/async-storage": "^1.22.3",
+"@react-native-community/checkbox": "^0.5.17",
+"@react-native-community/datetimepicker": "^7.6.2",
+"@react-native-community/netinfo": "^11.2.0",
+"@react-native-picker/picker": "^2.6.1",
+"@react-native-voice/voice": "^3.2.4",
+"react-native-blob-util": "^0.17.3",
+"react-native-charts-wrapper": "^0.6.0",
+"react-native-document-picker": "^9.1.1",
+"react-native-fast-image": "^8.6.3",
+"react-native-file-viewer": "^2.1.5",
+"react-native-fs": "^2.20.0",
+"react-native-gesture-handler": "^2.14.0",
+"react-native-image-picker": "^7.1.2",
+"react-native-orientation-locker": "^1.4.0",
+"react-native-permissions": "^4.1.5",
+"react-native-pure-jwt": "^3.0.2",
+"react-native-reanimated": "^3.7.2",
+"react-native-reanimated-carousel": "^3.4.0",
+"react-native-simple-toast": "^3.1.0",
+"react-native-svg": "^13.9.0",
+"react-native-svg-transformer": "^1.0.0",
+"react-native-track-player": "^4.0.1",
+"react-native-user-agent": "^2.3.1",
+"react-native-vector-icons": "^10.0.3",
+"react-native-video": "^5.2.1",
+"react-native-video-controls": "^2.8.1",
+```
+4. metro.config.js
 
+```
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const defaultConfig = getDefaultConfig(__dirname);
+const {assetExts, sourceExts} = defaultConfig.resolver;
+const config = {
+ transformer: {
+   babelTransformerPath: require.resolve('react-native-svg-transformer'),
+ },
+ resolver: {
+   assetExts: assetExts.filter(ext => ext !== 'svg'),
+   sourceExts: [...sourceExts, 'svg'],
+ },
+};
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+```
+5. babel.config.js
+
+```
+module.exports = {
+ ...
+ plugins: ['react-native-reanimated/plugin'],
+};
+```
+ //For Android
+ 
+6. In Android app level build.gradle file add the folowing line at the bottom.
+
+```
+...
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle”,
+```
+
+//For Android
+
+7. In AndroidManifest.xml 
+
+
+```
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+//react-native-file-viewer not opening documents on Android 11
+//For that need to add folowing queries
+ <queries>
+       <package android:name="com.google.android.apps.docs.editors.docs" /> <!-- package names of Google Docs -->
+       <package android:name="com.google.android.apps.docs.editors.sheets" /> <!-- package names of Google Sheets -->
+       <package android:name="com.google.android.apps.docs.editors.slides" /> <!-- package names of Google Slides -->
+
+// To open files
+       <intent>
+           <action android:name="android.intent.action.VIEW" />
+           <data android:mimeType="*/*" />
+       </intent>
+   </queries>
+```
+
+//For Android
+
+8. For email template, On clicking on email id email client should open. For that add the following intent-filter in LAUNCHER activity.
+
+
+```
+<intent-filter>
+    <action android:name="android.intent.action.SENDTO" />
+    <data android:scheme="mailto" />
+</intent-filter>
+```
+
+ //For iOS
+ 
+9. Following lines need to be added in iOS Podfile
+
+```
+...
+flipper_config = FlipperConfiguration.disabled
+...
+setup_permissions([
+       'Camera',
+       'Microphone',
+      'SpeechRecognition',
+])
+...
+pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+...
+
+ post_install do |installer|
+ ....
+    installer.pods_project.targets.each do |target|
+     target.build_configurations.each do |config|
+       case target.name
+       when 'RCT-Folly'
+         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
+       else
+         config.build_settings.delete('IPHONEOS_DEPLOYMENT_TARGET')
+       end
+     end
+   end
+....
+ end
+```
+
+ //For iOS
+ 
+10. Following permissions need to be added in iOS Info.plist
+
+```
+<key>NSCameraUsageDescription</key>
+   <string>Please allow access to your camera</string>
+   <key>NSHumanReadableCopyright</key>
+   <string></string>
+   <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+   <string>BotSDK needs access to location.</string>
+   <key>NSLocationAlwaysUsageDescription</key>
+   <string>BotSDK needs access to location </string>
+   <key>NSLocationWhenInUseUsageDescription</key>
+   <string>BotSDK needs access to location </string>
+   <key>NSMicrophoneUsageDescription</key>
+   <string>Your microphone will be used to record</string>
+   <key>NSPhotoLibraryAddUsageDescription</key>
+   <string>Please allow access to your photo library</string>
+   <key>NSPhotoLibraryUsageDescription</key>
+   <string>Please allow access to your photo library</string>
+   <key>NSSiriUsageDescription</key>
+   <string>Lets you launch BotSDK utterances using Siri shortcuts</string>
+   <key>NSSpeechRecognitionUsageDescription</key>
+   <string>Speech recognition will be used to d</string>
+
+<key>UISupportedInterfaceOrientations</key>
+   <array>
+       <string>UIInterfaceOrientationPortrait</string>
+       <string>UIInterfaceOrientationLandscapeLeft</string>
+       <string>UIInterfaceOrientationLandscapeRight</string>
+   </array>
+```
+ 
+11. Patches
+
+Patch1 :
+In node_modules/@react-native-community/datetimepicker/ios/RNDateTimePickerShadowView.m
+line number 44 , change YGNodeConstRef to YGNodeRef
+
+```
+YGSize RNDateTimePickerShadowViewMeasure(YGNodeConstRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode)
+
+YGSize RNDateTimePickerShadowViewMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode)
+```
+Patch2: If you get the following error
+
+"ViewPropTypes will be removed from React Native. 
+Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types"
+
+Then in /node_modules/react-native/index.js replace the following methods.
+
+```
+// Deprecated Prop Types
+get ColorPropType(): $FlowFixMe {
+  return require('deprecated-react-native-prop-types').ColorPropType;
+},
+
+get EdgeInsetsPropType(): $FlowFixMe {
+  return require('deprecated-react-native-prop-types').EdgeInsetsPropType;
+},
+
+get PointPropType(): $FlowFixMe {
+  return require('deprecated-react-native-prop-types').PointPropType;
+},
+
+get ViewPropTypes(): $FlowFixMe {
+  return require('deprecated-react-native-prop-types').ViewPropTypes;
+},
+
+```
 
 License
 Copyright © Kore, Inc. MIT License; see LICENSE for further details.
