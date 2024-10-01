@@ -67,8 +67,18 @@ export const botConfig: BotConfigModel = {
 *	Download or clone the repository.
 *	Import the project.
 *	npm install --legacy-peer-deps
-*	Run Android app - npx react-native run-android.
-*	Run iOS app - ios/pod install & npx react-native run-ios
+*	Run Android app
+  
+		Install ndkVersion = "23.1.7779620" and build the project in Android Studio
+ 	
+		npx react-native run-android
+		  
+*	Run iOS app
+
+		ios/pod install, open project in xcode then clean & rebuild
+ 	
+		npx react-native run-ios
+ 
   
 # How to integrate react-native BotSDK through npm
 
