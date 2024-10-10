@@ -1,0 +1,11 @@
+diff --git a/node_modules/react-native-gesture-handler/android/src/main/AndroidManifest.xml b/node_modules/react-native-gesture-handler/android/src/main/AndroidManifest.xml
+index 94cbbcf..01a4540 100644
+--- a/node_modules/react-native-gesture-handler/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-gesture-handler/android/src/main/AndroidManifest.xml
+@@ -1 +1,5 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
++<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
++package="com.swmansion.gesturehandler"
++
++
++/>
