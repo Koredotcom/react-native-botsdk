@@ -1,0 +1,79 @@
+{
+  "name": "RNBotsSDK",
+  "version": "0.0.2",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint .",
+    "postinstall": "npx patch-package"
+  },
+  "dependencies": {
+    "@gorhom/bottom-sheet": "^4.6.0",
+    "@react-native-async-storage/async-storage": "^1.19.5",
+    "@react-native-community/checkbox": "^0.5.16",
+    "@react-native-community/datetimepicker": "^6.7.1",
+    "@react-native-community/netinfo": "^10.0.0",
+    "@react-native-picker/picker": "^2.4.8",
+    "@react-native-voice/voice": "^3.2.4",
+    "react": "18.0.0",
+    "react-native": ">=0.69.0",
+    "react-native-blob-util": "^0.15.0",
+    "react-native-charts-wrapper": "^0.5.11",
+    "react-native-document-picker": "^9.1.1",
+    "react-native-fast-image": "^8.6.3",
+    "react-native-file-viewer": "^2.1.5",
+    "react-native-fs": "^2.20.0",
+    "react-native-gesture-handler": "^2.20.0",
+    "react-native-image-picker": "^7.0.2",
+    "react-native-orientation-locker": "^1.4.0",
+    "react-native-permissions": "^3.10.1",
+    "react-native-pure-jwt": "^3.0.1",
+    "react-native-reanimated": "^2.4.1",
+    "react-native-reanimated-carousel": "^3.4.0",
+    "react-native-simple-toast": "^3.3.1",
+    "react-native-svg": "^13.9.0",
+    "react-native-svg-transformer": "^1.0.0",
+    "react-native-track-player": "^3.0.0",
+    "react-native-user-agent": "^2.3.1",
+    "react-native-vector-icons": "^10.0.0",
+    "react-native-video": "^5.2.1",
+    "rn-kore-bot-sdk-69": "^0.0.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.7",
+    "@babel/core": "^7.12.9",
+    "@babel/runtime": "^7.12.5",
+    "@react-native-community/cli": "^7.0.4",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "@tsconfig/react-native": "^2.0.2",
+    "@types/react": "^18.0.0",
+    "@types/react-native": "^0.69.26",
+    "babel-jest": "^26.6.3",
+    "esbuild": "^0.15.18",
+    "eslint": "^7.32.0",
+    "jest": "^26.6.3",
+    "metro-react-native-babel-preset": "^0.70.3",
+    "react-test-renderer": "18.0.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.4.5"
+  },
+  "jest": {
+    "preset": "react-native"
+  },
+  "rnpm": {
+    "assets": [
+      "./assests/fonts/"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/your-package.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/your-library/issues"
+  },
+  "homepage": "https://kore.ai/"
+}
