@@ -11,14 +11,3 @@ export const botConfig: BotConfigModel = {
   isWebHook: false,
   value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
 };
-
-export const botConfig_b: BotConfigModel = {
-  botName: 'SDK',
-  botId: 'PLEASE_ENTER_BOT_ID',
-  clientId: 'PLEASE_ENTER_CLIENT_ID',,
-  clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
-  botUrl: 'https://bots.kore.ai',
-  identity: uuid.v4() + '',
-  isWebHook: false,
-  value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
-};
