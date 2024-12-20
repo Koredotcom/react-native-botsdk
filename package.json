@@ -79,7 +79,7 @@
     "react-native-video": "^5.2.1",
     "react-native-video-controls": "^2.8.1",
     "reactotron-react-native": "^5.0.4",
-    "rn-kore-bot-sdk-74": "^0.0.1",
+    "rn-kore-bot-sdk-74": "^0.0.2",
     "rn-kore-bot-socket-sdk": "^0.0.2",
     "simple-markdown": "^0.7.3",
     "use-memo-one": "^1.1.3"
