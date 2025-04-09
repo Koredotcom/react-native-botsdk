@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { Alert } from 'react-native';
-import KoreBotClient, {ConnectionState,RTM_EVENT} from 'rn-kore-bot-socket-sdk-dev-ch';
+import KoreBotClient, {ConnectionState,RTM_EVENT} from 'rn-kore-bot-socket-lib';
 import {botConfig} from './BotConfig';
 // import type {Node} from 'react';
 import {
