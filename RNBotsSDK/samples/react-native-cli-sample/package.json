@@ -1,5 +1,5 @@
 {
-  "name": "SampleProject1",
+  "name": "react-native-cli-sample",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "18.0.0",
     "react-native": "0.69.8",
-    "rn-kore-bot-socket-sdk-dev-ch": "^0.0.2"
+    "rn-kore-bot-socket-lib": "^0.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
