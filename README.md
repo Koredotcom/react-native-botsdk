@@ -9,6 +9,7 @@ Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web sock
 
 ##### #Supported react-native versions
 1.For react-native versions 0.69.8 & above
+2.For react-native expo version 50.0.0 & above
 
 
 
@@ -39,11 +40,13 @@ Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web sock
  
 #User identity - This should represent the subject for JWT token that could be an email or phone number in case of known user. In case of anonymous user, this can be a randomly generated unique id.
 
-#Bot name - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. "Demo Bot"
+#Bot name - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. "Demo Bot".
 
-#Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-acecd91f-b009-5f3f-9c15-7249186d827d
+#Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-acecd91f-b009-5f3f-9c15-7249186d827d.
 
-#Server URL - replace it with your server URL, if required
+#Server URL - replace it with your server URL, if required.
+
+#jwtServerUrl - replace it with your JWT server URL.
 
 #Anonymous user - if not anonymous, assign same identity (such as email or phone number) while making a connection.
 
@@ -55,6 +58,7 @@ export const botConfig: BotConfigModel = {
   botId: 'Bot id here',
   clientId: 'client id here',
   clientSecret: 'client secret here',
+  jwtServerUrl : 'JWT server url here'
   botUrl: 'https://platform.kore.ai',//change url here
   identity: uuid.v4() + '',//change identity here
   isWebHook: false,// For now this should be always false as web hook support is not yet available in react-native sdk
