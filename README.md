@@ -67,7 +67,7 @@ export const botConfig: BotConfigModel = {
 ```
 
 ### Running the Demo app
-*	Download the cli/expo sample from RNBotsSDK->Smaples.
+*	Download the cli/expo sample from RNBotsSDK->Samples.
 *	npm install --legacy-peer-deps
 *	Run Android app 
  	
@@ -84,7 +84,7 @@ export const botConfig: BotConfigModel = {
   
 # How to integrate react-native BotSDK socket module through npm
 
-1. Add below npm modules to your app's package.json
+1. Add below npm module to your app's package.json
    
 ```
     "rn-kore-bot-socket-lib": "^0.0.1",
