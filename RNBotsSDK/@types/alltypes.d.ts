@@ -1,1 +1,1 @@
-declare module 'rn-kore-bot-socket-sdk-dev';
+declare module 'rn-kore-bot-socket-lib';
