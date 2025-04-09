@@ -8,9 +8,8 @@ With just few lines of code, you can embed our Kore.ai chat widget into your app
 Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web socket. This repo also comes with the code for sample application that developers can modify according to their Bot configuration.
 
 ##### #Supported react-native versions
-1.For react-native versions 0.72 & above
+1.For react-native versions 0.69.8 & above
 
-2.For react-native versions below 0.72 the sdk will coming soon..
 
 
 # Setting up
