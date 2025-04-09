@@ -23,7 +23,7 @@
   "dependencies": {
     "@react-native-community/netinfo": "^9.3.6",
     "@react-native/typescript-config": "^0.74.83",
-    "axios": "^0.24.0",
+    "axios": "^0.30.0",
     "esbuild-plugin-inline-image": "^0.0.8",
     "events": "^3.3.0",
     "react": "18.0.0",
