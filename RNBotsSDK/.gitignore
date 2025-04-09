@@ -1,3 +1,7 @@
+/dist
+.DS_Store
+
+
 # OSX
 #
 .DS_Store
@@ -21,6 +25,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 ios/.xcode.env.local
+.lh
 
 # Android/IntelliJ
 #
