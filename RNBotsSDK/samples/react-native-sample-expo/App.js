@@ -9,15 +9,15 @@ export default function App() {
   const [resp, setResp] = useState('Your output shown here');
   const [title, setTitle] = useState('Connect');
   const botConfig = {
-    botName: 'SDK',
+    botName: 'PLEASE_ENTER_BOT_NAME',
     botId: 'PLEASE_ENTER_BOT_ID',
-    clientId: 'PLEASE_ENTER_CLIENT_ID',,
+    clientId: 'PLEASE_ENTER_CLIENT_ID',
     clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
-    botUrl: 'https://bots.kore.ai',
-    jwtServerUrl: 'https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/',
+    botUrl: 'PLEASE_ENTER_SERVER_URL',
+    jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
     identity: uuid.v4() + '',
     isWebHook: false,
-    value_aud: 'https://idproxy.kore.com/authorize',
+    value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
   };
   function onPressAction(){
     if(KoreBotClient.getInstance().getConnectionState() === ConnectionState.CONNECTED){
