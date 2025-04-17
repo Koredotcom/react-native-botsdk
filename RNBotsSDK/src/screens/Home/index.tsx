@@ -4,7 +4,7 @@ import React from 'react';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BackHandler, SafeAreaView, StyleSheet} from 'react-native';
 import {botConfig} from '../../config/BotConfig';
-import KoreChat, {HeaderIconsId, TEMPLATE_TYPES} from 'rn-kore-bot-sdk';
+import KoreChat, {HeaderIconsId, TEMPLATE_TYPES} from 'rn-kore-bot-ui-sdk';
 import WAKeyboardAvoidingView from './WAKeyboardAvoidingView';
 //import CustomButton from './customTemplates/CustomButton';
 
