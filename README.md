@@ -7,7 +7,7 @@ With just few lines of code, you can embed our Kore.ai chat widget into your app
 
 Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web socket. This repo also comes with the code for sample application that developers can modify according to their Bot configuration.
 
-##### #Supported react-native versions
+### Supported react-native versions
 1.For react-native versions 0.72 & above
 
 2.For react-native versions below 0.72 the sdk will coming soon..
@@ -34,21 +34,21 @@ Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web sock
 ### Configuration changes
 * Setting up clientId, clientSecret, botId, botName and identity in BotConfig.tsx file
 
-#Client id - Copy this id from Bot Builder SDK Settings ex. cs-5250bdc9-6bfe-5ece-92c9-ab54aa2d4285
+##### Client id - Copy this id from Bot Builder SDK Settings ex. cs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxx
 
-#Client secret - copy this value from Bot Builder SDK Settings ex. Wibn3ULagYyq0J10LCndswYycHGLuIWbwHvTRSfLwhs=
+##### Client secret - copy this value from Bot Builder SDK Settings ex. Wibnxxxxxxxxxxxxxxxxxxxxxxxxxs=
  
-#User identity - This should represent the subject for JWT token that could be an email or phone number in case of known user. In case of anonymous user, this can be a randomly generated unique id.
+##### User identity - This should represent the subject for JWT token that could be an email or phone number in case of known user. In case of anonymous user, this can be a randomly generated unique id.
 
-#Bot name - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. "Demo Bot"
+##### Bot name - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. "Demo Bot"
 
-#Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-acecd91f-b009-5f3f-9c15-7249186d827d
+##### Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxx
 
-#Server URL - replace it with your server URL, if required
+##### Server URL - replace it with your server URL, if required
 
-#Anonymous user - if not anonymous, assign same identity (such as email or phone number) while making a connection.
+##### Anonymous user - if not anonymous, assign same identity (such as email or phone number) while making a connection.
 
-#JWT Server URL - specify the server URL for JWT token generation. This token is used to authorize the SDK client. Refer to documentation on how to setup the JWT server for token generation - e.g. https://jwt-token-server.example.com/
+##### JWT Server URL - specify the server URL for JWT token generation. This token is used to authorize the SDK client. Refer to documentation on how to setup the JWT server for token generation - e.g. https://jwt-token-server.example.com/
 
  ```
 export const botConfig: BotConfigModel = {
@@ -58,6 +58,7 @@ export const botConfig: BotConfigModel = {
   clientSecret: 'client secret here',
   botUrl: 'https://platform.kore.ai',//change url here
   identity: uuid.v4() + '',//change identity here
+  jwtServerUrl: 'https://platform.kore.ai'//change url here
   isWebHook: false,// For now this should be always false as web hook support is not yet available in react-native sdk
 };
 
@@ -85,11 +86,11 @@ export const botConfig: BotConfigModel = {
 1. Add below npm modules to your app's package.json
    
 ```
-    "rn-kore-bot-sdk": "^0.0.2",
+    "rn-kore-bot-ui-sdk": "^0.0.1",
 ```
 2. Import KoreChat and render your BotChat component as shown below
 ```
-import KoreChat, {HeaderIconsId, TEMPLATE_TYPES} from 'rn-kore-bot-sdk';
+import KoreChat, {HeaderIconsId, TEMPLATE_TYPES} from 'rn-kore-bot-ui-sdk';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 //IMPORT BOT CONFIG
 .......
