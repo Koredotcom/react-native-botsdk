@@ -34,15 +34,15 @@ Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web sock
 ### Configuration changes
 * Setting up clientId, clientSecret, botId, botName and identity in BotConfig.tsx file
 
-#Client id - Copy this id from Bot Builder SDK Settings ex. cs-5250bdc9-6bfe-5ece-92c9-ab54aa2d4285
+#Client id - Copy this id from Bot Builder SDK Settings ex. cs-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 
-#Client secret - copy this value from Bot Builder SDK Settings ex. Wibn3ULagYyq0J10LCndswYycHGLuIWbwHvTRSfLwhs=
+#Client secret - copy this value from Bot Builder SDK Settings ex. WibnXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=
  
 #User identity - This should represent the subject for JWT token that could be an email or phone number in case of known user. In case of anonymous user, this can be a randomly generated unique id.
 
 #Bot name - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. "Demo Bot".
 
-#Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-acecd91f-b009-5f3f-9c15-7249186d827d.
+#Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXXXX.
 
 #Server URL - replace it with your server URL, if required.
 
@@ -62,6 +62,8 @@ export const botConfig: BotConfigModel = {
   botUrl: 'https://platform.kore.ai',//change url here
   identity: uuid.v4() + '',//change identity here
   isWebHook: false,// For now this should be always false as web hook support is not yet available in react-native sdk
+  isHeaderVisible: true,
+  isFooterVisible: true
 };
 
 ```
