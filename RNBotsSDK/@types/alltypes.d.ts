@@ -1,1 +1,1 @@
-declare module 'rn-kore-bot-socket-lib';
+declare module 'rn-socketlib-test';

@@ -1,17 +1,19 @@
 import axios from 'axios';
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 import BotInfoModel from '../model/BotInfoModel';
-import {IBotClient} from './IBotClient';
+import { IBotClient } from './IBotClient';
 import {
   APP_STATE,
   ConnectionState,
   RTM_EVENT,
   URL_VERSION,
 } from '../constants/Constant';
-import {Platform} from 'react-native';
-import {BotConfigModel} from '../model/BotConfigModel';
+import { Platform } from 'react-native';
+import { BotConfigModel } from '../model/BotConfigModel';
+import NetInfo from '@react-native-community/netinfo';
+import Logger from '../utils/Logger';
 
-const RECONNECT_ATTEMPT_LIMIT = 16;
+const RECONNECT_ATTEMPT_LIMIT = 5;
 
 export class BotClient extends EventEmitter implements IBotClient {
   private pingInterval: number;
@@ -50,7 +52,7 @@ export class BotClient extends EventEmitter implements IBotClient {
 
   constructor() {
     super();
-    this.pingInterval = 30000;
+    this.pingInterval = 10000;
     this.receivedLastPong = false;
     this.isConnecting = false;
     this.jwtToken = '';
@@ -92,9 +94,7 @@ export class BotClient extends EventEmitter implements IBotClient {
   //   return false;
   // }
 
-  getEmitter(): EventEmitter {
-    return this;
-  }
+  
   getAccessToken() {
     return this.authorization?.accessToken;
   }
@@ -142,18 +142,6 @@ export class BotClient extends EventEmitter implements IBotClient {
     }
 
     this.botConfig = config;
-    // this.checkConnectivity().then(isNetwork => {
-    //   if (!isNetwork) {
-    //     _this.connectionState = ConnectionState.DISCONNECTED;
-    //     _this.isConnecting = false;
-    //     _this.emit(RTM_EVENT.ERROR, {
-    //       message: 'BotClient network connection not available',
-    //       isBack: false,
-    //     });
-    //     return;
-    //   }
-    // });
-
     this.botCustomData.clear();
 
     this.botCustomData.set(this.DATA_IDENTITY, '');
@@ -176,10 +164,24 @@ export class BotClient extends EventEmitter implements IBotClient {
     return new Promise((resolve, reject) => {
       _this.botUrl = _this.getJwtServerUrl();
       let jwtAuthorizationUrl = _this.botUrl + 'users/sts';
+      
+      const startTime = Date.now();
+      Logger.logApiRequest(jwtAuthorizationUrl, 'POST', { 
+        clientId: body.clientId,
+        identity: body.identity,
+        aud: body.aud,
+        isAnonymous: body.isAnonymous
+      });
 
       axios
         .post(jwtAuthorizationUrl, body)
         .then(response => {
+          const duration = Date.now() - startTime;
+          Logger.logApiSuccess(jwtAuthorizationUrl, 'POST', {
+            hasJwtToken: !!response.data.jwt,
+            tokenLength: response.data.jwt?.length
+          }, duration);
+          
           this.jwtToken = response.data.jwt;
           _this.botInfo = new BotInfoModel(config.botName, config.botId, {
             identity: '',
@@ -189,7 +191,10 @@ export class BotClient extends EventEmitter implements IBotClient {
           _this.connectWithJwToken(this.jwtToken, !isFirstTime);
         })
         .catch(e => {
-          // console.log('response error --->:', e);
+          const duration = Date.now() - startTime;
+          Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
+          Logger.logConnectionError('JWT Token Generation Failed', e);
+          
           _this.emit(RTM_EVENT.ERROR, {
             message:
               'Connection to the bot failed. Please ensure your configuration is valid and try again.',
@@ -223,26 +228,50 @@ export class BotClient extends EventEmitter implements IBotClient {
     const _this = this;
     return new Promise((resolve, reject) => {
       if (_this.isConnecting) {
-        console.log(
-          'connectWithJwToken this.isConnecting:',
-          _this.isConnecting,
-        );
+        Logger.warn('JWT Token Connection already in progress', {
+          isConnecting: _this.isConnecting
+        });
         return resolve(false);
       }
 
       _this.jwtToken = jwtToken;
 
+      Logger.logConnectionEvent('JWT Token Authorization Started', {
+        isReconnectionAttempt,
+        tokenLength: jwtToken.length
+      });
       _this.emit(RTM_EVENT.CONNECTING);
 
       _this.botUrl = _this.getBotUrl();
       let jwtAuthorizationUrl = _this.botUrl + '/api/oAuth/token/jwtgrant';
+      
+      const startTime = Date.now();
+      let payload = { assertion: jwtToken, botInfo: _this.botInfo };
+      
+      Logger.logApiRequest(jwtAuthorizationUrl, 'POST', {
+        botId: _this.botInfo?.taskBotId,
+        botName: _this.botInfo?.botName
+      });
 
-      let payload = {assertion: jwtToken, botInfo: _this.botInfo};
       axios
         .post(jwtAuthorizationUrl, payload)
         .then(response => {
+          const duration = Date.now() - startTime;
+          Logger.logApiSuccess(jwtAuthorizationUrl, 'POST', {
+            hasUserInfo: !!response.data.userInfo,
+            hasAuthorization: !!response.data.authorization,
+            userId: response.data.userInfo?.userId,
+            tokenType: response.data.authorization?.token_type
+          }, duration);
+          
           _this.userInfo = response.data.userInfo;
           _this.authorization = response.data.authorization;
+          
+          Logger.logConnectionEvent('JWT Token Authorization Success', {
+            userId: _this.userInfo?.userId,
+            tokenType: _this.authorization?.token_type
+          });
+          
           _this.emit(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED);
           if (_this.appState === APP_STATE.ACTIVE) {
             _this.initSocketConnection(isReconnectionAttempt);
@@ -250,7 +279,10 @@ export class BotClient extends EventEmitter implements IBotClient {
           resolve(true);
         })
         .catch(e => {
-          //console.log('response error --->:', e);
+          const duration = Date.now() - startTime;
+          Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
+          Logger.logConnectionError('JWT Token Authorization Failed', e);
+          
           _this.emit(RTM_EVENT.ERROR, {
             message:
               'Connection to the bot failed. Please ensure your configuration is valid and try again.',
@@ -264,11 +296,18 @@ export class BotClient extends EventEmitter implements IBotClient {
   private getRtmUrl(isReconnectionAttempt: boolean) {
     const _this = this;
     let rtmUrl = this.botUrl + '/api/rtm/start';
-    let payload = {botInfo: this.botInfo};
+    let payload = { botInfo: this.botInfo };
     let token = this.authorization.accessToken;
     // if (this.isChangeToken) {
     //   token = token + '_123';
     // }
+
+    const startTime = Date.now();
+    Logger.logApiRequest(rtmUrl, 'POST', {
+      botId: this.botInfo?.taskBotId,
+      botName: this.botInfo?.botName,
+      isReconnectionAttempt
+    });
 
     axios
       .post(rtmUrl, payload, {
@@ -277,28 +316,32 @@ export class BotClient extends EventEmitter implements IBotClient {
         },
       })
       .then(response => {
+        const duration = Date.now() - startTime;
+        Logger.logApiSuccess(rtmUrl, 'POST', {
+          hasUrl: !!response.data.url,
+          url: response.data.url?.substring(0, 50) + '...'
+        }, duration);
+        
+        Logger.logConnectionEvent('RTM URL Retrieved Successfully', {
+          isReconnectionAttempt,
+          hasWebSocketUrl: !!response.data.url
+        });
+        
         _this.connect(response.data, isReconnectionAttempt);
       })
       .catch(e => {
+        const duration = Date.now() - startTime;
+        Logger.logApiError(rtmUrl, 'POST', e, duration);
+        
         _this.isChangeToken = false;
-        console.log('getRtmUrl error ---->', e);
-        // console.log(
-        //   'getRtmUrl isReconnectionAttempt ---->',
-        //   isReconnectionAttempt,
-        // );
-        // console.log('Data is ', e?.response?.data);
-        // console.log('Status is ', e?.response?.status);
-        //         getRtmUrl error ----> [Error: Request failed with status code 401]
-        //         Data is  {"errors": [{"code": 401, "msg": "Unauthorized"}]}
-        //         Status is  401
-
         if (e?.response?.status === 401) {
-          // || (e?.response?.data?.errors?[0]?.code === 401 && e?.response?.data?.errors?[0]?.msg === 'Unauthorized')) {
+          Logger.logConnectionError('RTM Start - Unauthorized (401)', e);
           _this.refreshTokenAndReconnect(!isReconnectionAttempt);
         } else if (isReconnectionAttempt) {
-          _this.reconnectAttemptCount = 1;
+          Logger.logConnectionError('RTM Start - Reconnection Failed', e);
           _this.reconnect(isReconnectionAttempt, !this.isConnectAtleastOnce);
         } else {
+          Logger.logConnectionError('RTM Start - Connection Failed', e);
           _this.emit(RTM_EVENT.ERROR, {
             message: 'Error:' + e,
             isBack: true,
@@ -307,7 +350,7 @@ export class BotClient extends EventEmitter implements IBotClient {
       });
   }
 
-  private connect(data: {url: string}, isReconnectionAttempt: boolean) {
+  private connect(data: { url: string }, isReconnectionAttempt: boolean) {
     const _this = this;
     let botServerUrl = this.botUrl?.replace('/https/g', 'wss');
     // console.log('botServerUrl ---->', botServerUrl);
@@ -332,20 +375,35 @@ export class BotClient extends EventEmitter implements IBotClient {
 
     ws.onopen = () => {
       this.isConnectAtleastOnce = true;
-      console.log('Bot socket connected');
+      Logger.logWebSocketEvent('Connected', {
+        url: wssUrl.substring(0, 100) + '...',
+        isReconnectionAttempt,
+        readyState: ws.readyState
+      });
+      
       _this.connectionState = ConnectionState.CONNECTED;
       _this.emit(RTM_EVENT.ON_OPEN, {
         message: 'Bot socket connected',
         isReconnectionAttempt: isReconnectionAttempt,
       });
       _this.startSendingPing();
-      _this.reconnectAttemptCount = 1;
+      _this.reconnectAttemptCount = 0;
     };
     ws.onclose = e => {
+      Logger.logWebSocketEvent('Closed', {
+        code: e?.code,
+        reason: e?.reason,
+        isManualClose,
+        wasCleanClose: e?.code === 1000
+      });
+      
       _this.emit(RTM_EVENT.ON_CLOSE, 'Bot socket closed:' + e);
-      console.log('Bot socket closed:', e);
+      
       if (isManualClose || e?.code === 1000) {
-        console.log('Bot socket isManualClose = true :', e);
+        Logger.info('WebSocket closed normally (manual or clean close)', {
+          code: e?.code,
+          isManualClose
+        });
         return;
       }
 
@@ -355,7 +413,6 @@ export class BotClient extends EventEmitter implements IBotClient {
       _this.webSocket = undefined;
       _this.isConnecting = false;
       _this.reconnect(true);
-      console.log(RTM_EVENT.ON_CLOSE, e.code, e?.reason);
       _this.connectionState = ConnectionState.DISCONNECTED;
     };
 
@@ -364,23 +421,28 @@ export class BotClient extends EventEmitter implements IBotClient {
       switch (data.type) {
         case 'pong':
           _this.receivedLastPong = true;
-          console.log('================================');
-          console.log('Pong:', e.data);
-          console.log('================================');
+          Logger.debug('WebSocket Pong received', {
+            timestamp: new Date().toISOString(),
+            dataLength: e.data.length
+          });
           break;
         default:
-          // console.log('-----------------------------------');
-          // console.log(RTM_EVENT.ON_MESSAGE, e.data);
-          // console.log('-----------------------------------');
-          // this.emit(RTM_EVENT.ON_MESSAGE, e.data);
+          Logger.logWebSocketEvent('Message Received', {
+            type: data.type,
+            from: data.from,
+            messageLength: e.data.length,
+            hasMessage: !!data.message
+          });
           _this.onMessage(e.data, false);
           break;
       }
     };
 
     ws.onerror = (e: any) => {
+      Logger.logWebSocketError('Error', e);
+      
       _this.emit(RTM_EVENT.ON_ERROR, e?.message);
-      console.log(RTM_EVENT.ON_ERROR, e?.message);
+      
       if (_this.webSocket) {
         _this.webSocket.close();
       }
@@ -462,10 +524,26 @@ export class BotClient extends EventEmitter implements IBotClient {
       !this.authorization.token_type ||
       !this.authorization.accessToken
     ) {
+      Logger.warn('Bot History - Missing required parameters', {
+        isConnecting: this.isConnecting,
+        hasBotId: !!this.botInfo?.taskBotId,
+        hasAuthorization: !!this.authorization,
+        hasTokenType: !!this.authorization?.token_type,
+        hasAccessToken: !!this.authorization?.accessToken
+      });
       return;
     }
 
     let rtmUrl = this.botUrl + '/api' + URL_VERSION + '/botmessages/rtm';
+    const startTime = Date.now();
+    
+    Logger.logApiRequest(rtmUrl, 'GET', {
+      botId: this.botInfo.taskBotId,
+      limit: 40,
+      offset: 0,
+      forward: true
+    });
+    
     axios
       .get(rtmUrl, {
         params: {
@@ -482,11 +560,17 @@ export class BotClient extends EventEmitter implements IBotClient {
         },
       })
       .then(response => {
+        const duration = Date.now() - startTime;
+        Logger.logApiSuccess(rtmUrl, 'GET', {
+          messageCount: response.data?.length || 0,
+          hasData: !!response.data
+        }, duration);
+        
         this.emit(RTM_EVENT.GET_HISTORY, response, this.botInfo);
-        // this.connect(response.data);
       })
       .catch(e => {
-        console.log(e);
+        const duration = Date.now() - startTime;
+        Logger.logApiError(rtmUrl, 'GET', e, duration);
       });
   }
 
@@ -495,7 +579,12 @@ export class BotClient extends EventEmitter implements IBotClient {
   }
 
   disconnect() {
-    console.log('-----> Bot disconnect called  <-------');
+    Logger.logConnectionEvent('Bot Disconnect Called', {
+      connectionState: this.connectionState,
+      isConnecting: this.isConnecting,
+      hasWebSocket: !!this.webSocket,
+      reconnectAttemptCount: this.reconnectAttemptCount
+    });
 
     if (this.reconnectTimer) {
       this.reconnectAttemptCount = 0;
@@ -520,6 +609,10 @@ export class BotClient extends EventEmitter implements IBotClient {
     }
     this.webSocket = undefined;
     this.removeAllListeners();
+    
+    Logger.logConnectionEvent('Bot Disconnected Successfully', {
+      connectionState: this.connectionState
+    });
   }
 
   private initSocketConnection(isReconnectionAttempt: boolean) {
@@ -540,25 +633,43 @@ export class BotClient extends EventEmitter implements IBotClient {
     isReconnectionAttempt: boolean,
     resetReconnectAttemptCount?: boolean,
   ) {
-    // console.log('--------->> reconnect <<---------');
-
-    if (this.isReconnectAttemptRequired) {
+    if (this.isReconnectAttemptRequired && this.reconnectAttemptCount < RECONNECT_ATTEMPT_LIMIT) {
+      Logger.logConnectionEvent('Reconnection Attempt', {
+        attemptCount: this.reconnectAttemptCount,
+        maxAttempts: RECONNECT_ATTEMPT_LIMIT,
+        isReconnectionAttempt,
+        resetReconnectAttemptCount
+      });
+      
       if (this.reconnectTimer) {
-        this.reconnectAttemptCount = 0;
         clearInterval(this.reconnectTimer);
       }
+
       this.reconnectTimer = setTimeout(
         () => {
           this.isConnecting = false;
           this.initSocketConnection(isReconnectionAttempt);
         },
-        resetReconnectAttemptCount ? 10 : this.getReconnectDelay(),
+        this.getReconnectDelay(),
       );
+    }
+    else {
+      Logger.logConnectionError('Maximum Reconnection Limit Reached', {
+        attemptCount: this.reconnectAttemptCount,
+        maxAttempts: RECONNECT_ATTEMPT_LIMIT,
+        isReconnectAttemptRequired: this.isReconnectAttemptRequired
+      });
     }
   }
 
   private refreshTokenAndReconnect(isReconnectionAttempt?: boolean) {
-    console.log('--------->> refreshTokenAndReconnect <<---------');
+    Logger.logConnectionEvent('Refresh Token and Reconnect Started', {
+      isReconnectionAttempt,
+      reconnectAttemptCount: this.reconnectAttemptCount,
+      connectionState: this.connectionState,
+      hasWebSocket: !!this.webSocket
+    });
+    
     if (this.reconnectTimer) {
       this.reconnectAttemptCount = 0;
       clearInterval(this.reconnectTimer);
@@ -584,19 +695,32 @@ export class BotClient extends EventEmitter implements IBotClient {
     setTimeout(() => {
       this.reconnectAttemptCount = 0;
       if (this.botConfig) {
+        Logger.logConnectionEvent('Initiating Fresh Connection After Token Refresh', {
+          hasBotConfig: !!this.botConfig
+        });
         this.connectToBot(this.botConfig, isReconnectionAttempt);
       }
     }, 500);
   }
 
   private getReconnectDelay() {
-    // console.log('--------->> getReconnectDelay <<---------');
-    this.reconnectAttemptCount = this.reconnectAttemptCount + 1;
-    if (this.reconnectAttemptCount > RECONNECT_ATTEMPT_LIMIT) {
-      this.reconnectAttemptCount = 0;
-    }
-    // console.log('Reconnection count :' + this.reconnectAttemptCount);
-    return this.reconnectAttemptCount * 2000;
+    // Get current connectivity status
+    NetInfo.fetch().then(status => {
+      if (status.isConnected) {
+        this.reconnectAttemptCount++;
+      }
+      else {
+        this.reconnectAttemptCount = 1
+      }
+      
+      Logger.info('Network connectivity check for reconnection', {
+        isConnected: status.isConnected,
+        connectionType: status.type,
+        reconnectAttemptCount: this.reconnectAttemptCount
+      });
+    });
+
+    return 3000;
   }
 
   checkSocketAndReconnect() {
@@ -617,6 +741,14 @@ export class BotClient extends EventEmitter implements IBotClient {
       !this.authorization.accessToken ||
       !this.jwtToken
     ) {
+      Logger.warn('Get Settings - Missing required parameters', {
+        hasSearchIndexId: !!this.botInfo?.searchIndexId,
+        hasTaskBotId: !!this.botInfo?.taskBotId,
+        hasAuthorization: !!this.authorization,
+        hasTokenType: !!this.authorization?.token_type,
+        hasAccessToken: !!this.authorization?.accessToken,
+        hasJwtToken: !!this.jwtToken
+      });
       return false;
     }
 
@@ -627,6 +759,13 @@ export class BotClient extends EventEmitter implements IBotClient {
       '/' +
       this.botInfo.searchIndexId +
       '/getresultviewsettings';
+    
+    const startTime = Date.now();
+    Logger.logApiRequest(urlString, 'GET', {
+      taskBotId: this.botInfo.taskBotId,
+      searchIndexId: this.botInfo.searchIndexId
+    });
+    
     axios
       .get(urlString, {
         headers: {
@@ -638,12 +777,19 @@ export class BotClient extends EventEmitter implements IBotClient {
         },
       })
       .then(response => {
+        const duration = Date.now() - startTime;
+        Logger.logApiSuccess(urlString, 'GET', {
+          hasSettings: !!response?.data?.settings,
+          settingsCount: response?.data?.settings?.length || 0
+        }, duration);
+        
         if (response?.data?.settings) {
           this.resultViewSettings = response?.data?.settings;
         }
       })
       .catch(e => {
-        console.log(e);
+        const duration = Date.now() - startTime;
+        Logger.logApiError(urlString, 'GET', e, duration);
       });
   }
   private startSendingPing() {
@@ -656,7 +802,7 @@ export class BotClient extends EventEmitter implements IBotClient {
       this.pingTimer = setInterval(() => {
         if (ws?.readyState == WebSocket.OPEN) {
           this.receivedLastPong = false;
-          this.send({type: 'ping'});
+          this.send({ type: 'ping' });
         } else if (
           ws?.readyState == WebSocket.CLOSED ||
           ws?.readyState == WebSocket.CLOSING ||
@@ -677,7 +823,7 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.timer = setTimeout(() => {
       if (ws?.readyState == WebSocket.OPEN) {
         this.receivedLastPong = false;
-        this.send({type: 'ping'});
+        this.send({ type: 'ping' });
         this.setTimer();
       } else if (
         ws?.readyState == WebSocket.CLOSED ||
@@ -703,17 +849,24 @@ export class BotClient extends EventEmitter implements IBotClient {
         try {
           let jsonString = JSON.stringify(message);
           this.webSocket.send(jsonString);
-          console.log('payload: ', jsonString);
-          // this.webSocket.send(JSON.stringify(message));
+          
+          Logger.logWebSocketEvent('Message Sent', {
+            type: message.type,
+            clientMessageId: message.clientMessageId,
+            resourceid: message.resourceid,
+            messageLength: jsonString.length,
+            client: message.client
+          });
         } catch (error) {
-          console.log('WebSocket.OPEN send error :', error);
+          Logger.logWebSocketError('Send Failed', error);
         }
-
-        // messageHandler('success');
         break;
       default:
-        // messageHandler(new Error(err));
-        console.log('ws not connected or reconnecting, unable to send message');
+        Logger.warn('WebSocket Send Failed - Connection not ready', {
+          readyState: this.webSocket?.readyState,
+          connectionState: this.connectionState,
+          messageType: message.type
+        });
         break;
     }
   };
@@ -738,6 +891,15 @@ export class BotClient extends EventEmitter implements IBotClient {
   }
   sendMessage(message: any, payload?: any, attachments?: any): any {
     var clientMessageId = new Date().getTime();
+    
+    Logger.info('Sending message to bot', {
+      clientMessageId,
+      messageLength: message?.length,
+      hasPayload: !!payload,
+      hasAttachments: !!attachments,
+      platform: Platform.OS
+    });
+    
     var msgData = {
       type: 'user_message',
       message: [
@@ -755,8 +917,6 @@ export class BotClient extends EventEmitter implements IBotClient {
         },
       ],
     };
-
-    // data_type = data_type.toLowerCase().trim();
 
     var messageToBot = {
       clientMessageId: clientMessageId,
