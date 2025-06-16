@@ -9,6 +9,10 @@ export type {BotConfigModel} from '../bot-sdk/model/BotConfigModel';
 
 export {ActiveThemeAPI} from '../bot-sdk/branding/ActiveThemeAPI';
 
+// Export Logger for consumers to access logs and control log levels
+export {Logger, LogLevel} from '../bot-sdk/utils/Logger';
+export type {LogEntry} from '../bot-sdk/utils/Logger';
+
 ///export type {ConnectionState} from '../bot-sdk/rtm/BotClient';
 
 //export type BotConfigModel;

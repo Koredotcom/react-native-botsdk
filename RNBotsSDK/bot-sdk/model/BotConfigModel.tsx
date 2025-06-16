@@ -8,4 +8,6 @@ export interface BotConfigModel {
   jwtServerUrl: string;
   isWebHook: boolean;
   value_aud: string;
+  isHeaderVisible: boolean;
+  isFooterVisible: boolean;
 }

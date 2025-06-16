@@ -7,7 +7,7 @@ export class KoreBotClient extends BotClient implements IBotClient {
   private constructor() {
     super();
   }
-  public static getInstance(): IBotClient {
+  public static getInstance(): KoreBotClient {
     if (this._instance == null) {
       this._instance = new KoreBotClient();
     }
