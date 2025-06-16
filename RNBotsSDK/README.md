@@ -21,7 +21,7 @@ A powerful and feature-rich React Native library for integrating Kore.ai bot con
 ## 📦 Installation
 
 ```bash
-npm install kore-rn-bot-socket-lib
+npm install rn-kore-bot-socket-lib-v77
 ```
 
 ### Peer Dependencies
@@ -29,15 +29,7 @@ npm install kore-rn-bot-socket-lib
 Make sure you have the required peer dependencies installed:
 
 ```bash
-npm install react@>=18.0.0 react-native@>=0.70.0
-```
-
-### Additional Dependencies
-
-The library requires these dependencies to be installed in your project:
-
-```bash
-npm install @react-native-community/netinfo axios events react-native-uuid
+npm install react@>=19.0.0 react-native@>=0.77.0
 ```
 
 ## 🚀 Quick Start
@@ -52,8 +44,8 @@ import KoreBotClient, {
   ConnectionState, 
   Logger, 
   LogLevel 
-} from 'kore-rn-bot-socket-lib';
-import type { BotConfigModel } from 'kore-rn-bot-socket-lib';
+} from 'rn-kore-bot-socket-lib-v77';
+import type { BotConfigModel } from 'rn-kore-bot-socket-lib-v77';
 
 // Configure logging (optional)
 Logger.setLogLevel(LogLevel.INFO);
@@ -194,7 +186,7 @@ botClient.on(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED, () => {
 Retrieve and apply bot themes dynamically:
 
 ```typescript
-import { ActiveThemeAPI } from 'kore-rn-bot-socket-lib';
+import { ActiveThemeAPI } from 'rn-kore-bot-socket-lib-v77';
 
 const themeAPI = new ActiveThemeAPI();
 
@@ -395,7 +387,7 @@ import KoreBotClient, {
   ConnectionState,
   Logger,
   LogLevel
-} from 'kore-rn-bot-socket-lib';
+} from 'rn-kore-bot-socket-lib-v77';
 
 interface State {
   connectionStatus: string;
@@ -554,7 +546,7 @@ export default BotChatComponent;
 ### Enable Debug Logging
 
 ```typescript
-import { Logger, LogLevel } from 'kore-rn-bot-socket-lib';
+import { Logger, LogLevel } from 'rn-kore-bot-socket-lib-v77';
 
 // Enable verbose logging
 Logger.setLogLevel(LogLevel.DEBUG);
@@ -643,14 +635,11 @@ RTM_EVENT.GET_HISTORY
 
 MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ## 📞 Support
 
 - **Documentation**: [Full API Documentation](https://developer.kore.com/docs/bots/kore-web-sdk/)
-- **Issues**: [GitHub Issues](https://github.com/your-org/kore-rn-bot-socket-lib/issues)
+- **Issues**: [GitHub Issues]([https://github.com/your-org/kore-rn-bot-socket-lib/issues](https://github.com/Koredotcom/react-native-botsdk/edit/socket/rn-botssdk-socket-lib-v77))
 - **Support**: [Kore.ai Support](https://support.kore.com)
 
 ## 🏢 About Kore.ai
@@ -659,4 +648,4 @@ Kore.ai is a leading conversational AI platform that helps enterprises build sop
 
 ---
 
-**Made with ❤️ by Kore.ai**
+**Made by Kore.ai**
