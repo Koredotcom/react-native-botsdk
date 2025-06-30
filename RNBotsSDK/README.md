@@ -1,6 +1,6 @@
 # Kore.ai React Native Bot Socket Library
 
-[![npm version](https://badge.fury.io/js/kore-rn-bot-socket-lib.svg)](https://badge.fury.io/js/kore-rn-bot-socket-lib)
+[![npm version](https://badge.fury.io/js/rn-kore-bot-socket-lib-v77.svg)](https://badge.fury.io/js/rn-kore-bot-socket-lib-v77)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React Native](https://img.shields.io/badge/React%20Native-0.70+-blue.svg)](https://reactnative.dev/)
 
@@ -29,7 +29,15 @@ npm install rn-kore-bot-socket-lib-v77
 Make sure you have the required peer dependencies installed:
 
 ```bash
-npm install react@>=19.0.0 react-native@>=0.77.0
+npm install react@>=18.0.0 react-native@>=0.70.0
+```
+
+### Additional Dependencies
+
+The library requires these dependencies to be installed in your project:
+
+```bash
+npm install @react-native-community/netinfo axios events react-native-uuid
 ```
 
 ## 🚀 Quick Start
@@ -48,7 +56,7 @@ import KoreBotClient, {
 import type { BotConfigModel } from 'rn-kore-bot-socket-lib-v77';
 
 // Configure logging (optional)
-Logger.setLogLevel(LogLevel.INFO);
+Logger.getInstance().setLogLevel(LogLevel.INFO);
 
 class BotExample extends Component {
   componentDidMount() {
@@ -135,7 +143,7 @@ The library emits various events that you can listen to:
 ### Connection Events
 
 ```typescript
-import { RTM_EVENT } from 'kore-rn-bot-socket-lib';
+import { RTM_EVENT } from 'rn-kore-bot-socket-lib-v77';
 
 const botClient = KoreBotClient.getInstance();
 
@@ -205,13 +213,13 @@ themeAPI.getThemeAPI(botConfig, (themeData) => {
 ### Configure Logging
 
 ```typescript
-import { Logger, LogLevel } from 'kore-rn-bot-socket-lib';
+import { Logger, LogLevel } from 'rn-kore-bot-socket-lib-v77';
 
 // Set log level
-Logger.setLogLevel(LogLevel.DEBUG); // Show all logs
-Logger.setLogLevel(LogLevel.INFO);  // Default level
-Logger.setLogLevel(LogLevel.WARN);  // Warnings and errors only
-Logger.setLogLevel(LogLevel.ERROR); // Errors only
+Logger.getInstance().setLogLevel(LogLevel.DEBUG); // Show all logs
+Logger.getInstance().setLogLevel(LogLevel.INFO);  // Default level
+Logger.getInstance().setLogLevel(LogLevel.WARN);  // Warnings and errors only
+Logger.getInstance().setLogLevel(LogLevel.ERROR); // Errors only
 ```
 
 ### Access Logs Programmatically
@@ -269,7 +277,7 @@ botClient.setAppState('ACTIVE' | 'SLEEP');
 ### Connection States
 
 ```typescript
-import { ConnectionState } from 'kore-rn-bot-socket-lib';
+import { ConnectionState } from 'rn-kore-bot-socket-lib-v77';
 
 // Available states
 ConnectionState.CONNECTING    // 0
@@ -635,11 +643,14 @@ RTM_EVENT.GET_HISTORY
 
 MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ## 📞 Support
 
 - **Documentation**: [Full API Documentation](https://developer.kore.com/docs/bots/kore-web-sdk/)
-- **Issues**: [GitHub Issues]([https://github.com/your-org/kore-rn-bot-socket-lib/issues](https://github.com/Koredotcom/react-native-botsdk/edit/socket/rn-botssdk-socket-lib-v77))
+- **Issues**: [GitHub Issues](https://github.com/your-org/rn-kore-bot-socket-lib-v77/issues)
 - **Support**: [Kore.ai Support](https://support.kore.com)
 
 ## 🏢 About Kore.ai
@@ -648,4 +659,4 @@ Kore.ai is a leading conversational AI platform that helps enterprises build sop
 
 ---
 
-**Made by Kore.ai**
+**Made with ❤️ by Kore.ai**

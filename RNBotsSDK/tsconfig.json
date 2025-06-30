@@ -1,10 +1,25 @@
 {
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
     "moduleResolution": "bundler",
-    "types": [
-      "react-native"
-    ]
-  }
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "bot-sdk/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "android",
+    "ios",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ]
 }

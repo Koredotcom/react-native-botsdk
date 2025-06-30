@@ -1,6 +1,6 @@
 {
   "name": "rn-kore-bot-socket-lib-v77",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Description of Bot Scocket SDK library",
   "author": "Kore.ai Inc",
   "license": "MIT",
@@ -19,19 +19,17 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest",
     "build": "tsup"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "react-native": "0.77.0"
+    "react-native": ">=0.77.0 <0.78.0"
   },
   "dependencies": {
     "@react-native-community/netinfo": "^11.4.1",
     "axios": "^1.9.0",
     "esbuild-plugin-inline-image": "^0.0.9",
     "events": "^3.3.0",
-    "react": ">=18.0.0",
     "tsup": "^8.5.0"
   },
   "devDependencies": {
@@ -46,6 +44,7 @@
     "@react-native/metro-config": "0.77.0",
     "@react-native/typescript-config": "0.77.0",
     "@types/events": "^3.0.3",
+    "@types/jest": "^30.0.0",
     "@types/react": "^18.2.6",
     "eslint": "^8.19.0",
     "prettier": "2.8.8",

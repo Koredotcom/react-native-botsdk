@@ -1,4 +1,4 @@
-import {defineConfig} from 'tsup';
+import { defineConfig } from 'tsup';
 import inlineImage from 'esbuild-plugin-inline-image';
 
 export default defineConfig({
@@ -8,6 +8,6 @@ export default defineConfig({
   shims: true,
   skipNodeModulesBundle: true,
   clean: true,
-  loader: {'.js': 'jsx'},
+  loader: { '.js': 'jsx' },
   plugins: [inlineImage()],
 });
