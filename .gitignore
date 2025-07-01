@@ -23,7 +23,7 @@ DerivedData
 Pods
 Podfile.lock
 
-# Swift Package Manager
+# ios Swift Package Manager
 .build/
 
 # Carthage
