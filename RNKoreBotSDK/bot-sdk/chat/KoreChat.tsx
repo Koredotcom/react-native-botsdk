@@ -1792,36 +1792,13 @@ export default class KoreChat extends React.Component<
   }
 
   private requestCameraPermission = async (): Promise<boolean> => {
-    if (isIOS) {
-      // iOS permissions are handled automatically by react-native-image-picker
-      return true;
-    }
-
-    try {
-      const { check, request, PERMISSIONS, RESULTS } = require('react-native-permissions');
-      
-      // Check current permission status
-      const result = await check(PERMISSIONS.ANDROID.CAMERA);
-      
-      if (result === RESULTS.GRANTED) {
-        console.log('Camera permission already granted');
-        return true;
-      }
-      
-      if (result === RESULTS.DENIED) {
-        console.log('Requesting camera permission...');
-        const requestResult = await request(PERMISSIONS.ANDROID.CAMERA);
-        return requestResult === RESULTS.GRANTED;
-      }
-      
-      // Permission is blocked or unavailable
-      console.warn('Camera permission is blocked or unavailable');
-      return false;
-      
-    } catch (error) {
-      console.error('Error checking camera permission:', error);
-      return false;
-    }
+    return new Promise((resolve) => {
+      const { cameraPermission } = require('../utils/PermissionsUtils');
+      cameraPermission((isSuccess: boolean) => {
+        console.log('Camera permission result:', isSuccess);
+        resolve(isSuccess);
+      });
+    });
   };
 
   private renderAssetPopupComponent(): any {
@@ -1835,20 +1812,22 @@ export default class KoreChat extends React.Component<
                 // Close the attachment modal first
                 this.setState({ showAttachmentModal: false });
 
-                switch (btn?.id) {
-                  case 1:
-                    console.log('Camera button pressed - checking permissions...');
-                    
-                    // Check camera permission first
-                    const hasPermission = await this.requestCameraPermission();
-                    if (!hasPermission) {
-                      console.error('Camera permission denied');
-                      return;
-                    }
-                    
-                    console.log('Camera permission granted - launching camera...');
-                    
-                    try {
+                // Add a small delay to ensure modal closes before permission request
+                setTimeout(async () => {
+                  switch (btn?.id) {
+                    case 1:
+                      console.log('Camera button pressed - checking permissions...');
+                      
+                      // Check camera permission first
+                      const hasPermission = await this.requestCameraPermission();
+                      if (!hasPermission) {
+                        console.error('Camera permission denied');
+                        return;
+                      }
+                      
+                      console.log('Camera permission granted - launching camera...');
+                      
+                      try {
                       launchCamera(
                         {
                           saveToPhotos: true,
@@ -1924,10 +1903,11 @@ export default class KoreChat extends React.Component<
                       types.audio,
                     ]);
                     break;
-                  case 4:
-                    this.onAttachItemClick([types.video]);
-                    break;
-                }
+                    case 4:
+                      this.onAttachItemClick([types.video]);
+                      break;
+                  }
+                }, 150); // 150ms delay to ensure modal closes
               }}
               style={{padding: 15, backgroundColor: Color.white, borderBottomWidth: 1, borderBottomColor: '#f0f0f0'}}>
               <Text style={{fontSize: normalize(16), color: Color.text_color}}>
