@@ -37,7 +37,7 @@
     "react-native-svg": "^15.12.0",
     "react-native-uuid": "^2.0.3",
     "react-native-video": "^6.15.0",
-    "rn-kore-bot-sdk-v77": "^0.0.1"
+    "rn-kore-bot-sdk-v77": "^0.0.2"
   },
   "peerDependencies": {
     "react": "18.3.1",
