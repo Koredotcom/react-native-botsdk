@@ -1,317 +1,313 @@
-# Kore.ai SDK
-Kore.ai offers Bots SDKs as a set of platform-specific client libraries that provide a quick and convenient way to integrate Kore.ai Bots chat capability into custom applications.
+# React Native Kore Bot SDK
 
-With just few lines of code, you can embed our Kore.ai chat widget into your applications to enable end-users to interact with your applications using Natural Language. For more information, refer to https://developer.kore.com/docs/bots/kore-web-sdk/
+A comprehensive React Native library for integrating Kore.ai chatbot functionality into your mobile applications.
 
-# Kore.ai react-native SDK for developers
+## Features
 
-Kore.ai SDK for react-native enables you to talk to Kore.ai bots over a web socket. This repo also comes with the code for sample application that developers can modify according to their Bot configuration.
+- 🤖 Complete chatbot UI components
+- 💬 Rich messaging templates (text, images, cards, carousels)
+- 🎨 Customizable themes and styling
+- 📱 Cross-platform support (iOS & Android)
+- 🔧 TypeScript support
+- 🎯 Easy integration with existing React Native apps
 
-### Supported react-native versions
-1.For react-native versions 0.72 & above
+## Installation
 
-2.For react-native versions below 0.72 the sdk will coming soon..
+```bash
+npm install rn-kore-bot-sdk-v77
+```
 
+### Peer Dependencies
 
-# Setting up
+This library requires the following peer dependencies to be installed in your project:
 
-### Prerequisites
-* Service to generate JWT (JSON Web Tokens)- this service will be used in the assertion function injected to obtain the connection.
-* SDK app credentials 
-* Login to the Bots platform
-	* Navigate to the Bot builder
-	* Search and click on the bot 
-	* Enable *Web / Mobile Client* channel against the bot as shown in the screen below.
-		
-	![Add bot to Web/Mobile Client channel](https://github.com/Koredotcom/android-kore-sdk/blob/master/channels.png)
-	
-	* create new or use existing SDK app to obtain client id and client secret
-	
-	![Obtain Client id and Client secret](https://github.com/Koredotcom/android-kore-sdk/blob/master/web-mobile-client-channel.png)
+```bash
+npm install react-native@0.77.0 react@18.3.1 @react-native-async-storage/async-storage @react-native-community/netinfo react-native-gesture-handler react-native-reanimated react-native-svg react-native-safe-area-context
+```
 
-## Instructions
+## Usage
 
-### Configuration changes
-* Setting up clientId, clientSecret, botId, botName and identity in BotConfig.tsx file
+### Basic Setup
 
-##### Client id - Copy this id from Bot Builder SDK Settings ex. cs-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxx
+```tsx
+import React from 'react';
+import { View } from 'react-native';
+import KoreChat, { BotConfigModel } from 'rn-kore-bot-sdk-v77';
 
-##### Client secret - copy this value from Bot Builder SDK Settings ex. Wibnxxxxxxxxxxxxxxxxxxxxxxxxxs=
- 
-##### User identity - This should represent the subject for JWT token that could be an email or phone number in case of known user. In case of anonymous user, this can be a randomly generated unique id.
+const App = () => {
+  const botConfig: BotConfigModel = {
+    botId: 'your-bot-id',
+    chatBotName: 'Your Bot Name',
+    serverUrl: 'your-server-url', // Should not end with '/', Example :  https://your.server.url
+    brandingAPIUrl: 'your-branding-api-url', // Should not end with '/', Example :  https://your.server.url
+    // Add other required config properties
+  };
 
-##### Bot name - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. "Demo Bot"
-
-##### Bot Id - copy this value from Bot Builder -> Channels -> Web/Mobile SDK config  ex. st-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxx
-
-##### Server URL - replace it with your server URL, if required
-
-##### Anonymous user - if not anonymous, assign same identity (such as email or phone number) while making a connection.
-
-##### JWT Server URL - specify the server URL for JWT token generation. This token is used to authorize the SDK client. Refer to documentation on how to setup the JWT server for token generation - e.g. https://jwt-token-server.example.com/
-
- ```
-export const botConfig: BotConfigModel = {
-  botName: 'Bot name here',
-  botId: 'Bot id here',
-  clientId: 'client id here',
-  clientSecret: 'client secret here',
-  botUrl: 'https://platform.kore.ai',//change url here
-  identity: uuid.v4() + '',//change identity here
-  jwtServerUrl: 'https://platform.kore.ai'//change url here
-  isWebHook: false,// For now this should be always false as web hook support is not yet available in react-native sdk
+  return (
+    <View style={{ flex: 1 }}>
+      <KoreChat
+        botConfig={botConfig}
+        onListItemClick={(item) => console.log('Item clicked:', item)}
+        onHeaderActionsClick={(action) => console.log('Header action:', action)}
+      />
+    </View>
+  );
 };
 
+export default App;
 ```
 
-### Running the Demo app
-*	Download or clone the repository.
-*	Import the project.
-*	npm install --legacy-peer-deps
-*	Run Android app
-  
-		Install ndkVersion = "23.1.7779620" and build the project in Android Studio
- 	
-		npx react-native run-android
-		  
-*	Run iOS app
+### Custom Templates
 
-		ios/pod install, open project in xcode then clean & rebuild
- 	
-		npx react-native run-ios
- 
-  
-# How to integrate react-native BotSDK through npm
+```tsx
+import { CustomTemplate } from 'rn-kore-bot-sdk-v77';
 
-1. Add below npm modules to your app's package.json
-   
-```
-    "rn-kore-bot-ui-sdk": "^0.0.1",
-```
-2. Import KoreChat and render your BotChat component as shown below
-```
-import KoreChat, {HeaderIconsId, TEMPLATE_TYPES} from 'rn-kore-bot-ui-sdk';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-//IMPORT BOT CONFIG
-.......
-.......
-render() {
-    return (
-      <GestureHandlerRootView style={{flex: 1}}>
-        <SafeAreaView style={{flex: 1}}>
-          <KoreChat
-            botConfig={botConfig}
-            alwaysShowSend={true}
-            {...this.props}
-          />
-        </SafeAreaView>
-      </GestureHandlerRootView>
-    );
-  }
-```
-3. The following dependent node modules need to be installed to integrate the SDK.
-```
-"@gorhom/bottom-sheet": "^4.6.1",
-"@react-native-async-storage/async-storage": "^1.22.3",
-"@react-native-community/checkbox": "^0.5.17",
-"@react-native-community/datetimepicker": "^7.6.2",
-"@react-native-community/netinfo": "^11.2.0",
-"@react-native-picker/picker": "^2.6.1",
-"@react-native-voice/voice": "^3.2.4",
-"react-native-blob-util": "^0.17.3",
-"react-native-charts-wrapper": "^0.6.0",
-"react-native-document-picker": "^9.1.1",
-"react-native-fast-image": "^8.6.3",
-"react-native-file-viewer": "^2.1.5",
-"react-native-fs": "^2.20.0",
-"react-native-gesture-handler": "^2.14.0",
-"react-native-image-picker": "^7.1.2",
-"react-native-orientation-locker": "^1.4.0",
-"react-native-permissions": "^4.1.5",
-"react-native-pure-jwt": "^3.0.2",
-"react-native-reanimated": "^3.7.2",
-"react-native-reanimated-carousel": "^3.4.0",
-"react-native-simple-toast": "^3.1.0",
-"react-native-svg": "^13.9.0",
-"react-native-svg-transformer": "^1.0.0",
-"react-native-track-player": "^4.0.1",
-"react-native-user-agent": "^2.3.1",
-"react-native-vector-icons": "^10.0.3",
-"react-native-video": "^5.2.1",
-"react-native-video-controls": "^2.8.1",
-```
-4. metro.config.js
+// Create custom template
+const MyCustomTemplate = new CustomTemplate({
+  // Your custom template implementation
+});
 
+// Use with KoreChat
+<KoreChat
+  botConfig={botConfig}
+  templateInjection={new Map([
+    ['custom-template', MyCustomTemplate]
+  ])}
+/>
 ```
-const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
-const defaultConfig = getDefaultConfig(__dirname);
-const {assetExts, sourceExts} = defaultConfig.resolver;
-const config = {
- transformer: {
-   babelTransformerPath: require.resolve('react-native-svg-transformer'),
- },
- resolver: {
-   assetExts: assetExts.filter(ext => ext !== 'svg'),
-   sourceExts: [...sourceExts, 'svg'],
- },
+
+## API Reference
+
+### KoreChat Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `botConfig` | `BotConfigModel` | Bot configuration object |
+| `onListItemClick` | `(item: any) => void` | Callback for list item clicks |
+| `onHeaderActionsClick` | `(action: any) => void` | Callback for header actions |
+| `templateInjection` | `Map<string, CustomTemplate>` | Custom template injection |
+
+### BotConfigModel
+
+```tsx
+interface BotConfigModel {
+  botId: string;
+  chatBotName: string;
+  serverUrl: string;
+  brandingAPIUrl: string;
+  // Add other config properties
+}
+```
+
+## Customization
+
+### Theming
+
+The library supports custom theming through the theme context:
+
+```tsx
+import { ThemeProvider } from 'rn-kore-bot-sdk-v77';
+
+const customTheme = {
+  // Your theme configuration
 };
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
-```
-5. babel.config.js
 
+<ThemeProvider theme={customTheme}>
+  <KoreChat botConfig={botConfig} />
+</ThemeProvider>
 ```
-module.exports = {
- ...
- plugins: ['react-native-reanimated/plugin'],
+
+## Examples
+
+Check out the `/SampleUI` directory for complete implementation examples.
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For issues and questions, please open an issue on the GitHub repository.
+
+## NativeEventEmitter Fix
+
+This version includes important fixes to prevent the "NativeEventEmitter() requires a non-null argument" error when using this library in another React Native application.
+
+### What was fixed:
+
+1. **Conditional Native Module Loading**: Native modules like `@react-native-voice/voice`, `react-native-blob-util`, `react-native-fs`, and `react-native-file-viewer` are now loaded conditionally to prevent initialization errors.
+
+2. **Graceful Degradation**: When native modules are not available, the library will log appropriate warnings and continue to function with reduced functionality.
+
+3. **Proper Error Handling**: All native module interactions are wrapped in try-catch blocks to prevent crashes.
+
+### Installation Requirements:
+
+To integrate `rn-kore-bot-sdk-v77` into your React Native application, you need to install the following required dependencies:
+
+```bash
+# Install the main library
+npm install rn-kore-bot-sdk-v77
+
+# Install required dependencies
+npm install @react-native-async-storage/async-storage
+npm install @react-native-clipboard/clipboard
+npm install @react-native-community/netinfo
+npm install @react-navigation/elements
+npm install @react-navigation/stack
+npm install react-native-bootsplash
+npm install react-native-device-info
+npm install react-native-fast-image
+npm install react-native-fs
+npm install react-native-gesture-handler
+npm install react-native-permissions
+npm install react-native-reanimated
+npm install react-native-svg
+npm install react-native-uuid
+```
+
+**Note:** These dependencies are essential for the library to function properly. The library uses conditional loading, so if any of these modules are missing, related features will be disabled gracefully with appropriate warnings.
+
+### Optional Dependencies (for Enhanced Features):
+
+For additional functionality like voice input and advanced file handling, you can optionally install:
+
+```bash
+# Optional: For voice-to-text functionality
+npm install @react-native-voice/voice
+
+# Optional: For enhanced file operations
+npm install react-native-blob-util
+npm install react-native-file-viewer
+
+# Optional: For additional features
+npm install @react-native-community/checkbox
+npm install @react-native-picker/picker
+npm install react-native-charts-wrapper
+npm install react-native-modal
+npm install react-native-video
+```
+
+If these optional dependencies are not installed, the related features will be automatically disabled without affecting the core functionality.
+
+### Quick Installation (All Dependencies):
+
+For a complete installation with all features enabled, run:
+
+```bash
+# Install everything at once
+npm install rn-kore-bot-sdk-v77 @react-native-async-storage/async-storage @react-native-clipboard/clipboard @react-native-community/netinfo @react-navigation/elements @react-navigation/stack react-native-bootsplash react-native-device-info react-native-fast-image react-native-fs react-native-gesture-handler react-native-permissions react-native-reanimated react-native-svg react-native-uuid @react-native-voice/voice react-native-blob-util react-native-file-viewer
+```
+
+**After installation, don't forget to:**
+- Run `cd ios && pod install` for iOS
+- Rebuild your app for both platforms
+
+### Usage Example:
+
+```typescript
+import React from 'react';
+import { View } from 'react-native';
+import KoreChat from 'rn-kore-bot-sdk-v77';
+
+const App = () => {
+  return (
+    <View style={{ flex: 1 }}>
+      <KoreChat 
+        // ... your bot configuration
+      />
+    </View>
+  );
 };
-```
- //For Android
- 
-6. In Android app level build.gradle file add the folowing line at the bottom.
 
-```
-...
-apply from: "../../node_modules/react-native-vector-icons/fonts.gradle”,
+export default App;
 ```
 
-//For Android
+### Troubleshooting:
 
-7. In AndroidManifest.xml 
+If you still encounter native module issues:
 
+1. **Check peer dependencies**: Ensure all peer dependencies are installed in your main app
+2. **Metro configuration**: Make sure your metro.config.js includes proper resolution for native modules
+3. **Clean build**: Try cleaning your build cache and rebuilding
 
-```
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-//react-native-file-viewer not opening documents on Android 11
-//For that need to add folowing queries
- <queries>
-       <package android:name="com.google.android.apps.docs.editors.docs" /> <!-- package names of Google Docs -->
-       <package android:name="com.google.android.apps.docs.editors.sheets" /> <!-- package names of Google Sheets -->
-       <package android:name="com.google.android.apps.docs.editors.slides" /> <!-- package names of Google Slides -->
-
-// To open files
-       <intent>
-           <action android:name="android.intent.action.VIEW" />
-           <data android:mimeType="*/*" />
-       </intent>
-   </queries>
+```bash
+# React Native
+npx react-native clean
+cd ios && pod install && cd ..
+npx react-native run-ios
 ```
 
-//For Android
+### Advanced Configuration:
 
-8. For email template, On clicking on email id email client should open. For that add the following intent-filter in LAUNCHER activity.
+If you need to customize the native module loading behavior, you can extend the library components and override the initialization logic.
 
+## Permission Setup for Voice Features
 
-```
-<intent-filter>
-    <action android:name="android.intent.action.SENDTO" />
-    <data android:scheme="mailto" />
-</intent-filter>
-```
+If you encounter "Microphone permission denied" errors, this means the voice functionality is working but requires proper permission setup:
 
- //For iOS
- 
-9. Following lines need to be added in iOS Podfile
+### iOS Permissions
 
-```
-...
-flipper_config = FlipperConfiguration.disabled
-...
-setup_permissions([
-       'Camera',
-       'Microphone',
-      'SpeechRecognition',
-])
-...
-pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
-...
+Add the following to your `ios/YourProject/Info.plist`:
 
- post_install do |installer|
- ....
-    installer.pods_project.targets.each do |target|
-     target.build_configurations.each do |config|
-       case target.name
-       when 'RCT-Folly'
-         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
-       else
-         config.build_settings.delete('IPHONEOS_DEPLOYMENT_TARGET')
-       end
-     end
-   end
-....
- end
-```
-
- //For iOS
- 
-10. Following permissions need to be added in iOS Info.plist
-
-```
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>This app needs access to microphone for voice messages</string>
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>This app uses speech recognition for voice-to-text functionality</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>This app needs access to photo library for file attachments</string>
 <key>NSCameraUsageDescription</key>
-   <string>Please allow access to your camera</string>
-   <key>NSHumanReadableCopyright</key>
-   <string></string>
-   <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-   <string>BotSDK needs access to location.</string>
-   <key>NSLocationAlwaysUsageDescription</key>
-   <string>BotSDK needs access to location </string>
-   <key>NSLocationWhenInUseUsageDescription</key>
-   <string>BotSDK needs access to location </string>
-   <key>NSMicrophoneUsageDescription</key>
-   <string>Your microphone will be used to record</string>
-   <key>NSPhotoLibraryAddUsageDescription</key>
-   <string>Please allow access to your photo library</string>
-   <key>NSPhotoLibraryUsageDescription</key>
-   <string>Please allow access to your photo library</string>
-   <key>NSSiriUsageDescription</key>
-   <string>Lets you launch BotSDK utterances using Siri shortcuts</string>
-   <key>NSSpeechRecognitionUsageDescription</key>
-   <string>Speech recognition will be used to d</string>
-
-<key>UISupportedInterfaceOrientations</key>
-   <array>
-       <string>UIInterfaceOrientationPortrait</string>
-       <string>UIInterfaceOrientationLandscapeLeft</string>
-       <string>UIInterfaceOrientationLandscapeRight</string>
-   </array>
-```
- 
-11. Patches
-
-Patch1 :
-In node_modules/@react-native-community/datetimepicker/ios/RNDateTimePickerShadowView.m
-line number 44 , change YGNodeConstRef to YGNodeRef
-
-```
-YGSize RNDateTimePickerShadowViewMeasure(YGNodeConstRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode)
-
-YGSize RNDateTimePickerShadowViewMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode)
-```
-Patch2: If you get the following error
-
-"ViewPropTypes will be removed from React Native. 
-Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types"
-
-Then in /node_modules/react-native/index.js replace the following methods.
-
-```
-// Deprecated Prop Types
-get ColorPropType(): $FlowFixMe {
-  return require('deprecated-react-native-prop-types').ColorPropType;
-},
-
-get EdgeInsetsPropType(): $FlowFixMe {
-  return require('deprecated-react-native-prop-types').EdgeInsetsPropType;
-},
-
-get PointPropType(): $FlowFixMe {
-  return require('deprecated-react-native-prop-types').PointPropType;
-},
-
-get ViewPropTypes(): $FlowFixMe {
-  return require('deprecated-react-native-prop-types').ViewPropTypes;
-},
-
+<string>This app needs access to camera for taking photos</string>
 ```
 
-License
-Copyright © Kore, Inc. MIT License; see LICENSE for further details.
+### Android Permissions
+
+Add the following to your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+### Permission Troubleshooting
+
+1. **Permission Denied Error**: This is normal behavior when:
+   - User denies permission when prompted
+   - App doesn't have permission declarations in manifest files
+   - Permission was previously denied and is now blocked
+
+2. **Reset Permissions**: 
+   - **iOS**: Delete app and reinstall, or go to Settings > Privacy & Security > Microphone
+   - **Android**: Go to Settings > Apps > [Your App] > Permissions
+
+3. **Test Permissions**: The library will automatically:
+   - ✅ Show voice button when permissions are granted
+   - ⚠️ Hide voice button when permissions are denied
+   - 🔄 Request permissions when voice button is tapped
+
+### Voice Feature Status
+
+You can monitor voice functionality in the console:
+
+```javascript
+// Normal logs when voice is working:
+// ✅ "Voice module loaded successfully"
+// ✅ "Microphone permission granted"
+
+// Expected logs when voice is unavailable:
+// ⚠️ "Voice module not available"
+// ⚠️ "Microphone permission denied"
+// ⚠️ "Permissions module not available"
+```
