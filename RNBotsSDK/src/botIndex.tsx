@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {SafeAreaView, View, Text, TouchableOpacity} from 'react-native';
-import {RTM_EVENT} from '../bot-sdk/constants/Constant';
-import {KoreBotClient} from '../bot-sdk/rtm/KoreBotClient';
-import {botConfig} from './BotConfig';
+import { SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
+import { RTM_EVENT } from '../bot-sdk/constants/Constant';
+import { KoreBotClient } from '../bot-sdk/rtm/KoreBotClient';
+import { botConfig } from './BotConfig';
 
 const BotConnection: React.FC = () => {
   const [connectionStatus, setConnectionStatus] = useState<string>('Disconnected');
@@ -19,23 +19,24 @@ const BotConnection: React.FC = () => {
     }
     console.log('-----> Connect clicked <------');
     updateConnectionStatus('Connecting...', '#ffc107'); // Yellow
-    
+
     const botClient = KoreBotClient.getInstance();
 
     botClient.on(RTM_EVENT.CONNECTING, () => {
       console.log('RTM_EVENT.CONNECTING   ---->:', RTM_EVENT.CONNECTING);
       updateConnectionStatus('Connecting...', '#ffc107'); // Yellow
     });
-    
+
     botClient.on(RTM_EVENT.ON_OPEN, () => {
       //setTypingIndicator(false);
       const interval = setTimeout(() => {
         botClient.sendMessage('Help');
       }, 5000);
       console.log('RTM_EVENT.ON_OPEN   ---->:', RTM_EVENT.ON_OPEN);
+      botClient.subscribePushNotifications();
       updateConnectionStatus('Connected', '#28a745'); // Green
     });
-    
+
     botClient.on(RTM_EVENT.ON_DISCONNECT, () => {
       //setTypingIndicator(false);
       console.log(
@@ -68,7 +69,7 @@ const BotConnection: React.FC = () => {
         updateConnectionStatus('Connected', '#28a745'); // Green
       }
     });
-    
+
     botClient.initializeBotClient(botConfig);
     //botClient.initSocketConnection();
   }, [connectionStatus, updateConnectionStatus]);
@@ -87,7 +88,7 @@ const BotConnection: React.FC = () => {
     //
     return () => {
       const botClient = KoreBotClient.getInstance();
-      
+
       // Clean up event listeners
       botClient.removeAllListeners(RTM_EVENT.CONNECTING);
       botClient.removeAllListeners(RTM_EVENT.ON_OPEN);
@@ -96,7 +97,7 @@ const BotConnection: React.FC = () => {
       botClient.removeAllListeners(RTM_EVENT.ON_ERROR);
       botClient.removeAllListeners(RTM_EVENT.RECONNECTING);
       botClient.removeAllListeners(RTM_EVENT.ON_MESSAGE);
-      
+
       // Disconnect
       botClient?.disconnect();
     };
@@ -114,10 +115,10 @@ const BotConnection: React.FC = () => {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Text style={{fontSize: 18, marginBottom: 20}}>
+        <Text style={{ fontSize: 18, marginBottom: 20 }}>
           {'Kore.ai Inc, Bot Socket module'}
         </Text>
-        
+
         {/* Connection Status Display */}
         <View
           style={{
@@ -128,11 +129,11 @@ const BotConnection: React.FC = () => {
             minWidth: 200,
             alignItems: 'center',
           }}>
-          <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
+          <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
             Status: {connectionStatus}
           </Text>
         </View>
-        <View style={{flexDirection: 'row', gap: 15}}>
+        <View style={{ flexDirection: 'row', gap: 15 }}>
           <TouchableOpacity
             onPress={init}
             style={{
@@ -145,11 +146,11 @@ const BotConnection: React.FC = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{fontSize: 16, color: 'white', fontWeight: 'bold'}}>
+            <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>
               {'Connect'}
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             onPress={handleDisconnect}
             style={{
@@ -162,7 +163,7 @@ const BotConnection: React.FC = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{fontSize: 16, color: 'white', fontWeight: 'bold'}}>
+            <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>
               {'Disconnect'}
             </Text>
           </TouchableOpacity>
