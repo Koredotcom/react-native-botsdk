@@ -12,6 +12,8 @@ import { Platform } from 'react-native';
 import { BotConfigModel } from '../model/BotConfigModel';
 import NetInfo from '@react-native-community/netinfo';
 import Logger from '../utils/Logger';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { v4 as uuidv4 } from 'uuid';
 
 const RECONNECT_ATTEMPT_LIMIT = 5;
 
@@ -66,6 +68,28 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.isChangeToken = true;
     this.isConnectAtleastOnce = false;
   }
+  async getDeviceId(key: string): Promise<string> {
+    try {
+      let value = await AsyncStorage.getItem(key);
+
+      if (value === null) {
+        // 🔹 Default value to store when not found
+        const defaultValue = uuidv4();
+
+        // 🔹 Store it
+        await AsyncStorage.setItem(key, defaultValue);
+
+        // 🔹 Also return it
+        value = defaultValue;
+      }
+
+      return value;
+    } catch (e) {
+      console.error('Error getting data', e);
+      return "";
+    }
+  }
+
   initializeBotClient(config: BotConfigModel) {
     if (config == null || config == undefined) {
       throw new Error('BotConfigModel object can not be null');
@@ -94,7 +118,7 @@ export class BotClient extends EventEmitter implements IBotClient {
   //   return false;
   // }
 
-  
+
   getAccessToken() {
     return this.authorization?.accessToken;
   }
@@ -164,9 +188,9 @@ export class BotClient extends EventEmitter implements IBotClient {
     return new Promise((resolve, reject) => {
       _this.botUrl = _this.getJwtServerUrl();
       let jwtAuthorizationUrl = _this.botUrl + 'users/sts';
-      
+
       const startTime = Date.now();
-      Logger.logApiRequest(jwtAuthorizationUrl, 'POST', { 
+      Logger.logApiRequest(jwtAuthorizationUrl, 'POST', {
         clientId: body.clientId,
         identity: body.identity,
         aud: body.aud,
@@ -181,7 +205,7 @@ export class BotClient extends EventEmitter implements IBotClient {
             hasJwtToken: !!response.data.jwt,
             tokenLength: response.data.jwt?.length
           }, duration);
-          
+
           this.jwtToken = response.data.jwt;
           _this.botInfo = new BotInfoModel(config.botName, config.botId, {
             identity: '',
@@ -194,7 +218,7 @@ export class BotClient extends EventEmitter implements IBotClient {
           const duration = Date.now() - startTime;
           Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
           Logger.logConnectionError('JWT Token Generation Failed', e);
-          
+
           _this.emit(RTM_EVENT.ERROR, {
             message:
               'Connection to the bot failed. Please ensure your configuration is valid and try again.',
@@ -244,10 +268,10 @@ export class BotClient extends EventEmitter implements IBotClient {
 
       _this.botUrl = _this.getBotUrl();
       let jwtAuthorizationUrl = _this.botUrl + '/api/oAuth/token/jwtgrant';
-      
+
       const startTime = Date.now();
       let payload = { assertion: jwtToken, botInfo: _this.botInfo };
-      
+
       Logger.logApiRequest(jwtAuthorizationUrl, 'POST', {
         botId: _this.botInfo?.taskBotId,
         botName: _this.botInfo?.botName
@@ -263,15 +287,15 @@ export class BotClient extends EventEmitter implements IBotClient {
             userId: response.data.userInfo?.userId,
             tokenType: response.data.authorization?.token_type
           }, duration);
-          
+
           _this.userInfo = response.data.userInfo;
           _this.authorization = response.data.authorization;
-          
+
           Logger.logConnectionEvent('JWT Token Authorization Success', {
             userId: _this.userInfo?.userId,
             tokenType: _this.authorization?.token_type
           });
-          
+
           _this.emit(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED);
           if (_this.appState === APP_STATE.ACTIVE) {
             _this.initSocketConnection(isReconnectionAttempt);
@@ -282,7 +306,7 @@ export class BotClient extends EventEmitter implements IBotClient {
           const duration = Date.now() - startTime;
           Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
           Logger.logConnectionError('JWT Token Authorization Failed', e);
-          
+
           _this.emit(RTM_EVENT.ERROR, {
             message:
               'Connection to the bot failed. Please ensure your configuration is valid and try again.',
@@ -321,18 +345,18 @@ export class BotClient extends EventEmitter implements IBotClient {
           hasUrl: !!response.data.url,
           url: response.data.url?.substring(0, 50) + '...'
         }, duration);
-        
+
         Logger.logConnectionEvent('RTM URL Retrieved Successfully', {
           isReconnectionAttempt,
           hasWebSocketUrl: !!response.data.url
         });
-        
+
         _this.connect(response.data, isReconnectionAttempt);
       })
       .catch(e => {
         const duration = Date.now() - startTime;
         Logger.logApiError(rtmUrl, 'POST', e, duration);
-        
+
         _this.isChangeToken = false;
         if (e?.response?.status === 401) {
           Logger.logConnectionError('RTM Start - Unauthorized (401)', e);
@@ -380,7 +404,7 @@ export class BotClient extends EventEmitter implements IBotClient {
         isReconnectionAttempt,
         readyState: ws.readyState
       });
-      
+
       _this.connectionState = ConnectionState.CONNECTED;
       _this.emit(RTM_EVENT.ON_OPEN, {
         message: 'Bot socket connected',
@@ -396,9 +420,9 @@ export class BotClient extends EventEmitter implements IBotClient {
         isManualClose,
         wasCleanClose: e?.code === 1000
       });
-      
+
       _this.emit(RTM_EVENT.ON_CLOSE, 'Bot socket closed:' + e);
-      
+
       if (isManualClose || e?.code === 1000) {
         Logger.info('WebSocket closed normally (manual or clean close)', {
           code: e?.code,
@@ -440,9 +464,9 @@ export class BotClient extends EventEmitter implements IBotClient {
 
     ws.onerror = (e: any) => {
       Logger.logWebSocketError('Error', e);
-      
+
       _this.emit(RTM_EVENT.ON_ERROR, e?.message);
-      
+
       if (_this.webSocket) {
         _this.webSocket.close();
       }
@@ -536,14 +560,14 @@ export class BotClient extends EventEmitter implements IBotClient {
 
     let rtmUrl = this.botUrl + '/api' + URL_VERSION + '/botmessages/rtm';
     const startTime = Date.now();
-    
+
     Logger.logApiRequest(rtmUrl, 'GET', {
       botId: this.botInfo.taskBotId,
       limit: 40,
       offset: 0,
       forward: true
     });
-    
+
     axios
       .get(rtmUrl, {
         params: {
@@ -565,13 +589,47 @@ export class BotClient extends EventEmitter implements IBotClient {
           messageCount: response.data?.length || 0,
           hasData: !!response.data
         }, duration);
-        
+
         this.emit(RTM_EVENT.GET_HISTORY, response, this.botInfo);
       })
       .catch(e => {
         const duration = Date.now() - startTime;
         Logger.logApiError(rtmUrl, 'GET', e, duration);
       });
+  }
+
+  public async subscribePushNotifications() {
+    var deviceId = await this.getDeviceId("deviceId");
+    const _this = this;
+    return new Promise((resolve, reject) => {
+      Logger.debug('Subscribe notications', "is in-progress");
+
+      _this.botUrl = _this.getBotUrl();
+      let url = `/api/users/${this.getUserId()}/sdknotifications/subscribe`;
+      let subscribeUrl = _this.botUrl + url;
+
+      const startTime = Date.now();
+      let payload = { osType: Platform.OS, deviceId: deviceId };
+
+      Logger.logApiRequest(subscribeUrl, 'POST', {});
+
+      const headers = { Authorization: `bearer ${this.getAccessToken()}` };
+
+      axios
+        .post(subscribeUrl, payload, { headers })
+        .then(response => {
+          const duration = Date.now() - startTime;
+          Logger.logApiSuccess(subscribeUrl, 'POST', {}, duration);
+          Logger.logConnectionEvent('Push notification subscription Success', {});
+          resolve(true);
+        })
+        .catch(e => {
+          const duration = Date.now() - startTime;
+          Logger.logApiError(subscribeUrl, 'POST', e, duration);
+          Logger.logConnectionError('Push notification subscription Failed', e);
+          resolve(false);
+        });
+    });
   }
 
   getConnectionState() {
@@ -609,7 +667,7 @@ export class BotClient extends EventEmitter implements IBotClient {
     }
     this.webSocket = undefined;
     this.removeAllListeners();
-    
+
     Logger.logConnectionEvent('Bot Disconnected Successfully', {
       connectionState: this.connectionState
     });
@@ -640,7 +698,7 @@ export class BotClient extends EventEmitter implements IBotClient {
         isReconnectionAttempt,
         resetReconnectAttemptCount
       });
-      
+
       if (this.reconnectTimer) {
         clearInterval(this.reconnectTimer);
       }
@@ -669,7 +727,7 @@ export class BotClient extends EventEmitter implements IBotClient {
       connectionState: this.connectionState,
       hasWebSocket: !!this.webSocket
     });
-    
+
     if (this.reconnectTimer) {
       this.reconnectAttemptCount = 0;
       clearInterval(this.reconnectTimer);
@@ -712,7 +770,7 @@ export class BotClient extends EventEmitter implements IBotClient {
       else {
         this.reconnectAttemptCount = 1
       }
-      
+
       Logger.info('Network connectivity check for reconnection', {
         isConnected: status.isConnected,
         connectionType: status.type,
@@ -759,13 +817,13 @@ export class BotClient extends EventEmitter implements IBotClient {
       '/' +
       this.botInfo.searchIndexId +
       '/getresultviewsettings';
-    
+
     const startTime = Date.now();
     Logger.logApiRequest(urlString, 'GET', {
       taskBotId: this.botInfo.taskBotId,
       searchIndexId: this.botInfo.searchIndexId
     });
-    
+
     axios
       .get(urlString, {
         headers: {
@@ -782,7 +840,7 @@ export class BotClient extends EventEmitter implements IBotClient {
           hasSettings: !!response?.data?.settings,
           settingsCount: response?.data?.settings?.length || 0
         }, duration);
-        
+
         if (response?.data?.settings) {
           this.resultViewSettings = response?.data?.settings;
         }
@@ -849,7 +907,7 @@ export class BotClient extends EventEmitter implements IBotClient {
         try {
           let jsonString = JSON.stringify(message);
           this.webSocket.send(jsonString);
-          
+
           Logger.logWebSocketEvent('Message Sent', {
             type: message.type,
             clientMessageId: message.clientMessageId,
@@ -891,7 +949,7 @@ export class BotClient extends EventEmitter implements IBotClient {
   }
   sendMessage(message: any, payload?: any, attachments?: any): any {
     var clientMessageId = new Date().getTime();
-    
+
     Logger.info('Sending message to bot', {
       clientMessageId,
       messageLength: message?.length,
@@ -899,7 +957,7 @@ export class BotClient extends EventEmitter implements IBotClient {
       hasAttachments: !!attachments,
       platform: Platform.OS
     });
-    
+
     var msgData = {
       type: 'user_message',
       message: [
