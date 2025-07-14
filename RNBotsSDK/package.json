@@ -26,11 +26,14 @@
     "react-native": ">=0.77.0 <0.78.0"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
     "axios": "^1.9.0",
     "esbuild-plugin-inline-image": "^0.0.9",
     "events": "^3.3.0",
-    "tsup": "^8.5.0"
+    "react-native-get-random-values": "^1.11.0",
+    "tsup": "^8.5.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
