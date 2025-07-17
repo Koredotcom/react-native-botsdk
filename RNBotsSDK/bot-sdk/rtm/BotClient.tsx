@@ -12,8 +12,6 @@ import { Platform } from 'react-native';
 import { BotConfigModel } from '../model/BotConfigModel';
 import NetInfo from '@react-native-community/netinfo';
 import Logger from '../utils/Logger';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { v4 as uuidv4 } from 'uuid';
 
 const RECONNECT_ATTEMPT_LIMIT = 5;
 
@@ -67,27 +65,6 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.botCustomData = new Map<string, string>();
     this.isChangeToken = true;
     this.isConnectAtleastOnce = false;
-  }
-  async getDeviceId(key: string): Promise<string> {
-    try {
-      let value = await AsyncStorage.getItem(key);
-
-      if (value === null) {
-        // 🔹 Default value to store when not found
-        const defaultValue = uuidv4();
-
-        // 🔹 Store it
-        await AsyncStorage.setItem(key, defaultValue);
-
-        // 🔹 Also return it
-        value = defaultValue;
-      }
-
-      return value;
-    } catch (e) {
-      console.error('Error getting data', e);
-      return "";
-    }
   }
 
   initializeBotClient(config: BotConfigModel) {
@@ -598,9 +575,14 @@ export class BotClient extends EventEmitter implements IBotClient {
       });
   }
 
-  public async subscribePushNotifications() {
-    var deviceId = await this.getDeviceId("deviceId");
+  public subscribePushNotifications(deviceId?: string) {
     const _this = this;
+    if (!deviceId) {
+      return new Promise((resolve, reject) => {
+        Logger.logConnectionError('Push notification subscription Failed', "deviceId is not VALID!");
+        resolve(false);
+      });
+    }
     return new Promise((resolve, reject) => {
       Logger.debug('Subscribe notications', "is in-progress");
 
@@ -627,6 +609,51 @@ export class BotClient extends EventEmitter implements IBotClient {
           const duration = Date.now() - startTime;
           Logger.logApiError(subscribeUrl, 'POST', e, duration);
           Logger.logConnectionError('Push notification subscription Failed', e);
+          resolve(false);
+        });
+    });
+  }
+
+  public unsubscribePushNotifications(deviceId?: string) {
+    const _this = this;
+    if (!deviceId) {
+      return new Promise((resolve, reject) => {
+        Logger.logConnectionError('Push notification unsubscription Failed', "deviceId is not VALID!");
+        resolve(false);
+      });
+    }
+    return new Promise((resolve, reject) => {
+      Logger.debug('Unsubscribe notications', "is in-progress");
+
+      _this.botUrl = _this.getBotUrl();
+      let url = `/api/users/${this.getUserId()}/sdknotifications/unsubscribe`;
+      console.log('token', this.getAccessToken());
+      console.log('osType', Platform.OS);
+      let subscribeUrl = _this.botUrl + url;
+
+      const startTime = Date.now();
+      let payload = { osType: Platform.OS, deviceId: deviceId };
+
+      Logger.logApiRequest(subscribeUrl, 'POST', {});
+
+      const headers = {
+        Authorization: `bearer ${this.getAccessToken()}`,
+        "Content-type": "application/json",
+        "X-HTTP-Method-Override": "DELETE"
+      };
+
+      axios
+        .post(subscribeUrl, payload, { headers })
+        .then(response => {
+          const duration = Date.now() - startTime;
+          Logger.logApiSuccess(subscribeUrl, 'POST', {}, duration);
+          Logger.logConnectionEvent('Push notification unsubscription Success', {});
+          resolve(true);
+        })
+        .catch(e => {
+          const duration = Date.now() - startTime;
+          Logger.logApiError(subscribeUrl, 'POST', e, duration);
+          Logger.logConnectionError('Push notification unsubscription Failed', e);
           resolve(false);
         });
     });
