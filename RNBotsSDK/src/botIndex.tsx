@@ -33,8 +33,11 @@ const BotConnection: React.FC = () => {
         botClient.sendMessage('Help');
       }, 5000);
       console.log('RTM_EVENT.ON_OPEN   ---->:', RTM_EVENT.ON_OPEN);
-      botClient.subscribePushNotifications();
+      botClient.subscribePushNotifications("12345");
       updateConnectionStatus('Connected', '#28a745'); // Green
+      const intervalUnsub = setTimeout(() => {
+        botClient.unsubscribePushNotifications("12345");
+      }, 5000);
     });
 
     botClient.on(RTM_EVENT.ON_DISCONNECT, () => {
