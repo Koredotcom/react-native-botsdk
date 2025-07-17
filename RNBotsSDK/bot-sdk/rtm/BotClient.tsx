@@ -627,8 +627,6 @@ export class BotClient extends EventEmitter implements IBotClient {
 
       _this.botUrl = _this.getBotUrl();
       let url = `/api/users/${this.getUserId()}/sdknotifications/unsubscribe`;
-      console.log('token', this.getAccessToken());
-      console.log('osType', Platform.OS);
       let subscribeUrl = _this.botUrl + url;
 
       const startTime = Date.now();
