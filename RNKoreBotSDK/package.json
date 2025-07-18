@@ -1,6 +1,6 @@
 {
     "name": "rn-kore-bot-sdk-v77",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -33,14 +33,12 @@
         "build": "tsup",
         "prepublishOnly": "npm run build"
     },
+    "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-native": ">=0.77.0 <0.78.0"
+    },
     "dependencies": {
         "@aashu-dubey/react-native-rating-bar": "^0.3.6",
-        "axios": "^1.10.0",
-        "dayjs": "^1.11.13",
-        "rn-kore-bot-socket-lib": "^0.0.5",
-        "use-memo-one": "^1.1.3"
-    },
-    "peerDependencies": {
         "@mrakesh0608/react-native-loading-dots": "^1.0.9",
         "@react-native-async-storage/async-storage": "^2.2.0",
         "@react-native-clipboard/clipboard": "^1.16.2",
@@ -48,14 +46,9 @@
         "@react-native-community/netinfo": "^11.4.1",
         "@react-native-picker/picker": "^2.11.0",
         "@react-native-voice/voice": "^3.2.4",
-        "@react-navigation/elements": "^2.4.4",
-        "@react-navigation/native": "^7.1.11",
-        "@react-navigation/stack": "^7.3.4",
-        "react": "18.3.1",
-        "react-native": "0.77.0",
+        "axios": "^1.10.0",
+        "dayjs": "^1.11.13",
         "react-native-blob-util": "^0.22.2",
-        "react-native-bootsplash": "^6.3.9",
-        "react-native-charts-wrapper": "^0.6.0",
         "react-native-check-box": "^2.1.7",
         "react-native-communications": "^2.2.1",
         "react-native-document-picker": "^9.3.1",
@@ -63,6 +56,7 @@
         "react-native-file-viewer": "^2.1.5",
         "react-native-fs": "^2.20.0",
         "react-native-gesture-handler": "^2.25.0",
+        "react-native-gifted-charts": "^1.4.63",
         "react-native-image-picker": "^8.2.1",
         "react-native-linear-gradient": "^2.8.3",
         "react-native-modal": "^14.0.0-rc.1",
@@ -86,7 +80,9 @@
         "react-native-uuid": "^2.0.3",
         "react-native-vector-icons": "^10.2.0",
         "react-native-video": "^6.15.0",
-        "reactotron-react-native": "^5.1.13"
+        "reactotron-react-native": "^5.1.13",
+        "rn-kore-bot-socket-lib-v77": "^0.0.3",
+        "use-memo-one": "^1.1.3"
     },
     "devDependencies": {
         "@babel/core": "^7.25.2",
