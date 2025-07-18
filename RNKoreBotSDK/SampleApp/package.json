@@ -1,0 +1,73 @@
+{
+  "name": "SampleUI",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "lint": "eslint .",
+    "start": "react-native start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-clipboard/clipboard": "^1.16.2",
+    "@react-native-community/checkbox": "^0.5.20",
+    "@react-native-community/datetimepicker": "^8.4.2",
+    "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-picker/picker": "^2.11.1",
+    "@react-native-voice/voice": "^3.2.4",
+    "@react-navigation/elements": "^2.5.2",
+    "@react-navigation/stack": "^7.4.2",
+    "install": "^0.13.0",
+    "npm": "^11.4.2",
+    "react-native-bootsplash": "^6.3.9",
+    "react-native-device-info": "^14.0.4",
+    "react-native-document-picker": "^9.3.1",
+    "react-native-fast-image": "^8.6.3",
+    "react-native-fs": "^2.20.0",
+    "react-native-gesture-handler": "^2.26.0",
+    "react-native-gifted-charts": "^1.4.63",
+    "react-native-image-picker": "^8.2.1",
+    "react-native-modal": "^14.0.0-rc.1",
+    "react-native-modal-datetime-picker": "^18.0.0",
+    "react-native-orientation-locker": "^1.7.0",
+    "react-native-permissions": "^5.4.1",
+    "react-native-reanimated": "^3.18.0",
+    "react-native-reanimated-carousel": "^4.0.2",
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-screens": "^4.11.1",
+    "react-native-svg": "^15.12.0",
+    "react-native-tts": "^4.1.1",
+    "react-native-uuid": "^2.0.3",
+    "react-native-video": "^6.15.0",
+    "rn-kore-bot-sdk-v77": "^0.0.3"
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-native": "0.77.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "15.0.1",
+    "@react-native-community/cli-platform-android": "15.0.1",
+    "@react-native-community/cli-platform-ios": "15.0.1",
+    "@react-native/babel-preset": "0.77.0",
+    "@react-native/eslint-config": "0.77.0",
+    "@react-native/metro-config": "0.77.0",
+    "@react-native/typescript-config": "0.77.0",
+    "@types/jest": "^29.5.13",
+    "@types/react": "^18.2.6",
+    "@types/react-test-renderer": "^18.0.0",
+    "eslint": "^8.19.0",
+    "jest": "^29.6.3",
+    "prettier": "2.8.8",
+    "react-test-renderer": "18.3.1",
+    "typescript": "5.0.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
