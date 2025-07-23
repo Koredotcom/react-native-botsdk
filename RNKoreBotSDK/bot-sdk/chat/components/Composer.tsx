@@ -133,13 +133,15 @@ export function Composer({
           onChangeText={onTextChanged}
           style={[
             styles.textInput,
-
             {
               minHeight: normalize(composerHeightNew),
               paddingRight: theme?.v3?.footer?.buttons?.emoji?.show ? 4 : 8,
             },
             {
               color: textColor, //bubbleTheme.BUBBLE_LEFT_TEXT_COLOR,
+            },
+            isIOS && {
+              marginTop: 12,
             },
           ]}
           autoFocus={textInputAutoFocus}
