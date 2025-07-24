@@ -62,8 +62,8 @@ const rangeArray = Array.from(new Array(interval), (val, index) => index + min);
 export default class DateRange extends Component {
   constructor(props) {
     super(props);
-    const defalutFormat =
-      !props.mode || props.mode === 'single' ? 'ddd, MMM D' : 'MMM DD,YYYY';
+    const defalutFormat = 'MMM DD YYYY';
+      // !props.mode || props.mode === 'single' ? 'ddd, MMM D' : 'MMM DD,YYYY';
     this.state = {
       focusedMonth: props.currentDate || dayjs().startOf('month'),
       currentDate: props.currentDate,
@@ -91,10 +91,10 @@ export default class DateRange extends Component {
   };
   onDatesChange = event => {
     this.props.onDatesChange(event);
-    const defalutFormat =
-      !this.props.mode || this.props.mode === 'single'
-        ? 'ddd, MMM D'
-        : 'MMM DD,YYYY';
+    const defalutFormat = 'MMM DD YYYY';
+      // !this.props.mode || this.props.mode === 'single'
+      //   ? 'ddd, MMM D'
+      //   : 'MMM DD,YYYY';
     const headFormat = this.props.headFormat || defalutFormat;
     const {startDate, endDate, focusedInput, currentDate} = event;
     if (currentDate && !this.props.isDateBlocked(currentDate)) {
@@ -142,10 +142,10 @@ export default class DateRange extends Component {
       focusedMonth: this.state.focusedMonth.year(itemValue),
       currentDate: this.state.currentDate?.year(itemValue),
     });
-    const defalutFormat =
-      !this.props.mode || this.props.mode === 'single'
-        ? 'ddd, MMM D'
-        : 'MMM DD,YYYY';
+    const defalutFormat = 'MMM DD YYYY';
+      // !this.props.mode || this.props.mode === 'single'
+      //   ? 'ddd, MMM D'
+      //   : 'MMM DD,YYYY';
     const headFormat = this.props.headFormat || defalutFormat;
     this.setState({clearSingle: this.state.currentDate?.format(headFormat)});
     this.selectMonthAndDate();
@@ -238,7 +238,6 @@ export default class DateRange extends Component {
               {this.props.headerText}
             </Text>
 
-            {this.props.mode === 'single' && (
               <View style={{}}>
                 <View>
                   {Platform.OS == 'ios' ? (
@@ -252,7 +251,7 @@ export default class DateRange extends Component {
                       <View
                         style={{
                           width: 150,
-                          marginStart: -15,
+                          marginStart: -10,
                         }}>
                         <Picker
                           mode="dropdown"
@@ -263,7 +262,8 @@ export default class DateRange extends Component {
                           style={{
                             color: Color.white,
                             fontSize: normalize(20),
-                            height: normalize(50),
+                            height: normalize(60),
+                            marginBottom: this.props.mode != 'single' ? -50: -10,
                             backgroundColor: 'transparent',
 
                             // backgroundColor: 'yellow',
@@ -300,11 +300,12 @@ export default class DateRange extends Component {
                     </View>
                   )}
                 </View>
-                <View style={{}} onPress={this.selectMonthAndDate}>
-                  <Text style={headerDateSingle}>{this.state.clearSingle}</Text>
-                </View>
+                {this.props.mode === 'single' && (
+                  <View style={{}} onPress={this.selectMonthAndDate}>
+                    <Text style={headerDateSingle}>{this.state.clearSingle}</Text>
+                  </View>
+                )}
               </View>
-            )}
           </View>
 
           {this.props.mode === 'range' && (
