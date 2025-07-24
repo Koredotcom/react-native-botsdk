@@ -48,7 +48,7 @@ import KoraBotClient, {
   BotConfigModel,
   APP_STATE,
   ActiveThemeAPI,
-} from 'rn-kore-bot-socket-lib';
+} from 'rn-kore-bot-socket-lib-v77';
 //import BotConfigModel from '../model/BotConfigModel';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {
@@ -328,7 +328,6 @@ export default class KoreChat extends React.Component<
     //console.log('-----> Connect clicked <------');
     KoraBotClient.getInstance().setAppState(APP_STATE.ACTIVE);
     KoraBotClient.getInstance()
-      .getEmitter()
       .once(RTM_EVENT.CONNECTING, () => {
         this.setState({
           showLoader: true,
@@ -336,7 +335,6 @@ export default class KoreChat extends React.Component<
       });
 
     KoraBotClient.getInstance()
-      .getEmitter()
       .on(RTM_EVENT.ERROR, (data?: any) => {
         let message = data?.message
           ? data?.message
@@ -347,7 +345,6 @@ export default class KoreChat extends React.Component<
         return;
       });
     KoraBotClient.getInstance()
-      .getEmitter()
       .on(RTM_EVENT.ON_OPEN, (data: any) => {
         console.log('-----> SUCCESS TO KORA BOT CONNECTED <------:', data);
         //setTypingIndicator(false);
@@ -484,13 +481,10 @@ export default class KoreChat extends React.Component<
   componentWillUnmount() {
     this.setisChatMounted(false);
     KoraBotClient.getInstance()
-      .getEmitter()
       .removeAllListeners(RTM_EVENT.CONNECTING);
     KoraBotClient.getInstance()
-      .getEmitter()
       .removeAllListeners(RTM_EVENT.ON_OPEN);
     KoraBotClient.getInstance()
-      .getEmitter()
       .removeAllListeners(RTM_EVENT.ON_MESSAGE);
     KoraBotClient.getInstance()?.disconnect();
     this.stopTTS();
@@ -521,16 +515,14 @@ export default class KoreChat extends React.Component<
 
   private setBotClientListeners = () => {
     KoraBotClient.getInstance()
-      ?.getEmitter()
-      .on(RTM_EVENT.ON_ACK, (data: any) => {
+      ?.on(RTM_EVENT.ON_ACK, (data: any) => {
         if (data.type === 'ack') {
           this.setIsBotResponseLoading(true);
         }
       });
 
     KoraBotClient.getInstance()
-      ?.getEmitter()
-      .on(RTM_EVENT.ON_MESSAGE, (data: any) => {
+      ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
         // if (data) {
         //   console.log('data ------->:', JSON.stringify(data));
         // }

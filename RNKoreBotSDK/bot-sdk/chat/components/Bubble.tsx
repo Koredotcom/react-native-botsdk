@@ -11,7 +11,7 @@ import {
   Animated,
 } from 'react-native';
 
-import Clipboard from '@react-native-clipboard/clipboard';
+// import Clipboard from '@react-native-clipboard/clipboard';
 
 import MessageText from '../../templates/MessageText';
 
@@ -45,7 +45,7 @@ import PieChartView from '../../templates/charts/PieChartView';
 import LineChartTemplate from '../../templates/charts/LineChartTemplate';
 import DateTemplate from '../../templates/DateTemplate';
 import BotTemplate from '../../templates/BotTemplate';
-import KoraBotClient from 'rn-kore-bot-socket-lib';
+import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
 import CustomTemplate from '../../templates/CustomTemplate';
 //import BotTemplate from 'react-native-kore-bot-template-dev';
 // import Toast from 'react-native-simple-toast';
@@ -201,7 +201,7 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
     if (this.props.onLongPress) {
       this.props.onLongPress(this.context, textComponent);
     }
-    Clipboard.setString(textComponent);
+    // Clipboard.setString(textComponent);
     if (isIOS) {
       // Toast.showWithGravity('Copied', Toast.SHORT, Toast.BOTTOM);
     } else {
