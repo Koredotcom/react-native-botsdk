@@ -186,8 +186,8 @@ export default class ComposePicker extends Component<
             onPress={this.onConfirm}
             style={[styles.btn_style, this.props.ButtonStyle]}>
             <Text
-              style={[styles.btn_default_style, this.props.ButtonTextStyle]}>
-              {this.props.ButtonText ? this.props.ButtonText : 'Submit'}
+              style={[styles.btn_default_style]}>
+              {this.props.ButtonText ? this.props.ButtonText : 'CONFIRM'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -203,8 +203,8 @@ export default class ComposePicker extends Component<
             // underlayColor={'transparent'}
             onPress={this.onCancel}
             style={[styles.can_btn_default, this.props.ButtonStyle]}>
-            <Text style={[styles.can_btn_text, this.props.ButtonTextStyle]}>
-              {'Cancel'}
+            <Text style={[styles.can_btn_text]}>
+              {'CANCEL'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -272,13 +272,15 @@ const styles = StyleSheet.create({
   can_btn_default: {
     padding: 5,
     paddingEnd: 20,
+    marginBottom: 10
   },
   can_main1: {flexWrap: 'wrap', marginStart: 10},
   can_main: {flex: 1},
-  btn_default_style: {fontSize: 20, textAlign: 'right'},
+  btn_default_style: {fontSize: normalize(16), textAlign: 'right'},
   btn_style: {
     padding: 5,
     paddingStart: 20,
+    marginBottom: 10
   },
   main: {flex: 1},
   btn_con: {
