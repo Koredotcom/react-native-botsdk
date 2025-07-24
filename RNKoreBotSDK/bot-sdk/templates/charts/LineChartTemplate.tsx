@@ -1,15 +1,21 @@
 import * as React from 'react';
-import {View, StyleSheet, processColor, Dimensions} from 'react-native';
+import { View, StyleSheet, processColor, Dimensions, Text } from 'react-native';
 
-import {LineChart} from 'react-native-charts-wrapper';
+import { LineChart } from 'react-native-gifted-charts';
 
 import BotText from '../BotText';
-import BaseView, {BaseViewProps, BaseViewState} from '../BaseView';
-import {generateColor, normalize} from '../../utils/helpers';
-import {TEMPLATE_STYLE_VALUES} from '../../theme/styles';
+import BaseView, { BaseViewProps, BaseViewState } from '../BaseView';
+import { generateColor, normalize } from '../../utils/helpers';
+import { TEMPLATE_STYLE_VALUES } from '../../theme/styles';
 const windowWidth = Dimensions.get('window').width;
+const MATERIAL_COLORS = [
+  "#4A9AF2",
+  "#5BC8C4",
+  "#e74c3c",
+  "#3498db"
+];
 
-interface LineChartProps extends BaseViewProps {}
+interface LineChartProps extends BaseViewProps { }
 interface LineChartState extends BaseViewState {
   payload?: any;
 }
@@ -41,44 +47,60 @@ export default class LineChartTemplate extends BaseView<
   LineChartState
 > {
   private renderLineChart = (payload: any) => {
-    let data = {
-      dataSets: payload?.elements?.map((element: any, i: number) => {
-        return {
-          values: element.values.map((value: any, index: number) => {
-            return {x: index, y: value};
-          }),
-          label: element.title,
-          config: {
-            mode: 'LINEAR',
-            drawValues: false,
-            lineWidth: normalize(2),
-            dashedLine: {
-              lineLength: 10,
-              spaceLength: 0,
-              phase: 10,
-            },
-            drawCircles: true,
-            circleColor: colors[i % colors.length],
-            drawCircleHole: true,
-            circleRadius: normalize(6),
-            highlightColor: processColor('transparent'),
-            color: colors[i % colors.length],
-            drawFilled: false,
-            fillGradient: {
-              colors: payload?.elements?.map((_element: any, _i: number) => {
-                return colors[_i % colors.length];
-              }),
+    let dataSet = payload?.elements?.map((element: any, index: number) => {
+      return {
+        data: element.values.map((value: any) => ({
+          value: value,
+          dataPointText: `${value}`,
+        })),
+        label: element?.title,
+        color: MATERIAL_COLORS[index % 4],
+      };
+    });
 
-              positions: [0, 1],
-              angle: 90,
-              orientation: 'BOTTOM_TOP',
-            },
-            fillAlpha: 50,
-            valueTextSize: normalize(14),
-          },
-        };
-      }),
-    };
+    // Generate X-axis Labels from Data
+    const getXAxisLabels = (payload) => {
+      return payload?.X_axis?.map((element) => String(element)) ?? [];
+    }
+
+    // let data = {
+    //   dataSets: payload?.elements?.map((element: any, i: number) => {
+    //     return {
+    //       values: element.values.map((value: any, index: number) => {
+    //         return {x: index, y: value};
+    //       }),
+    //       label: element.title,
+    //       config: {
+    //         mode: 'LINEAR',
+    //         drawValues: false,
+    //         lineWidth: normalize(2),
+    //         dashedLine: {
+    //           lineLength: 10,
+    //           spaceLength: 0,
+    //           phase: 10,
+    //         },
+    //         drawCircles: true,
+    //         circleColor: colors[i % colors.length],
+    //         drawCircleHole: true,
+    //         circleRadius: normalize(6),
+    //         highlightColor: processColor('transparent'),
+    //         color: colors[i % colors.length],
+    //         drawFilled: false,
+    //         fillGradient: {
+    //           colors: payload?.elements?.map((_element: any, _i: number) => {
+    //             return colors[_i % colors.length];
+    //           }),
+
+    //           positions: [0, 1],
+    //           angle: 90,
+    //           orientation: 'BOTTOM_TOP',
+    //         },
+    //         fillAlpha: 50,
+    //         valueTextSize: normalize(14),
+    //       },
+    //     };
+    //   }),
+    // };
 
     let marker = {
       enabled: true,
@@ -120,34 +142,34 @@ export default class LineChartTemplate extends BaseView<
       },
     };
 
+    const xAxisLabels = getXAxisLabels(payload);
+
     return (
       <View style={[styles.container]}>
         <LineChart
-          style={[styles.chart, {minWidth: (windowWidth / 4) * 3}]}
-          data={data}
-          chartDescription={{text: ''}}
-          marker={marker}
-          xAxis={xAxis}
-          yAxis={yAxis}
-          drawGridBackground={false}
-          borderColor={processColor('teal')}
-          borderWidth={1}
-          drawBorders={false}
-          touchEnabled={true}
-          dragEnabled={true}
-          scaleEnabled={true}
-          scaleXEnabled={true}
-          scaleYEnabled={true}
-          pinchZoom={true}
-          doubleTapToZoomEnabled={true}
-          highlightPerTapEnabled={true}
-          highlightPerDragEnabled={false}
-          dragDecelerationEnabled={true}
-          dragDecelerationFrictionCoef={1}
-          keepPositionOnRotation={false}
-          legend={legend}
-          autoScaleMinMaxEnabled={true}
+          width={windowWidth - 120}
+          dataSet={dataSet}
+          thickness={3}
+          areaChart1
+          stepValue={15}
+          adjustToWidth
+          isAnimated
+          hideDataPoints={false}
+          dataPointsRadius={4}
+          initialSpacing={25}
+          yAxisTextStyle={{ color: "#000", fontSize: 12, fontWeight: "bold" }} // Y-axis label style
+          noOfSections={4} // Ensure this is appropriate for your data range
+          xAxisLabelTexts={xAxisLabels}
+          xAxisLabelTextStyle={{ marginTop: 10, marginLeft: -27, color: '#000', fontSize: 7, fontWeight: "bold", transform: [{ rotate: '315deg' }] }}
         />
+        <View style={styles.legendContainer}>
+          {dataSet.map((item, index) => (
+            <View key={index} style={styles.legendItem}>
+              <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+              <Text style={styles.legendText}>{item.label}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     );
   };
@@ -174,11 +196,33 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 15,
     padding: 5,
-    height: normalize(350),
+    height: 280,
     marginBottom: 5,
     borderWidth: TEMPLATE_STYLE_VALUES.BORDER_WIDTH,
     borderColor: TEMPLATE_STYLE_VALUES.BORDER_COLOR,
     borderRadius: TEMPLATE_STYLE_VALUES.BORDER_RADIUS,
+    width: windowWidth - 60,
+  },
+  legendContainer: {
+    marginTop: 20,
+    width: '80%',
+    flexDirection: 'row'
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginStart: 10
+  },
+  legendColor: {
+    width: 20,
+    height: 3,
+    borderRadius: 0,
+    marginRight: 4,
+  },
+  legendText: {
+    fontSize: 10,
+    color: '#333',
   },
   chart: {
     flex: 1,

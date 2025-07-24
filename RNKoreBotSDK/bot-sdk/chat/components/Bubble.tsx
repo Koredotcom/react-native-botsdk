@@ -45,7 +45,7 @@ import PieChartView from '../../templates/charts/PieChartView';
 import LineChartTemplate from '../../templates/charts/LineChartTemplate';
 import DateTemplate from '../../templates/DateTemplate';
 import BotTemplate from '../../templates/BotTemplate';
-import KoraBotClient from 'rn-kore-bot-socket-lib';
+import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
 import CustomTemplate from '../../templates/CustomTemplate';
 //import BotTemplate from 'react-native-kore-bot-template-dev';
 // import Toast from 'react-native-simple-toast';
