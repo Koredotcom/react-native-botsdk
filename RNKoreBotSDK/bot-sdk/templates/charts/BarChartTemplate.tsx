@@ -23,13 +23,13 @@ export default class BarChartTemplate extends BaseView<
   BarChartState
 > {
   private renderBarChartView = (payload: any) => {
-    let elementSize = 0;
+    // Calculate the maximum length across all datasets to handle differing dataset sizes
+    let elementSize = Math.max(...(payload?.elements?.map((element: any) => element.values.length) || [0]));
     let dataSet = payload?.elements?.flatMap((element: any, index: number) => {
-      elementSize = element.values.length;
       return element.values.map((value: any, i) => ({
         value: value,
-        label: index === 1 ? payload?.X_axis[i] : '',
-        frontColor: MATERIAL_COLORS[index],// Always using the second color (index 1)
+        label: index === 0 ? payload?.X_axis[i] || '' : '', // Only assign labels to the first dataset
+        frontColor: MATERIAL_COLORS[index], // Using different colors for each dataset based on index
         spacing: 5,
         legend: element.title
       }));
