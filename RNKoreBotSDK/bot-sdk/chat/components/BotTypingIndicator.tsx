@@ -6,10 +6,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BOT_ICON_URL} from '../../constants/Constant';
 import {normalize} from '../../utils/helpers';
 import {StyleSheet, Text, View} from 'react-native';
-import {LoadingDots} from '@mrakesh0608/react-native-loading-dots';
+import CustomLoadingDots from '../../components/CustomLoadingDots';
 import FastImage from 'react-native-fast-image';
 
-import KoraBotClient from 'rn-kore-bot-socket-lib';
+import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
 import {botStyles} from '../../theme/styles';
 import {isIOS} from '../../utils/PlatformCheck';
 import Color from '../../theme/Color';
@@ -132,7 +132,7 @@ export default class TypingIndicator extends Component<
         {isTypingIndicator && (
           <View style={styles.horizontalContainer}>
             {this.renderBotIcon(url)}
-            <LoadingDots
+            <CustomLoadingDots
               animation="typing"
               color={this.getDotColor()}
               size={isIOS ? 7 : 4}

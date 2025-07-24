@@ -11,7 +11,7 @@ import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 const windowWidth = Dimensions.get('window').width;
 import Svg, { Path } from 'react-native-svg';
-import {RatingBar} from '@aashu-dubey/react-native-rating-bar';
+import {CustomRatingBar as RatingBar} from '../components/CustomRatingBar';
 import {SvgIcon} from '../utils/SvgIcon';
 import {normalize} from '../utils/helpers';
 

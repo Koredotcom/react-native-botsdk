@@ -1,16 +1,16 @@
 import * as React from 'react';
-import {View, StyleSheet, processColor, Dimensions} from 'react-native';
-import {PieChart} from 'react-native-charts-wrapper';
+import { View, StyleSheet, processColor, Dimensions, Text} from 'react-native';
+import { PieChart } from 'react-native-gifted-charts';
 import BotText from '../BotText';
-import {generateColor, normalize} from '../../utils/helpers';
-import {TEMPLATE_STYLE_VALUES} from '../../theme/styles';
-import BaseView, {BaseViewProps, BaseViewState} from '../BaseView';
+import { generateColor, normalize } from '../../utils/helpers';
+import { TEMPLATE_STYLE_VALUES } from '../../theme/styles';
+import BaseView, { BaseViewProps, BaseViewState } from '../BaseView';
 const windowWidth = Dimensions.get('window').width;
 
 const PIE_TYPE_DONUT = 'donut';
 
-interface PieChartProps extends BaseViewProps {}
-interface PieChartState extends BaseViewState {}
+interface PieChartProps extends BaseViewProps { }
+interface PieChartState extends BaseViewState { }
 const legend: any = {
   enabled: true,
   textSize: 11,
@@ -20,6 +20,13 @@ const legend: any = {
   orientation: 'HORIZONTAL',
   wordWrapEnabled: true,
 };
+
+const MATERIAL_COLORS = [
+  "#4A9AF2",
+  "#5BC8C4",
+  "#e74c3c",
+  "#3498db"
+];
 
 const colors = [
   processColor('#78C6C3'),
@@ -45,44 +52,55 @@ export default class PieChartTemplate extends BaseView<
 
     return payload.pie_type === PIE_TYPE_DONUT
       ? {
-          xValuePosition: 'OUTSIDE_SLICE',
-          yValuePosition: 'OUTSIDE_SLICE',
-          drawValues: true,
-          valueTextColor: processColor('black'),
-          valueLinePart2Length: 0.2,
-        }
+        xValuePosition: 'OUTSIDE_SLICE',
+        yValuePosition: 'OUTSIDE_SLICE',
+        drawValues: true,
+        valueTextColor: processColor('black'),
+        valueLinePart2Length: 0.2,
+      }
       : {
-          valueLinePart2Length: 0,
-          valueLineWidth: 0,
-          valueLineColor: processColor('white'),
-          drawValues: true,
-          valueTextColor: processColor('white'),
-        };
+        valueLinePart2Length: 0,
+        valueLineWidth: 0,
+        valueLineColor: processColor('white'),
+        drawValues: true,
+        valueTextColor: processColor('white'),
+      };
   };
+
   private renderPieChartView = (payload: any) => {
     let extraConfig = this.getExtraConfig(payload);
+    const isDonut = payload.pie_type === PIE_TYPE_DONUT
 
-    let data: any = {
-      dataSets: [
-        {
-          values: payload?.elements?.map?.((element: any) => {
-            return {
-              value: parseFloat(element?.value),
-              label: element?.title + ' ' + element?.value,
-            };
-          }),
-          label: '',
-          config: {
-            colors: colors,
-            valueTextSize: 11,
-            sliceSpace: 3,
-            selectionShift: 10,
-            valueFormatter: "#.## '%'",
-            ...extraConfig,
-          },
-        },
-      ],
-    };
+    let dataSet = payload?.elements?.map((element: any, i: number) => {
+      return {
+        value: parseFloat(element?.value),
+        color: MATERIAL_COLORS[i],
+        text: element?.displayValue,
+        displayText: element?.title
+      };
+    });
+
+    // let data: any = {
+    //   dataSets: [
+    //     {
+    //       values: payload?.elements?.map?.((element: any) => {
+    //         return {
+    //           value: parseFloat(element?.value),
+    //           label: element?.title + ' ' + element?.value,
+    //         };
+    //       }),
+    //       label: '',
+    //       config: {
+    //         colors: colors,
+    //         valueTextSize: 11,
+    //         sliceSpace: 3,
+    //         selectionShift: 10,
+    //         valueFormatter: "#.## '%'",
+    //         ...extraConfig,
+    //       },
+    //     },
+    //   ],
+    // };
 
     let highlights: any = [];
     let description = {
@@ -124,32 +142,26 @@ export default class PieChartTemplate extends BaseView<
           },
         ]}>
         <PieChart
-          // xAxis={xAxis}
-          style={styles.chart}
-          logEnabled={true}
-          chartBackgroundColor={processColor('white')}
-          chartDescription={description}
-          data={data}
-          legend={legend}
-          highlights={highlights}
-          //extraOffsets={{left: 5, top: 5, right: 5, bottom: 5}}
-          entryLabelColor={processColor('white')}
-          entryLabelTextSize={12}
-          entryLabelFontFamily={'HelveticaNeue-Medium'}
-          drawEntryLabels={false}
-          rotationEnabled={true}
-          rotationAngle={270}
-          usePercentValues={true}
-          styledCenterText={styledCenterText}
-          highlightPerTapEnabled={true}
-          centerTextRadiusPercent={100}
-          holeRadius={holeRadius}
-          holeColor={processColor('#f0f0f0')}
-          transparentCircleRadius={transparentCircleRadius}
-          transparentCircleColor={processColor('#f0f0f088')}
-          maxAngle={360}
-          marker={marker}
+          data={dataSet}
+          radius={145}           // Adjusts the size of the pie chart
+          innerCircleColor="white" // Color of the inner circle (for donut effect)
+          innerRadius={60}   // Radius of the inner circle (for donut effect)
+          showText
+          donut={isDonut}
+          textColor="white"
+          textSize={12}
+          strokeWidth={2}       // Thickness of the pie slice edges
+          strokeColor="#fff"    // Color of the pie slice edges
+          animationDuration={500} // Animation duration in milliseconds
         />
+        <View style={styles.legendContainer}>
+          {dataSet.map((item, index) => (
+            <View key={index} style={styles.legendItem}>
+              <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+              <Text style={styles.legendText}>{item.displayText} {item.value}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     );
   };
@@ -186,6 +198,27 @@ const styles = StyleSheet.create({
     borderRadius: TEMPLATE_STYLE_VALUES.BORDER_RADIUS,
     alignItems: 'center',
   },
+  legendContainer: {
+    marginTop: 20,
+    width: '80%',
+    flexDirection: 'row'
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginStart: 10
+  },
+  legendColor: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    marginRight: 4,
+  },
+  legendText: {
+    fontSize: 10,
+    color: '#333',
+  },
   text: {
     flexWrap: 'wrap',
     color: '#485260',
@@ -197,11 +230,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 5,
   },
+  centerLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
   container: {
     //flex: 1,
     // backgroundColor: 'red',
     // width: '100%',
-    height: normalize(280),
+    height: normalize(320),
     marginBottom: 5,
     // justifyContent: 'center',
     // alignItems: 'center',

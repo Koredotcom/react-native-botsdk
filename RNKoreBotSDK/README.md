@@ -139,7 +139,6 @@ npm install \
 ```bash
 npm install \
   "@react-native-async-storage/async-storage@^2.2.0" \
-  "@react-native-clipboard/clipboard@^1.16.2" \
   "@react-navigation/elements@^2.5.2" \
   "@react-navigation/stack@^7.4.2" \
   "react-native-bootsplash@^6.3.9" \

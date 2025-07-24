@@ -40,7 +40,7 @@ npm install react-native-file-viewer@^2.1.5
 # Optional: For additional UI components
 npm install @react-native-community/checkbox@^0.5.20
 npm install @react-native-picker/picker@^2.11.0
-npm install react-native-charts-wrapper@^0.6.0
+# Charts are now handled by react-native-gifted-charts (already included)
 npm install react-native-modal@^14.0.0-rc.1
 npm install react-native-video@^6.15.0
 ```
