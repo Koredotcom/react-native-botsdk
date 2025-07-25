@@ -451,19 +451,21 @@ export default class KoreChat extends React.Component<
   }
 
   componentDidMount() {
+    const botClient = KoreBotClient.getInstance();
+
     this._unsubscribeConn = NetInfo.addEventListener(state => {
       const {isConnected} = state;
       if (!this.state.isNetConnected && isConnected) {
         setTimeout(() => {
-          KoreBotClient.getInstance().setIsNetworkAvailable(isConnected);
-          KoreBotClient.getInstance().checkSocketAndReconnect();
+          botClient.setIsNetworkAvailable(isConnected);
+          botClient.checkSocketAndReconnect();
         }, 10);
       }
 
       this.setState({isNetConnected: isConnected ? isConnected : false});
     });
 
-    KoreBotClient.getInstance().setSessionActive(true);
+    botClient.setSessionActive(true);
     const {text} = this.props;
     this.setisChatMounted(true);
     this.initLocale();
@@ -489,7 +491,7 @@ export default class KoreChat extends React.Component<
       .removeAllListeners(RTM_EVENT.ON_OPEN);
     botClient
       .removeAllListeners(RTM_EVENT.ON_MESSAGE);
-      KoreBotClient.getInstance()?.disconnect();
+      botClient?.disconnect();
     this.stopTTS();
   }
 
@@ -555,7 +557,8 @@ export default class KoreChat extends React.Component<
       return;
     }
     this.setState({isReconnecting: true}, () => {
-      KoreBotClient.getInstance().reconnect(true, true);
+      const botClient = KoreBotClient.getInstance();
+      botClient.reconnect(true, true);
       // console.log(
       //   '--------->>>> Reconnect implimentation pending <<<<------------',
       // );
@@ -996,7 +999,8 @@ export default class KoreChat extends React.Component<
     if (this.props.onSend) {
       this.props.onSend(message.text, data_type);
     } else {
-      var messageData = KoreBotClient.getInstance()?.sendMessage(
+      const botClient = KoreBotClient.getInstance();
+      var messageData = botClient?.sendMessage(
         message.text,
         data,
         data_type,

@@ -35,11 +35,11 @@
     "react-native-svg": "^15.12.0",
     "react-native-tts": "^4.1.1",
     "react-native-video": "^6.15.0",
-    "rn-kore-bot-sdk-v77": "^0.0.3"
+    "rn-kore-bot-sdk-v77": "^0.0.4"
   },
   "peerDependencies": {
-    "react": "18.3.1",
-    "react-native": "0.77.0"
+    "react": ">=18.0.0",
+    "react-native": ">=0.77.0 <0.78.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
