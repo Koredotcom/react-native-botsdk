@@ -132,7 +132,7 @@ export default class ComposePicker extends Component<
       this.setModalVisible(false);
       if (typeof this.props.onConfirm === 'function') {
         this.props.onConfirm({
-          currentDate: this.state.currentDate?.format(returnFormat),
+          currentDate: this.state.currentDate?.format(returnFormat.replaceAll("EEE", "ddd").toUpperCase()),
         });
       }
       return;
