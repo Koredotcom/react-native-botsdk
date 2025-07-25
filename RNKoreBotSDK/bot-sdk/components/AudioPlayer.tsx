@@ -10,7 +10,7 @@
 // import {SvgIcon} from '../utils/SvgIcon';
 // import {normalize} from '../utils/helpers';
 // import Color from '../theme/Color';
-// import uuid from 'react-native-uuid';
+// import uuid from '../utils/uuid';
 
 // interface AudioPlayerProps {
 //   url: string;
