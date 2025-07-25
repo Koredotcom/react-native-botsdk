@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import BotText from './BotText';
 import {normalize} from '../utils/helpers';
-import CheckBox from '@react-native-community/checkbox';
+import CheckBox from '../components/CustomCheckBox';
 import Color from '../theme/Color';
 import FastImage from 'react-native-fast-image';
 import {isIOS} from '../utils/PlatformCheck';

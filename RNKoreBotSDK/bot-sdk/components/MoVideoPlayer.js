@@ -37,13 +37,8 @@ try {
   console.warn('react-native-orientation-locker not available, orientation features will be disabled');
 }
 
-try {
-  uuid = require('react-native-uuid').default;
-} catch (error) {
-  console.warn('react-native-uuid not available, using fallback ID generation');
-  // Fallback uuid function
-  uuid = { v4: () => Math.random().toString(36).substr(2, 9) };
-}
+// Use custom UUID implementation
+uuid = require('../utils/uuid').default;
 
 import {SvgIcon} from '../utils/SvgIcon';
 import {normalize} from '../utils/helpers';
