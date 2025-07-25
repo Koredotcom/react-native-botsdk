@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import {normalize} from '../utils/helpers';
-import CheckBox from '@react-native-community/checkbox';
+import CheckBox from '../components/CustomCheckBox';
 import Color from '../theme/Color';
 import {isIOS} from '../utils/PlatformCheck';
 const windowWidth = Dimensions.get('window').width;

@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 
-import uuid from 'react-native-uuid';
+import uuid from '../../utils/uuid';
 import {BotConfigModel} from 'rn-kore-bot-socket-lib-v77';
 import {ROUTE_NAMES} from '../../navigation/RouteNames';
 import Color from '../../utils/Color';
@@ -29,12 +29,12 @@ class WelcomeScreen extends Component<any, State> {
   constructor(props: {}) {
     super(props);
     this.state = {
-      botName: 'SDK V3 All Templates',
+      botName: 'PLEASE_ENTER_BOT_NAME',
       botId: 'PLEASE_ENTER_BOT_ID',
-      clientId: 'PLEASE_ENTER_CLIENT_ID',,
-      clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',,
-      botUrl: 'https://platform.kore.ai',
-      jwtServerUrl: 'https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/',
+      clientId: 'PLEASE_ENTER_CLIENT_ID',
+      clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
+      botUrl: 'PLEASE_ENTER_SERVER_URL',
+      jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
     };
   }
 

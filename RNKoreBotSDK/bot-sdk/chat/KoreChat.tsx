@@ -18,7 +18,7 @@ import {
   StatusBar,
   BackHandler,
 } from 'react-native';
-import uuid from 'react-native-uuid';
+import uuid from '../utils/uuid';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 
@@ -43,7 +43,7 @@ import {
 } from '../constants/Constant';
 
 //import BotException from '../exceptions/BotException';
-import KoraBotClient, {
+import KoreBotClient, {
   RTM_EVENT,
   BotConfigModel,
   APP_STATE,
@@ -326,15 +326,17 @@ export default class KoreChat extends React.Component<
     }
     console.log('this.props.botConfig ------>:', this.props.botConfig);
     //console.log('-----> Connect clicked <------');
-    KoraBotClient.getInstance().setAppState(APP_STATE.ACTIVE);
-    KoraBotClient.getInstance()
+    const botClient = KoreBotClient.getInstance();
+
+    botClient.setAppState(APP_STATE.ACTIVE);
+    botClient
       .once(RTM_EVENT.CONNECTING, () => {
         this.setState({
           showLoader: true,
         });
       });
 
-    KoraBotClient.getInstance()
+    botClient
       .on(RTM_EVENT.ERROR, (data?: any) => {
         let message = data?.message
           ? data?.message
@@ -344,7 +346,7 @@ export default class KoreChat extends React.Component<
 
         return;
       });
-    KoraBotClient.getInstance()
+    botClient
       .on(RTM_EVENT.ON_OPEN, (data: any) => {
         console.log('-----> SUCCESS TO KORA BOT CONNECTED <------:', data);
         //setTypingIndicator(false);
@@ -374,7 +376,7 @@ export default class KoreChat extends React.Component<
         //   });
         // }
       });
-    KoraBotClient.getInstance().initializeBotClient(this.props.botConfig);
+    botClient.initializeBotClient(this.props.botConfig);
   };
 
   private showAlert = (title: string, message: string, isBack?: boolean) => {
@@ -453,15 +455,15 @@ export default class KoreChat extends React.Component<
       const {isConnected} = state;
       if (!this.state.isNetConnected && isConnected) {
         setTimeout(() => {
-          KoraBotClient.getInstance().setIsNetworkAvailable(isConnected);
-          KoraBotClient.getInstance().checkSocketAndReconnect();
+          KoreBotClient.getInstance().setIsNetworkAvailable(isConnected);
+          KoreBotClient.getInstance().checkSocketAndReconnect();
         }, 10);
       }
 
       this.setState({isNetConnected: isConnected ? isConnected : false});
     });
 
-    KoraBotClient.getInstance().setSessionActive(true);
+    KoreBotClient.getInstance().setSessionActive(true);
     const {text} = this.props;
     this.setisChatMounted(true);
     this.initLocale();
@@ -480,13 +482,14 @@ export default class KoreChat extends React.Component<
 
   componentWillUnmount() {
     this.setisChatMounted(false);
-    KoraBotClient.getInstance()
+    const botClient = KoreBotClient.getInstance();
+    botClient
       .removeAllListeners(RTM_EVENT.CONNECTING);
-    KoraBotClient.getInstance()
+    botClient
       .removeAllListeners(RTM_EVENT.ON_OPEN);
-    KoraBotClient.getInstance()
+    botClient
       .removeAllListeners(RTM_EVENT.ON_MESSAGE);
-    KoraBotClient.getInstance()?.disconnect();
+      KoreBotClient.getInstance()?.disconnect();
     this.stopTTS();
   }
 
@@ -514,14 +517,15 @@ export default class KoreChat extends React.Component<
   }
 
   private setBotClientListeners = () => {
-    KoraBotClient.getInstance()
+    const botClient = KoreBotClient.getInstance();
+    botClient
       ?.on(RTM_EVENT.ON_ACK, (data: any) => {
         if (data.type === 'ack') {
           this.setIsBotResponseLoading(true);
         }
       });
 
-    KoraBotClient.getInstance()
+    botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
         // if (data) {
         //   console.log('data ------->:', JSON.stringify(data));
@@ -551,7 +555,7 @@ export default class KoreChat extends React.Component<
       return;
     }
     this.setState({isReconnecting: true}, () => {
-      KoraBotClient.getInstance().reconnect(true, true);
+      KoreBotClient.getInstance().reconnect(true, true);
       // console.log(
       //   '--------->>>> Reconnect implimentation pending <<<<------------',
       // );
@@ -992,7 +996,7 @@ export default class KoreChat extends React.Component<
     if (this.props.onSend) {
       this.props.onSend(message.text, data_type);
     } else {
-      var messageData = KoraBotClient.getInstance()?.sendMessage(
+      var messageData = KoreBotClient.getInstance()?.sendMessage(
         message.text,
         data,
         data_type,
