@@ -25,7 +25,6 @@ npm install react-native-gesture-handler@^2.25.0
 npm install react-native-permissions@^5.4.1
 npm install react-native-reanimated@^3.18.0
 npm install react-native-svg@^15.12.0
-npm install react-native-uuid@^2.0.3
 ```
 
 ### 3. Install optional dependencies (for enhanced features)
@@ -38,10 +37,7 @@ npm install react-native-blob-util@^0.22.2
 npm install react-native-file-viewer@^2.1.5
 
 # Optional: For additional UI components
-npm install @react-native-community/checkbox@^0.5.20
 npm install @react-native-picker/picker@^2.11.0
-# Charts are now handled by react-native-gifted-charts (already included)
-npm install react-native-modal@^14.0.0-rc.1
 npm install react-native-video@^6.15.0
 ```
 

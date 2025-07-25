@@ -18,7 +18,7 @@ import UserAvatar from '../chat/components/UserAvatar';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en'; // Load English locale for formatting
 
-import CheckBox from 'react-native-check-box';
+import CheckBox from '../components/CustomCheckBox';
 
 import Popover from 'react-native-popover-view';
 import {SvgIcon} from '../utils/SvgIcon';
@@ -1013,7 +1013,7 @@ export default class AdvancedListTemplate extends BaseView<
             <View style={{flexDirection: 'row'}}>
               <CheckBox
                 style={styles.check_box}
-                checkBoxColor={'#444444'}
+                checkBoxColor={'#007aff'}
                 isChecked={item.isChecked}
                 onClick={() => {
                   let isSelect = !item.isChecked;

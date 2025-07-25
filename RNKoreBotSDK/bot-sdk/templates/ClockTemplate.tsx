@@ -1,7 +1,7 @@
 import * as React from 'react';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DateTimePickerModal from '../components/CustomDateTimePickerModal';
 import BotText from './BotText';
 import Color from '../theme/Color';
 import {getButtonTheme} from '../theme/themeHelper';

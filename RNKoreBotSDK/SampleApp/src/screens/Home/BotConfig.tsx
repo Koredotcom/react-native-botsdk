@@ -1,4 +1,4 @@
-import uuid from 'react-native-uuid';
+import uuid from '../../utils/uuid';
 import {BotConfigModel} from 'rn-kore-bot-socket-lib-v77';
 
 export const botConfig_b: BotConfigModel = {

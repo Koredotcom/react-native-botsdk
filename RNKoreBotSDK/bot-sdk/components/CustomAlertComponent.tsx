@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Button, View, Text, StyleSheet} from 'react-native';
-import Modal from 'react-native-modal';
+import Modal from './CustomModal';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 
