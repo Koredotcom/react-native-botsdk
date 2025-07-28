@@ -17,6 +17,7 @@ import {
   Dimensions,
   StatusBar,
   BackHandler,
+  Alert
 } from 'react-native';
 import uuid from '../utils/uuid';
 import dayjs from 'dayjs';
@@ -41,6 +42,7 @@ import {
   HeaderIconsId,
   BRANDING_RESPONSE_FILE,
 } from '../constants/Constant';
+import { LocalizationManager } from '../constants/Localization';
 
 //import BotException from '../exceptions/BotException';
 import KoreBotClient, {
@@ -111,7 +113,7 @@ interface KoraChatProps {
   actionSheet: any;
   _actionSheetRef?: any;
   inverted: any;
-  locale: string;
+  locale: string | null;
   isTyping?: boolean;
   onDragList: any;
   onSend: any;
@@ -177,6 +179,7 @@ interface KoraChatState {
   themeData?: IThemeType;
   isTTSenable?: boolean;
   isReconnecting?: boolean;
+  showBackButtonDialog?: boolean;
 }
 
 export default class KoreChat extends React.Component<
@@ -191,6 +194,9 @@ export default class KoreChat extends React.Component<
   _locale = 'en';
   invertibleScrollViewProps = {};
   _unsubscribeConn: any;
+  backHandler: any;
+  unsubscribeNavigation: any;
+  allowNavigation: boolean = false;
   static defaultProps: {
     messagesContainerStyle: null;
     text: null;
@@ -257,7 +263,7 @@ export default class KoreChat extends React.Component<
     clickSpeechToText: null;
     onDragList: null;
     _actionSheetRef: null;
-    locale: 'en';
+    locale: string | null;
     alignTop: boolean;
     initialText: undefined;
     onListItemClick: undefined;
@@ -300,6 +306,7 @@ export default class KoreChat extends React.Component<
       wlcomeModalVisible: false,
       currentTemplateHeading: undefined,
       isReconnecting: false,
+      showBackButtonDialog: false,
     };
   }
 
@@ -450,9 +457,56 @@ export default class KoreChat extends React.Component<
     return messages.concat(currentMessages);
   }
 
+  private handleBackPress = (): boolean => {
+    if (!this.state.showBackButtonDialog) {
+      this.setState({ showBackButtonDialog: true });
+    }
+    return true;
+  };
+
+  private handleDialogCancel = () => {
+    this.setState({ showBackButtonDialog: false });
+    this.allowNavigation = false; // Reset navigation flag
+  };
+
+  private handleDialogClose = () => {
+    this.setState({ showBackButtonDialog: false });
+    
+    // Handle navigation for both iOS and Android
+    setTimeout(() => {
+      try {
+        if (this.props.navigation?.canGoBack?.()) {
+          this.allowNavigation = true; // Set flag to allow navigation
+          this.props.navigation.goBack();
+        } else {
+          BackHandler.exitApp();
+        }
+      } catch (error) {
+        BackHandler.exitApp();
+      }
+    }, 100); // Small delay to ensure modal closes first
+  };
+
+  private handleDialogMinimize = () => {
+    this.setState({ showBackButtonDialog: false });
+    
+    // Handle navigation for both iOS and Android
+    setTimeout(() => {
+      try {
+        if (this.props.navigation?.canGoBack?.()) {
+          this.allowNavigation = true; // Set flag to allow navigation
+          this.props.navigation.goBack();
+        } else {
+          BackHandler.exitApp();
+        }
+      } catch (error) {
+        BackHandler.exitApp();
+      }
+    }, 100); // Small delay to ensure modal closes first
+  };
+
   componentDidMount() {
     const botClient = KoreBotClient.getInstance();
-
     this._unsubscribeConn = NetInfo.addEventListener(state => {
       const {isConnected} = state;
       if (!this.state.isNetConnected && isConnected) {
@@ -464,8 +518,27 @@ export default class KoreChat extends React.Component<
 
       this.setState({isNetConnected: isConnected ? isConnected : false});
     });
-
     botClient.setSessionActive(true);
+    // // Add back button handler for Android
+    // if (isAndroid) {
+    //   this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    // }
+
+    // // Add navigation listener for iOS (and Android navigation)
+    // if (this.props.navigation) {
+    //   this.unsubscribeNavigation = this.props.navigation.addListener('beforeRemove', (e: any) => {
+    //     // Allow navigation if user explicitly chose to close
+    //     if (this.allowNavigation) {
+    //       this.allowNavigation = false; // Reset flag
+    //       return; // Allow navigation to proceed
+    //     }
+        
+    //     // Prevent default behavior and show dialog
+    //     e.preventDefault();
+    //     this.setState({ showBackButtonDialog: true });
+    //   });
+    // }
+
     const {text} = this.props;
     this.setisChatMounted(true);
     this.initLocale();
@@ -484,14 +557,22 @@ export default class KoreChat extends React.Component<
 
   componentWillUnmount() {
     this.setisChatMounted(false);
+    
+    // // Remove back button handler (Android)
+    // if (this.backHandler) {
+    //   this.backHandler.remove();
+    // }
+    
+    // // Remove navigation listener (iOS and Android navigation)
+    // if (this.unsubscribeNavigation) {
+    //   this.unsubscribeNavigation();
+    // }
+    
     const botClient = KoreBotClient.getInstance();
-    botClient
-      .removeAllListeners(RTM_EVENT.CONNECTING);
-    botClient
-      .removeAllListeners(RTM_EVENT.ON_OPEN);
-    botClient
-      .removeAllListeners(RTM_EVENT.ON_MESSAGE);
-      botClient?.disconnect();
+    botClient.removeAllListeners(RTM_EVENT.CONNECTING);
+    botClient.removeAllListeners(RTM_EVENT.ON_OPEN);
+    botClient.removeAllListeners(RTM_EVENT.ON_MESSAGE);
+    botClient?.disconnect();
     this.stopTTS();
   }
 
@@ -694,18 +775,22 @@ export default class KoreChat extends React.Component<
   };
 
   private initLocale = () => {
-    if (this.props.locale === null) {
-      this.setLocale('en');
-    } else {
-      this.setLocale(this.props.locale || 'en');
-    }
+    // Initialize the LocalizationManager with the provided locale
+    LocalizationManager.initializeLocale(this.props.locale);
+    
+    // Sync the component's internal locale with LocalizationManager
+    this.setLocale(LocalizationManager.getLocale());
   };
 
   private setLocale = (locale: string) => {
     this._locale = locale;
+    // Keep LocalizationManager in sync
+    LocalizationManager.setLocale(locale);
   };
 
-  private getLocale = () => this._locale;
+  private getLocalizedString = (key: string): string => {
+    return LocalizationManager.getLocalizedString(key);
+  };
 
   private setTextFromProp = (textProp: string | undefined | null) => {
     if (textProp !== undefined && textProp !== this.state.text) {
@@ -999,8 +1084,7 @@ export default class KoreChat extends React.Component<
     if (this.props.onSend) {
       this.props.onSend(message.text, data_type);
     } else {
-      const botClient = KoreBotClient.getInstance();
-      var messageData = botClient?.sendMessage(
+      var messageData = KoreBotClient.getInstance()?.sendMessage(
         message.text,
         data,
         data_type,
@@ -2190,6 +2274,92 @@ export default class KoreChat extends React.Component<
     );
   };
 
+  private renderBackButtonDialog = () => {
+    return (
+      <Modal
+        visible={this.state.showBackButtonDialog || false}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={this.handleDialogCancel}>
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}>
+          <View style={{
+            backgroundColor: '#fff',
+            padding: 20,
+            borderRadius: 15,
+            marginHorizontal: 20,
+            minWidth: 320,
+            maxWidth: 400,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 10,
+            elevation: 10,
+          }}>
+            <Text style={{
+              fontSize: 18,
+              marginBottom: 15,
+              textAlign: 'left',
+              color: '#333'
+            }}>
+              {this.getLocalizedString('BACK_DIALOG_TITLE')}
+            </Text>
+            
+            <View style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              alignItems: 'center',
+              marginTop: 10,
+            }}>
+              <TouchableOpacity
+                style={{
+                  borderRadius: 8,
+                  flex: 1,
+                  marginHorizontal: 5,
+                }}
+                onPress={this.handleDialogCancel}>
+                <Text style={{fontSize: 16, color: '#333', fontWeight: '500'}}>
+                  {this.getLocalizedString('CANCEL')}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  borderRadius: 8,
+                  paddingHorizontal: 5,
+                  alignItems: 'center',
+                  marginRight: 15,
+                  flex: 0,
+                }}
+                onPress={this.handleDialogClose}>
+                <Text style={{fontSize: 16, color: '#333', fontWeight: '500'}}>
+                  {this.getLocalizedString('CLOSE')}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  borderRadius: 8,
+                  alignItems: 'center',
+                  paddingHorizontal: 5,
+                  flex: 0,
+                }}
+                onPress={this.handleDialogMinimize}>
+                <Text style={{fontSize: 16, color: '#333', fontWeight: '500'}}>
+                  {this.getLocalizedString('MINIMIZE')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
   render() {
     if (
       (this.state.isInitialized === true && !this.state.showLoader) ||
@@ -2231,6 +2401,7 @@ export default class KoreChat extends React.Component<
               {this.renderMenuBottomSheet()}
               {this.renderSeeMoreBottomSheet()}
               {this.renderWelcomeScreenModel()}
+              {/* {this.renderBackButtonDialog()} */}
               <CustomAlertComponent ref={this.alertRef} />
             </View>
           </Wrapper>
@@ -2558,7 +2729,7 @@ KoreChat.defaultProps = {
   messageIdGenerator: () => uuid.v4(),
   user: {},
   onSend: undefined,
-  locale: 'en',
+  locale: null, // Auto-detect device locale
   timeFormat: TIME_FORMAT,
   dateFormat: DATE_FORMAT,
   loadEarlier: false,
