@@ -1,6 +1,6 @@
 {
-    "name": "rn-kore-bot-sdk-v77-test",
-    "version": "0.0.12",
+    "name": "rn-kore-bot-sdk-v77",
+    "version": "0.0.4",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -62,12 +62,10 @@
         "react-native-permissions": "^5.4.2",
         "react-native-popover-view": "^6.1.0",
         "react-native-progress": "^5.0.1",
-
         "react-native-reanimated": "3.18.0",
         "react-native-reanimated-carousel": "^4.0.2",
         "react-native-safe-area-context": "^5.4.1",
         "react-native-screens": "^4.13.1",
-
         "react-native-shadow-2": "^7.1.0",
         "react-native-svg": "^15.12.0",
         "react-native-toast-message": "^2.3.0",
