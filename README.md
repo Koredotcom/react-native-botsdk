@@ -109,25 +109,20 @@ yarn add rn-kore-bot-sdk-v77
 
 ```bash
 npm install \
-  "@react-native-community/checkbox@^0.5.20" \
   "@react-native-picker/picker@^2.11.1" \
   "@react-native-voice/voice@^3.2.4" \
   "@react-native-community/datetimepicker@^8.4.2" \
   "@react-native-community/netinfo@^11.4.1" \
-  "react-native-device-info@^14.0.4" \
   "react-native-document-picker@^9.3.1" \
   "react-native-fast-image@^8.6.3" \
   "react-native-fs@^2.20.0" \
   "react-native-gesture-handler@^2.26.0" \
   "react-native-gifted-charts@^1.4.63" \
   "react-native-image-picker@^8.2.1" \
-  "react-native-modal@^14.0.0-rc.1" \
-  "react-native-modal-datetime-picker@^18.0.0" \
   "react-native-reanimated@^3.18.0" \
   "react-native-reanimated-carousel@^4.0.2" \
   "react-native-svg@^15.12.0" \
   "react-native-tts@^4.1.1" \
-  "react-native-uuid@^2.0.3" \
   "react-native-video@^6.15.0"
 ```
 
@@ -139,7 +134,6 @@ npm install \
 ```bash
 npm install \
   "@react-native-async-storage/async-storage@^2.2.0" \
-  "@react-native-clipboard/clipboard@^1.16.2" \
   "@react-navigation/elements@^2.5.2" \
   "@react-navigation/stack@^7.4.2" \
   "react-native-bootsplash@^6.3.9" \
@@ -419,10 +413,6 @@ npx react-native run-ios    # or run-android
 - `SampleApp/src/customTemplates/` - Custom template examples
 
 ---
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ### Development Setup
 
