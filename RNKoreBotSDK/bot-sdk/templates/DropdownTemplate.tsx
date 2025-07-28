@@ -16,7 +16,7 @@ import {normalize} from '../utils/helpers';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {isIOS} from '../utils/PlatformCheck';
 import {getBubbleTheme, getButtonTheme} from '../theme/themeHelper';
-import SelectDropdown from 'react-native-select-dropdown';
+import SelectDropdown from '../components/CustomSelectDropdown';
 import {SvgIcon} from '../utils/SvgIcon';
 const windowWidth = Dimensions.get('window').width;
 

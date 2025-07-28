@@ -25,7 +25,6 @@
 - [🛠️ Advanced Configuration](#️-advanced-configuration)
 - [🔐 Permissions Setup](#-permissions-setup)
 - [📱 Examples](#-examples)
-- [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [💬 Support](#-support)
 
@@ -68,17 +67,6 @@ This SDK includes **custom-built components** that replace external dependencies
 <tr>
 <td>
 
-### ✅ **Replaced Dependencies**
-- ❌ ~~`react-native-uuid`~~ → ✅ `Custom UUID`
-- ❌ ~~`@react-native-community/checkbox`~~ → ✅ `CustomCheckBox`
-- ❌ ~~`react-native-modal`~~ → ✅ `CustomModal`
-- ❌ ~~`react-native-modal-datetime-picker`~~ → ✅ `CustomDateTimePickerModal`
-
-</td>
-<td>
-
-### 🎯 **Benefits**
-- 📉 **-442 KB** external dependencies removed
 - 🔧 **Full control** over component behavior
 - 🛡️ **Reduced security** attack surface
 - ⚡ **Better performance** with native implementations
@@ -87,12 +75,6 @@ This SDK includes **custom-built components** that replace external dependencies
 </td>
 </tr>
 </table>
-
-**📋 Custom Components:**
-- **`CustomCheckBox`**: Full-featured checkbox with animation support (supports both `react-native-check-box` and `@react-native-community/checkbox` APIs)
-- **`CustomModal`**: Cross-platform modal with backdrop, animations, and back button handling
-- **`CustomDateTimePickerModal`**: Platform-optimized date/time picker with modal wrapper
-- **`UUID`**: Lightweight UUID v4 generator with crypto fallback
 
 ---
 
@@ -147,22 +129,20 @@ yarn add rn-kore-bot-sdk-v77
 ```bash
 npm install \
   # "@react-native-community/checkbox@^0.5.20" \ # No longer needed - using custom CheckBox implementation
-  "@react-native-picker/picker@^2.11.1" \
-  "@react-native-voice/voice@^3.2.4" \
-  "@react-native-community/datetimepicker@^8.4.2" \
-  "@react-native-community/netinfo@^11.4.1" \
-  "react-native-device-info@^14.0.4" \
-  "react-native-document-picker@^9.3.1" \
-  "react-native-fast-image@^8.6.3" \
-  "react-native-fs@^2.20.0" \
-  "react-native-gesture-handler@^2.26.0" \
-  "react-native-gifted-charts@^1.4.63" \
-      "react-native-image-picker@^8.2.1" \
-    "react-native-reanimated@^3.18.0" \
-  "react-native-reanimated-carousel@^4.0.2" \
-  "react-native-svg@^15.12.0" \
-  "react-native-tts@^4.1.1" \
-  # "react-native-uuid@^2.0.3" \ # No longer needed - using custom UUID implementation
+  "@react-native-picker/picker@^2.11.1" 
+  "@react-native-voice/voice@^3.2.4"
+  "@react-native-community/datetimepicker@^8.4.2"
+  "@react-native-community/netinfo@^11.4.1"
+  "react-native-device-info@^14.0.4"
+  "react-native-document-picker@^9.3.1"
+  "react-native-fast-image@^8.6.3"
+  "react-native-fs@^2.20.0"
+  "react-native-gesture-handler@^2.26.0"
+  "react-native-image-picker@^8.2.1"
+  "react-native-reanimated@^3.18.0"
+  "react-native-reanimated-carousel@^4.0.2"
+  "react-native-svg@^15.12.0"
+  "react-native-tts@^4.1.1"
   "react-native-video@^6.15.0"
 ```
 
@@ -172,14 +152,14 @@ npm install \
 <summary><strong>📋 Sample App Dependencies (Optional)</strong></summary>
 
 ```bash
-npm install \
-  "@react-native-async-storage/async-storage@^2.2.0" \
-  "@react-navigation/elements@^2.5.2" \
-  "@react-navigation/stack@^7.4.2" \
-  "react-native-bootsplash@^6.3.9" \
-  "react-native-orientation-locker@^1.7.0" \
-  "react-native-permissions@^5.4.1" \
-  "react-native-safe-area-context@^5.5.2" \
+npm install
+  "@react-native-async-storage/async-storage@^2.2.0"
+  "@react-navigation/elements@^2.5.2"
+  "@react-navigation/stack@^7.4.2"
+  "react-native-bootsplash@^6.3.9"
+  "react-native-orientation-locker@^1.7.0"
+  "react-native-permissions@^5.4.1"
+  "react-native-safe-area-context@^5.5.2"
   "react-native-screens@^4.11.1"
 ```
 

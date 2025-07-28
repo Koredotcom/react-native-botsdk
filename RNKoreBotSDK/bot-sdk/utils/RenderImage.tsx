@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {Component} from 'react';
 import {View} from 'react-native';
-import {SvgCssUri} from 'react-native-svg';
+import {SvgCssUri} from 'react-native-svg/css';
 import FastImage from 'react-native-fast-image';
 import {normalize} from './helpers';
 

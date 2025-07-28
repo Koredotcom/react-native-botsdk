@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 import * as React from 'react';
-import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
+import BaseView, { BaseViewProps, BaseViewState } from './BaseView';
 import {
   Dimensions,
   FlatList,
@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {convertToRNStyle, normalize} from '../utils/helpers';
+import { convertToRNStyle, normalize } from '../utils/helpers';
 import UserAvatar from '../chat/components/UserAvatar';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en'; // Load English locale for formatting
@@ -21,12 +21,12 @@ import 'dayjs/locale/en'; // Load English locale for formatting
 import CheckBox from '../components/CustomCheckBox';
 
 import Popover from 'react-native-popover-view';
-import {SvgIcon} from '../utils/SvgIcon';
-import {CollapsableContainer} from '../components/CollapsableContainer';
+import { SvgIcon } from '../utils/SvgIcon';
+import { CollapsableContainer } from '../components/CollapsableContainer';
 import Color from '../theme/Color';
-import {TEMPLATE_TYPES} from '../constants/Constant';
-import RadioGroup, {RadioButton} from 'react-native-radio-buttons-group';
-import {botStyles} from '../theme/styles';
+import { TEMPLATE_TYPES } from '../constants/Constant';
+import RadioGroup, { RadioButton } from '../components/CustomRadioButton';
+import { botStyles } from '../theme/styles';
 import RenderImage from '../utils/RenderImage';
 
 import 'dayjs/locale/en'; // Load English locale for formatting
@@ -152,7 +152,7 @@ export default class AdvancedListTemplate extends BaseView<
 
     let splitIndex =
       (this.props.payload?.listItems?.length >=
-      this.props.payload?.listItemDisplayCount
+        this.props.payload?.listItemDisplayCount
         ? this.props.payload?.listItemDisplayCount
         : this.props.payload?.listItems?.length) || 0;
 
@@ -203,11 +203,11 @@ export default class AdvancedListTemplate extends BaseView<
 
     return (
       <View
-        style={{backgroundColor: Color.white, width: (windowWidth / 4) * 3.3}}>
+        style={{ backgroundColor: Color.white, width: (windowWidth / 4) * 3.3 }}>
         <View
           style={[
             styles.default_main_container,
-            {backgroundColor: Color.white},
+            { backgroundColor: Color.white },
           ]}>
           {title && (
             <Text
@@ -243,10 +243,10 @@ export default class AdvancedListTemplate extends BaseView<
             <FlatList
               data={listItems}
               removeClippedSubviews={false}
-              scrollIndicatorInsets={{top: 0, left: 20, bottom: 0, right: 0}}
+              scrollIndicatorInsets={{ top: 0, left: 20, bottom: 0, right: 0 }}
               automaticallyAdjustContentInsets={false}
               renderItem={this.renderDefaultListViewItem}
-              // keyExtractor={item => getItemId()}
+            // keyExtractor={item => getItemId()}
             />
           )}
         </View>
@@ -272,7 +272,7 @@ export default class AdvancedListTemplate extends BaseView<
     );
   };
 
-  private renderDefaultListViewItem = ({item, index}: any) => {
+  private renderDefaultListViewItem = ({ item, index }: any) => {
     let infoList = item?.textInformation || undefined;
     let Wrapper: any;
     if (item?.type) {
@@ -315,7 +315,7 @@ export default class AdvancedListTemplate extends BaseView<
             )}
 
             <CollapsableContainer expanded={!item?.isCollapsed}>
-              <View style={{flex: 1}}>
+              <View style={{ flex: 1 }}>
                 {infoList?.map((info: any, i: number) => {
                   let isLeft = info?.iconAlignment === 'left' || true;
                   let icon = info?.icon || null;
@@ -326,7 +326,7 @@ export default class AdvancedListTemplate extends BaseView<
                   return (
                     <View
                       key={i + ''}
-                      style={[styles.imageStyle1, {marginStart: 5, flex: 1}]}>
+                      style={[styles.imageStyle1, { marginStart: 5, flex: 1 }]}>
                       {isLeft ? (
                         <View
                           style={{
@@ -348,8 +348,8 @@ export default class AdvancedListTemplate extends BaseView<
                               numberOfLines={1}
                               style={[
                                 styles.item_title1,
-                                {color: '#202124'},
-                                icon ? {marginLeft: 10} : {},
+                                { color: '#202124' },
+                                icon ? { marginLeft: 10 } : {},
                                 {
                                   color: '#444444',
                                   fontFamily:
@@ -363,14 +363,14 @@ export default class AdvancedListTemplate extends BaseView<
                           )}
                         </View>
                       ) : (
-                        <View style={{flexDirection: 'row'}}>
+                        <View style={{ flexDirection: 'row' }}>
                           {info?.title && (
                             <Text
                               numberOfLines={1}
                               style={[
                                 styles.item_title1,
-                                {color: '#202124'},
-                                icon ? {marginRight: 10} : {},
+                                { color: '#202124' },
+                                icon ? { marginRight: 10 } : {},
 
                                 {
                                   color: '#444444',
@@ -426,7 +426,7 @@ export default class AdvancedListTemplate extends BaseView<
           style={[
             styles.circleStyle,
             styles.assigne_container,
-            {backgroundColor: user?.color},
+            { backgroundColor: user?.color },
           ]}>
           <Text
             style={[
@@ -446,14 +446,14 @@ export default class AdvancedListTemplate extends BaseView<
     }
 
     return (
-      <View style={[styles.circleStyle, {marginEnd: 6}]}>
+      <View style={[styles.circleStyle, { marginEnd: 6 }]}>
         <UserAvatar
           color={user?.color}
           name={user?.fN}
           size={32}
           borderRadius={32}
           style={styles.circleStyle}
-          textStyle={{fontSize: normalize(18)}}
+          textStyle={{ fontSize: normalize(18) }}
           profileIcon={user?.icon}
           userId={user?.id}
         />
@@ -551,7 +551,7 @@ export default class AdvancedListTemplate extends BaseView<
               backgroundColor: item?.elementStyles?.background || 'transparent',
             },
           ]}>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             {title && (
               <Text
                 numberOfLines={1}
@@ -578,7 +578,7 @@ export default class AdvancedListTemplate extends BaseView<
                 numberOfLines={1}
                 style={[
                   styles.item_desc,
-                  {marginBottom: 5},
+                  { marginBottom: 5 },
                   {
                     fontFamily:
                       this.props?.theme?.v3?.body?.font?.family || 'Inter',
@@ -671,10 +671,10 @@ export default class AdvancedListTemplate extends BaseView<
                     style={[
                       styles.image,
                       defaultIsCollapsed && {
-                        transform: [{rotate: expanded ? '90deg' : '180deg'}],
+                        transform: [{ rotate: expanded ? '90deg' : '180deg' }],
                       },
                     ]}
-                    source={{uri: item.icon}}
+                    source={{ uri: item.icon }}
                     resizeMode="contain"
                   />
                 </View>
@@ -687,7 +687,7 @@ export default class AdvancedListTemplate extends BaseView<
             value = this.dateToFromNowDaily(value);
           }
           return (
-            <View key={index + ' ' + index} style={{justifyContent: 'center'}}>
+            <View key={index + ' ' + index} style={{ justifyContent: 'center' }}>
               {item?.value && (
                 <Text
                   style={[
@@ -717,7 +717,7 @@ export default class AdvancedListTemplate extends BaseView<
                 onPress={() => {
                   this.props.payload?.onListItemClick(
                     this.props.payload?.template_type.trim(),
-                    {...item, item_type: item_type},
+                    { ...item, item_type: item_type },
                   );
                 }}
                 style={[
@@ -740,11 +740,11 @@ export default class AdvancedListTemplate extends BaseView<
                     },
                     item?.buttonStyles
                       ? {
-                          color: item?.buttonStyles?.color,
-                        }
+                        color: item?.buttonStyles?.color,
+                      }
                       : {
-                          color: '#444444',
-                        },
+                        color: '#444444',
+                      },
                     botStyles[
                       this.props?.theme?.v3?.body?.font?.size || 'medium'
                     ]?.size,
@@ -781,7 +781,7 @@ export default class AdvancedListTemplate extends BaseView<
                   />
                 </TouchableOpacity>
               }>
-              <View style={{marginTop: 5}}>
+              <View style={{ marginTop: 5 }}>
                 {item?.dropdownOptions?.map((option: any, index: number) => {
                   return (
                     <TouchableOpacity
@@ -793,7 +793,7 @@ export default class AdvancedListTemplate extends BaseView<
 
                         this.props.payload?.onListItemClick(
                           this.props.payload?.template_type.trim(),
-                          {...option, item_type: item_type},
+                          { ...option, item_type: item_type },
                         );
                       }}
                       style={styles.opt_title_con}>
@@ -808,7 +808,7 @@ export default class AdvancedListTemplate extends BaseView<
                             },
                             botStyles[
                               this.props?.theme?.v3?.body?.font?.size ||
-                                'medium'
+                              'medium'
                             ]?.size,
                           ]}>
                           {option?.title}
@@ -840,18 +840,27 @@ export default class AdvancedListTemplate extends BaseView<
     let isRadio = listItems.filter((item: any) => item.type === 'radio')?.[0];
 
     let radioButtons = listItems.map((item: any, _index: number) => {
+      // Check if this item is selected by looking in radioOtherOptions
+      const isSelected = this.state.radioOtherOptions.some((selectedItem: any) => selectedItem.id === item.id);
+      console.log(`Creating radio button for item:`, item, 'isSelected:', isSelected);
       return {
         id: item.id,
         label: item.label,
         value: item.label,
+        selected: isSelected, // Use radioOtherOptions state instead of item.isChecked
         labelStyle: {
           color: '#444444',
           fontFamily: this.props?.theme?.v3?.body?.font?.family || 'Inter',
           ...botStyles[this.props?.theme?.v3?.body?.font?.size || 'medium']
             ?.size,
         },
-        borderColor: '#444444',
-        color: '#444444',
+        // Allow customization of colors through item properties
+        // Only set individual colors if they exist in the item data
+        // This allows RadioGroup colors to take effect as fallback
+        ...(item.borderColor && { borderColor: item.borderColor }),
+        ...(item.color && { color: item.color }),
+        ...(item.size && { size: item.size }),
+        ...(item.borderSize && { borderSize: item.borderSize }),
       };
     });
     if (isRadio) {
@@ -859,24 +868,39 @@ export default class AdvancedListTemplate extends BaseView<
         (obj: any) => obj?.isChecked,
       );
 
+      console.log('Current radioOtherOptions:', this.state.radioOtherOptions);
+      console.log('filterList (checked items):', filterList);
+      console.log('radioButtons being passed to RadioGroup:', radioButtons);
+
       return (
-        <View style={{backgroundColor: 'transparent'}}>
+        <View style={{ backgroundColor: 'transparent' }}>
           <RadioGroup
             radioButtons={radioButtons}
+            color="#e3763b"         // All radio buttons red when selected
+            borderColor="#CCCCCC"
             containerStyle={{
               alignItems: 'flex-start',
               marginStart: 10,
             }}
+            // Optional: Set default colors for all radio buttons in this group
+            // color="#FF6B6B"        // Red selected color
+            // borderColor="#CCCCCC"  // Gray border when unselected
             onPress={(setSelectedId: any) => {
+              console.log(`RadioGroup onPress called with selectedId: ${setSelectedId}`);
+
               let selectedItem = listItems.filter(
                 (btn: any) => btn.id === setSelectedId,
               );
+
+              console.log('Found selected item:', selectedItem[0]);
 
               let isSelect = !selectedItem[0].isChecked;
               let obj = {
                 ...selectedItem[0],
                 isChecked: isSelect,
               };
+
+              console.log('Calling setSeletedSlot with:', obj, isSelect);
               this.setSeletedSlot(obj, isSelect, true);
             }}
             selectedId={filterList?.[0] ? filterList?.[0]?.id : undefined}
@@ -891,7 +915,7 @@ export default class AdvancedListTemplate extends BaseView<
           <FlatList
             data={listItems}
             renderItem={this.renderOtherOptionItem}
-            // keyExtractor={(item) => item?.title}
+          // keyExtractor={(item) => item?.title}
           />
         </View>
       )
@@ -906,17 +930,17 @@ export default class AdvancedListTemplate extends BaseView<
       listItems && (
         <View style={styles.table_main_con}>
           {listItems.map((item: any, index: number) => {
-            return this.renderTableListItem({item, index});
+            return this.renderTableListItem({ item, index });
           })}
         </View>
       )
     );
   };
 
-  private renderTableListItem = ({item, index}: any) => {
+  private renderTableListItem = ({ item, index }: any) => {
     return (
       <View key={index + ''} style={styles.table_item_con}>
-        <View style={{minHeight: 20, minWidth: 20}}>
+        <View style={{ minHeight: 20, minWidth: 20 }}>
           {item.icon &&
             this.renderImage({
               image: item.icon,
@@ -960,21 +984,31 @@ export default class AdvancedListTemplate extends BaseView<
     isSelect: any,
     isFromRadio?: boolean,
   ) => {
+    console.log(`setSeletedSlot called with item:`, item, 'isSelect:', isSelect, 'isFromRadio:', isFromRadio);
+
     let newArrayList: any = isFromRadio
-      ? this.state.radioOtherOptions
-      : this.state.otherOptions;
+      ? [...this.state.radioOtherOptions] // Create a copy
+      : [...this.state.otherOptions];
+
     if (isSelect) {
       if (isFromRadio) {
-        newArrayList = [];
+        // For radio buttons, clear all existing selections and add the new one
+        newArrayList = [item];
+      } else {
+        newArrayList.push(item);
       }
-      newArrayList.push(item);
     } else {
       newArrayList = newArrayList.filter((obj: any) => obj.id !== item.id);
     }
 
+    console.log('New array list after setSeletedSlot:', newArrayList);
+
     if (isFromRadio) {
       this.setState({
         radioOtherOptions: newArrayList,
+      }, () => {
+        console.log('radioOtherOptions state updated:', this.state.radioOtherOptions);
+        this.forceUpdate(); // Force re-render
       });
     } else {
       this.setState({
@@ -983,7 +1017,7 @@ export default class AdvancedListTemplate extends BaseView<
     }
   };
 
-  private renderOtherOptionItem = ({item, index}: any) => {
+  private renderOtherOptionItem = ({ item, index }: any) => {
     let filterList = this.state.otherOptions.filter(
       (obj: any) => obj?.id === item?.id,
     );
@@ -1010,10 +1044,10 @@ export default class AdvancedListTemplate extends BaseView<
           }}
           style={styles.other_opt_con}>
           {item.type === 'checkbox' && (
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               <CheckBox
                 style={styles.check_box}
-                checkBoxColor={'#007aff'}
+                checkBoxColor={'#e3763b'}
                 isChecked={item.isChecked}
                 onClick={() => {
                   let isSelect = !item.isChecked;
@@ -1023,6 +1057,12 @@ export default class AdvancedListTemplate extends BaseView<
                   };
                   this.setSeletedSlot(obj, isSelect);
                 }}
+                // Enhanced color customization - can be overridden by item properties
+                selectedColor={item.selectedColor || '#e3763b'} // Blue when checked
+                unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
+                selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
+                size={item.size || 24} // Checkbox size
+                borderWidth={item.borderWidth || 2} // Border thickness
               />
               <Text
                 style={[
@@ -1045,7 +1085,7 @@ export default class AdvancedListTemplate extends BaseView<
               label={item.label}
               value={item.label}
               selected={item.isChecked}
-              onPress={(_id: string) => {}}
+              onPress={(_id: string) => { }}
             />
           )}
         </Wrapper>
@@ -1079,18 +1119,32 @@ export default class AdvancedListTemplate extends BaseView<
                 onPress={() => {
                   if (this.props.payload?.onListItemClick) {
                     let other = {};
+                    let allSelections = [];
+                    
+                    // Include checkbox selections
                     if (this.state.otherOptions?.length > 0) {
+                      allSelections = [...allSelections, ...this.state.otherOptions];
+                    }
+                    
+                    // Include radio button selections
+                    if (this.state.radioOtherOptions?.length > 0) {
+                      allSelections = [...allSelections, ...this.state.radioOtherOptions];
+                    }
+                    
+                    if (allSelections.length > 0) {
                       let msz = button.title + ': ';
-                      this.state.otherOptions.map((obj: any) => {
+                      allSelections.map((obj: any) => {
                         msz = msz + obj.value + ',';
                       });
                       other = {
                         title: msz,
                         payload: msz,
+                        selectedOptions: allSelections, // Include structured data
                       };
                     }
 
                     console.log('button ----->:', button);
+                    console.log('all selections ----->:', allSelections);
                     this.props.payload?.onListItemClick(
                       this.props.payload?.template_type,
                       {
@@ -1185,7 +1239,7 @@ export default class AdvancedListTemplate extends BaseView<
                   </View>
                 </TouchableOpacity>
               }>
-              <View style={{marginTop: 10, marginBottom: 10}}>
+              <View style={{ marginTop: 10, marginBottom: 10 }}>
                 {item?.buttons?.map((button: any, index: number) => {
                   return (
                     <TouchableOpacity
@@ -1193,18 +1247,32 @@ export default class AdvancedListTemplate extends BaseView<
                       onPress={() => {
                         if (this.props.payload?.onListItemClick) {
                           let other = {};
+                          let allSelections = [];
+                          
+                          // Include checkbox selections
                           if (this.state.otherOptions?.length > 0) {
+                            allSelections = [...allSelections, ...this.state.otherOptions];
+                          }
+                          
+                          // Include radio button selections
+                          if (this.state.radioOtherOptions?.length > 0) {
+                            allSelections = [...allSelections, ...this.state.radioOtherOptions];
+                          }
+                          
+                          if (allSelections.length > 0) {
                             let msz = button.title + ': ';
-                            this.state.otherOptions.map((obj: any) => {
+                            allSelections.map((obj: any) => {
                               msz = msz + obj.value + ',';
                             });
                             other = {
                               title: msz,
                               payload: msz,
+                              selectedOptions: allSelections, // Include structured data
                             };
                           }
 
                           // console.log('button ----->:', button);
+                          console.log('all selections ----->:', allSelections);
                           this.props.payload?.onListItemClick(
                             this.props.payload?.template_type,
                             {
@@ -1255,7 +1323,7 @@ export default class AdvancedListTemplate extends BaseView<
                             },
                             botStyles[
                               this.props?.theme?.v3?.body?.font?.size ||
-                                'medium'
+                              'medium'
                             ]?.size,
                           ]}>
                           {button.title}
@@ -1333,7 +1401,7 @@ const styles = StyleSheet.create({
     fontSize: normalize(14),
     alignSelf: 'center',
   },
-  opt_title_con: {padding: 10, marginBottom: 10},
+  opt_title_con: { padding: 10, marginBottom: 10 },
   icon_type_sub1: {
     marginEnd: 5,
     marginStart: 5,
@@ -1371,7 +1439,7 @@ const styles = StyleSheet.create({
     //alignItems: 'center',
     //justifyContent: 'center',
   },
-  check_box: {paddingLeft: 8, paddingRight: 8},
+  check_box: { paddingLeft: 8, paddingRight: 8 },
   other_opt_con: {
     flexDirection: 'row',
     padding: 10,
@@ -1408,7 +1476,7 @@ const styles = StyleSheet.create({
     flex: 1,
     //marginEnd: 10,
   },
-  header_view_con: {flexDirection: 'row', marginTop: 5, padding: 10},
+  header_view_con: { flexDirection: 'row', marginTop: 5, padding: 10 },
 
   item_button: {
     backgroundColor: '#E6E6FD',

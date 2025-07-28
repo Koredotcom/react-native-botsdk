@@ -12,9 +12,11 @@ class UUID {
    */
   static v4() {
     // Use crypto.getRandomValues if available (web environment)
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    if (typeof globalThis !== 'undefined' && 
+        globalThis.crypto && 
+        globalThis.crypto.getRandomValues) {
       const buffer = new Uint8Array(16);
-      crypto.getRandomValues(buffer);
+      globalThis.crypto.getRandomValues(buffer);
       
       // Set version (4) and variant bits according to RFC 4122
       buffer[6] = (buffer[6] & 0x0f) | 0x40; // Version 4
@@ -41,6 +43,5 @@ class UUID {
 }
 
 // Export both named and default exports for compatibility
-module.exports = UUID;
-module.exports.UUID = UUID;
-module.exports.default = UUID; 
+export default UUID;
+export { UUID }; 

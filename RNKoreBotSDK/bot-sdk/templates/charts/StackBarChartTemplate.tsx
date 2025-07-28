@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 
-import { BarChart } from 'react-native-gifted-charts';
+import { BarChart } from '../../charts';
 import BotText from '../BotText';
 import BaseView, { BaseViewProps, BaseViewState } from '../BaseView';
 import Color from '../../theme/Color';
@@ -43,16 +43,16 @@ export default class StackBarChartTemplate extends BaseView<
     return (
       <View>
         <BarChart
-          width={ windowWidth - 115}
+          width={ windowWidth - 50}
           height={ 220 }
-          barWidth={ 27 }
+          barWidth={ 50 }
           stackData={formattedDataSet}
           noOfSections={4}
           spacing={30} 
           initialSpacing={30}
           yAxisThickness={1}
           yAxisColor="#ccc"
-          xAxisLabelTextStyle={{ marginStart: -18 , fontSize: 8, transform: [{ rotate: '330deg' }] }}
+          xAxisLabelTextStyle={{ marginStart: 0 , fontSize: 8, transform: [{ rotate: '330deg' }] }}
         />
       </View>
     );
