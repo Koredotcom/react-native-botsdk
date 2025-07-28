@@ -225,7 +225,7 @@ export default class Attachements extends BaseView<
     const bubbleTheme = getBubbleTheme(this.props?.theme);
 
     if (payload?.payload?.attachments) {
-      attachments = payload?.payload?.attachments.map(
+      attachments = payload?.payload?.attachments?.map(
         (media: any, index: number) => {
           let fileType: string = this.getFileType(media?.fileName);
           return (
