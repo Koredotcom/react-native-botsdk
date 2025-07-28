@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {RadioButton} from 'react-native-radio-buttons-group';
+import {RadioButton} from '../components/CustomRadioButton';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 const windowWidth = Dimensions.get('window').width;
@@ -32,11 +32,22 @@ export default class RadioOptionTemplate extends BaseView<
   }
 
   componentDidMount(): void {
+    const initialOptions = this.props.payload.radioOptions?.map((option: any, index: number) => ({
+      ...option,
+      isChecked: option.isChecked || false, // Ensure isChecked property exists
+    })) || [];
+    
+    console.log('Initial radioOptions from payload:', this.props.payload.radioOptions);
+    console.log('Processed initial options:', initialOptions);
+    
     this.setState({
-      radioOptions: this.props.payload.radioOptions,
+      radioOptions: initialOptions,
     });
   }
   private onPressRadioButton = (index: number) => {
+    console.log(`onPressRadioButton called for index: ${index}`);
+    console.log('Current radioOptions state:', this.state.radioOptions);
+    
     let options = this.state.radioOptions.map((opt: any, optIndex: number) => {
       if (optIndex === index) {
         return {
@@ -50,9 +61,14 @@ export default class RadioOptionTemplate extends BaseView<
       };
     });
 
+    console.log('New options after mapping:', options);
+
     this.setState({
       radioOptions: options,
       selectedItem: options[index],
+    }, () => {
+      console.log('State updated. New radioOptions:', this.state.radioOptions);
+      this.forceUpdate(); // Force re-render to ensure UI updates
     });
   };
   private renderRadioOptions = (radioOptions: any) => {
@@ -65,29 +81,19 @@ export default class RadioOptionTemplate extends BaseView<
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
         style={styles.radio_main}>
         {radioOptions.map((item: any, index: number) => {
+          console.log(`Rendering radio ${index}: isChecked=${item?.isChecked}, title=${item?.title}`);
           return (
-            <TouchableOpacity
-              onPress={() => {
+            <RadioButton
+              size={20}
+              borderSize={1}
+              id={item?.id || `option-${index}`}
+              label={`${item?.title} - ${item?.value}`}
+              selected={!!item?.isChecked}
+              onPress={(id: string) => {
+                console.log(`Radio option ${index} pressed for id: ${id}, current isChecked: ${item?.isChecked}`);
                 this.onPressRadioButton(index);
-              }}>
-              <View style={styles.item_main}>
-                <View>
-                  <RadioButton
-                    size={20}
-                    borderSize={1}
-                    id={item?.id} // acts as primary key, should be unique and non-empty string
-                    selected={item?.isChecked}
-                    onPress={(id: string) => {
-                      this.onPressRadioButton(index);
-                    }}
-                  />
-                </View>
-                <View style={styles.title_main}>
-                  <Text style={styles.item_title}>{item?.title}</Text>
-                  <Text style={styles.item_value}>{item?.value}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+              }}
+            />
           );
         })}
       </View>

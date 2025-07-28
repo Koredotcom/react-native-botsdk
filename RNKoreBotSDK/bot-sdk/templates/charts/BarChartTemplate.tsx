@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, StyleSheet, Dimensions, Text } from 'react-native';
 
-import { BarChart } from 'react-native-gifted-charts';
+import { BarChart } from '../../charts';
 import BotText from '../BotText';
 import BaseView, { BaseViewProps, BaseViewState } from '../BaseView';
 import { TEMPLATE_STYLE_VALUES } from '../../theme/styles';
@@ -53,7 +53,7 @@ export default class BarChartTemplate extends BaseView<
           ))}
         </View>
         <BarChart
-          width={vertical !== 'vertical' ? windowWidth - 140 : windowWidth - 115}
+          width={vertical !== 'vertical' ? windowWidth - 50 : windowWidth - 85}
           height={vertical !== 'vertical' ? 260 : 220}
           barWidth={27}
           data={groupedData}
@@ -62,7 +62,7 @@ export default class BarChartTemplate extends BaseView<
           initialSpacing={10}
           yAxisThickness={1}
           yAxisColor="#ccc"
-          xAxisLabelTextStyle={{ marginStart: vertical !== 'vertical' ? -18 : -27, fontSize: 8, transform: [{ rotate: vertical !== 'vertical' ? '315deg' : '0deg' }] }}
+          xAxisLabelTextStyle={{ marginStart: vertical !== 'vertical' ? 32 : 23, fontSize: 8, transform: [{ rotate: vertical !== 'vertical' ? '315deg' : '0deg' }] }}
         />
       </View>
     );

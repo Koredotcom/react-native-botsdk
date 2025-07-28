@@ -11,8 +11,6 @@ import {
   Animated,
 } from 'react-native';
 
-// import Clipboard from '@react-native-clipboard/clipboard';
-
 import MessageText from '../../templates/MessageText';
 
 import Time from './Time';
@@ -47,8 +45,6 @@ import DateTemplate from '../../templates/DateTemplate';
 import BotTemplate from '../../templates/BotTemplate';
 import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
 import CustomTemplate from '../../templates/CustomTemplate';
-//import BotTemplate from 'react-native-kore-bot-template-dev';
-// import Toast from 'react-native-simple-toast';
 import {isAndroid, isIOS} from '../../utils/PlatformCheck';
 
 export interface BubbleProps {
@@ -201,12 +197,10 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
     if (this.props.onLongPress) {
       this.props.onLongPress(this.context, textComponent);
     }
-    // Clipboard.setString(textComponent);
     if (isIOS) {
       // Toast.showWithGravity('Copied', Toast.SHORT, Toast.BOTTOM);
     } else {
       try {
-        // CustomClipboard.setString(textComponent);
         if (isAndroid) {
           const androidVersion = parseInt(Platform.Version as string, 10);
           if (androidVersion < 33) {
@@ -221,37 +215,6 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
         console.log('CustomClipboard Error -->:', error);
       }
     }
-    //  else if (
-    //   this.props?.currentMessage &&
-    //   textComponent &&
-    //   textComponent?.length !== 0
-    // ) {
-    //   const {optionTitles} = this.props;
-    //   const options =
-    //     optionTitles && optionTitles.length > 0
-    //       ? optionTitles.slice(0, 2)
-    //       : DEFAULT_OPTION_TITLES;
-    //   const cancelButtonIndex = options.length - 1;
-    //   Clipboard.setString(textComponent);
-    //   Toast.showWithGravity('Copied', Toast.SHORT, Toast.BOTTOM);
-    //   // this.actionSheet._currentValue.actionSheet().showActionSheetWithOptions(
-    //   //   {
-    //   //     options,
-    //   //     cancelButtonIndex,
-    //   //   },
-    //   //   (buttonIndex: any) => {
-    //   //     switch (buttonIndex) {
-    //   //       case 0:
-    //   //         Clipboard.setString(
-    //   //           this.props?.currentMessage.text ? this.props?.currentMessage.text : '',
-    //   //         );
-    //   //         break;
-    //   //       default:
-    //   //         break;
-    //   //     }
-    //   //   },
-    //   // );
-    // }
   };
 
   private styledBubbleToNext = () => {

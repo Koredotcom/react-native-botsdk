@@ -16,7 +16,6 @@
 ## 📋 Table of Contents
 
 - [✨ Features](#-features)
-- [🏗️ Custom Components](#️-custom-components)
 - [🚀 Quick Start](#-quick-start)
 - [📦 Installation](#-installation)
 - [🎯 Basic Usage](#-basic-usage)
@@ -57,42 +56,6 @@
 </td>
 </tr>
 </table>
-
----
-
-## 🏗️ Custom Components
-
-This SDK includes **custom-built components** that replace external dependencies, reducing bundle size and improving maintainability:
-
-<table>
-<tr>
-<td>
-
-### ✅ **Replaced Dependencies**
-- ❌ ~~`react-native-uuid`~~ → ✅ `Custom UUID`
-- ❌ ~~`@react-native-community/checkbox`~~ → ✅ `CustomCheckBox`
-- ❌ ~~`react-native-modal`~~ → ✅ `CustomModal`
-- ❌ ~~`react-native-modal-datetime-picker`~~ → ✅ `CustomDateTimePickerModal`
-
-</td>
-<td>
-
-### 🎯 **Benefits**
-- 📉 **-442 KB** external dependencies removed
-- 🔧 **Full control** over component behavior
-- 🛡️ **Reduced security** attack surface
-- ⚡ **Better performance** with native implementations
-- 🎨 **Consistent styling** across platforms
-
-</td>
-</tr>
-</table>
-
-**📋 Custom Components:**
-- **`CustomCheckBox`**: Full-featured checkbox with animation support (supports both `react-native-check-box` and `@react-native-community/checkbox` APIs)
-- **`CustomModal`**: Cross-platform modal with backdrop, animations, and back button handling
-- **`CustomDateTimePickerModal`**: Platform-optimized date/time picker with modal wrapper
-- **`UUID`**: Lightweight UUID v4 generator with crypto fallback
 
 ---
 
@@ -146,6 +109,7 @@ yarn add rn-kore-bot-sdk-v77
 
 ```bash
 npm install \
+  "@react-native-community/checkbox@^0.5.20" \
   "@react-native-picker/picker@^2.11.1" \
   "@react-native-voice/voice@^3.2.4" \
   "@react-native-community/datetimepicker@^8.4.2" \
@@ -156,11 +120,14 @@ npm install \
   "react-native-fs@^2.20.0" \
   "react-native-gesture-handler@^2.26.0" \
   "react-native-gifted-charts@^1.4.63" \
-      "react-native-image-picker@^8.2.1" \
-    "react-native-reanimated@^3.18.0" \
+  "react-native-image-picker@^8.2.1" \
+  "react-native-modal@^14.0.0-rc.1" \
+  "react-native-modal-datetime-picker@^18.0.0" \
+  "react-native-reanimated@^3.18.0" \
   "react-native-reanimated-carousel@^4.0.2" \
   "react-native-svg@^15.12.0" \
   "react-native-tts@^4.1.1" \
+  "react-native-uuid@^2.0.3" \
   "react-native-video@^6.15.0"
 ```
 
@@ -172,6 +139,7 @@ npm install \
 ```bash
 npm install \
   "@react-native-async-storage/async-storage@^2.2.0" \
+  "@react-native-clipboard/clipboard@^1.16.2" \
   "@react-navigation/elements@^2.5.2" \
   "@react-navigation/stack@^7.4.2" \
   "react-native-bootsplash@^6.3.9" \
@@ -217,125 +185,6 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 ```
 
 </details>
-
----
-
-## 📦 Dependencies Overview
-
-The Kore Bot SDK requires various dependencies to provide comprehensive chatbot functionality. Below is a detailed explanation of each dependency and its purpose in the SDK:
-
-### 🤖 Core Bot SDK Dependencies
-
-#### **Navigation & UI Framework**
-- **`@react-native-picker/picker`** `^2.11.1` - Native dropdown picker component for bot forms and selection templates
-- **`react-native-gesture-handler`** `^2.26.0` - Enhanced gesture handling for smooth touch interactions and swipe gestures in chat interface
-- **`react-native-reanimated`** `^3.18.0` - High-performance animations for smooth chat bubbles, transitions, and interactive elements
-- **`react-native-reanimated-carousel`** `^4.0.2` - Carousel component for displaying multiple bot response cards and image galleries
-
-#### **Voice & Audio Capabilities**
-- **`@react-native-voice/voice`** `^3.2.4` - Voice recognition for speech-to-text input, enabling users to speak to the bot
-- **`react-native-tts`** `^4.1.1` - Text-to-speech functionality to read bot responses aloud for accessibility
-
-#### **Media & File Handling**
-- **`react-native-document-picker`** `^9.3.1` - File picker for uploading documents, PDFs, and other files to the bot
-- **`react-native-fast-image`** `^8.6.3` - Optimized image loading with caching for bot avatars, images, and media content
-- **`react-native-fs`** `^2.20.0` - File system operations for downloading, saving, and managing shared files
-- **`react-native-image-picker`** `^8.2.1` - Camera and photo library access for image attachments and media sharing
-- **`react-native-video`** `^6.15.0` - Video playback component for bot responses containing video content
-
-#### **Data Visualization**
-- **`react-native-gifted-charts`** `^1.4.63` - Chart components (bar, line, pie, donut charts) for displaying data in bot responses
-- **`react-native-svg`** `^15.12.0` - SVG rendering for custom icons, graphics, and scalable chart elements
-
-#### **System Integration**
-- **`@react-native-community/datetimepicker`** `^8.4.2` - Native date and time pickers for bot forms requiring temporal input
-- **`@react-native-community/netinfo`** `^11.4.1` - Network connectivity monitoring for offline message handling and connection status
-- **`react-native-device-info`** `^14.0.4` - Device information access for analytics and platform-specific optimizations
-
-### 🎯 Sample App Additional Dependencies
-
-These dependencies are included in the sample application to demonstrate advanced integration patterns:
-
-#### **Storage & Persistence**
-- **`@react-native-async-storage/async-storage`** `^2.2.0` - Local storage for persisting chat history, user preferences, and session data
-
-#### **Navigation Framework**
-- **`@react-navigation/elements`** `^2.5.2` - Navigation UI elements for consistent header and navigation components
-- **`@react-navigation/stack`** `^7.4.2` - Stack navigator for managing screen transitions and app navigation flow
-- **`react-native-safe-area-context`** `^5.5.2` - Safe area handling for devices with notches and dynamic islands
-- **`react-native-screens`** `^4.11.1` - Native screen containers for optimized navigation performance
-
-#### **Enhanced User Experience**
-- **`react-native-bootsplash`** `^6.3.9` - Custom splash screen for branded app launch experience
-- **`react-native-orientation-locker`** `^1.7.0` - Screen orientation control for optimal bot content viewing
-- **`react-native-permissions`** `^5.4.1` - Runtime permission management for camera, microphone, and storage access
-
-### 🔧 Dependency Categories by Functionality
-
-<table>
-<tr>
-<td>
-
-**🎤 Voice & Audio**
-- Voice recognition input
-- Text-to-speech output
-- Audio message playback
-
-</td>
-<td>
-
-**📱 Media Handling**
-- Image upload/display
-- Video playback
-- Document sharing
-- File management
-
-</td>
-</tr>
-<tr>
-<td>
-
-**📊 Data Visualization**
-- Interactive charts
-- Custom graphics
-- SVG rendering
-- Dynamic visualizations
-
-</td>
-<td>
-
-**⚡ Performance**
-- Smooth animations
-- Optimized images
-- Native components
-- Gesture handling
-
-</td>
-</tr>
-</table>
-
-### 🚨 Optional Dependencies
-
-Some features gracefully degrade when dependencies are unavailable:
-
-- **Voice features**: Hidden when voice modules are not installed
-- **File upload**: Disabled when picker modules are missing  
-- **Charts**: Fallback to text when chart libraries are unavailable
-- **Animations**: Static UI when animation libraries are not present
-
-### 📋 Installation Requirements
-
-**Minimum versions:**
-- React Native: `>= 0.77.0`
-- Node.js: `>= 18.0.0`
-- iOS: `>= 12.0`
-- Android: `>= API 21 (Android 5.0)`
-
-**Native configuration required for:**
-- Camera/microphone permissions
-- File system access
-- Network security policies
-- Background audio playback
 
 ---
 
@@ -570,6 +419,10 @@ npx react-native run-ios    # or run-android
 - `SampleApp/src/customTemplates/` - Custom template examples
 
 ---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ### Development Setup
 

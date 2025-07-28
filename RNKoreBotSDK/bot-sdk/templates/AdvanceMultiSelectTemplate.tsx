@@ -168,6 +168,12 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                     style={styles.check_box}
                     boxType={'square'}
                     value={item?.isChecked || false}
+                    // Enhanced color customization - can be overridden by item properties
+                    selectedColor={item.selectedColor || '#007AFF'} // Blue when checked
+                    unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
+                    selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
+                    size={item.size || 24} // Checkbox size
+                    borderWidth={item.borderWidth || 2} // Border thickness
                     onValueChange={value => {
                       let allElements: any = this.unselectElemets(
                         this.state.elements,
@@ -240,6 +246,12 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                   animationDuration={0.2}
                   onAnimationType={'stroke'}
                   offAnimationType={'stroke'}
+                  // Enhanced color customization - can be overridden by item properties
+                  selectedColor={item.selectedColor || '#007AFF'} // Blue when checked
+                  unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
+                  selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
+                  size={item.size || 24} // Checkbox size
+                  borderWidth={item.borderWidth || 2} // Border thickness
                   onValueChange={value => {
                     const elements: any = this.unselectElemets(
                       this.state.elements,
