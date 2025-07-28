@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, StyleSheet, processColor, Dimensions, Text } from 'react-native';
 
-import { LineChart } from 'react-native-gifted-charts';
+import { LineChart } from '../../charts';
 
 import BotText from '../BotText';
 import BaseView, { BaseViewProps, BaseViewState } from '../BaseView';

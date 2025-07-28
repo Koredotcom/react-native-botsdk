@@ -1,4 +1,4 @@
-import uuid from '../utils/uuid';
+import { uuid } from 'rn-kore-bot-sdk-v77';
 import {BotConfigModel} from 'rn-kore-bot-socket-lib-v77';
 
 export const botConfig_f: BotConfigModel = {
@@ -20,11 +20,11 @@ export const botConfig: BotConfigModel = {
   botId: 'PLEASE_ENTER_BOT_ID',
   clientId: 'PLEASE_ENTER_CLIENT_ID',
   clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
-  botUrl: 'PLEASE_ENTER_SERVER_URL',
+  botUrl: 'PLEASE_ENTER_SERVER_URL', // Should not end with '/', Example :  https://your.server.url
+  jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
   identity: uuid.v4(),
   isWebHook: false,
-  value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
-  jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
+  value_aud: 'https://idproxy.kore.com/authorize',
   isHeaderVisible: true,
-  isFooterVisible: true,
+  isFooterVisible: true
 };
