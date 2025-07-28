@@ -13,7 +13,6 @@ npm install rn-kore-bot-sdk-v77
 ```bash
 # Install all required dependencies
 npm install @react-native-async-storage/async-storage@^2.2.0
-npm install @react-native-clipboard/clipboard@^1.16.2
 npm install @react-native-community/netinfo@^11.4.1
 npm install @react-navigation/elements@^2.5.1
 npm install @react-navigation/stack@^7.4.1
