@@ -29,6 +29,13 @@ interface CustomCheckBoxProps {
   isChecked?: boolean;
   onClick?: () => void;
   checkBoxColor?: string;
+  
+  // Enhanced color customization (similar to RadioButton)
+  selectedColor?: string; // Color for checkmark and selected border
+  unselectedColor?: string; // Color for unselected border
+  selectedBackgroundColor?: string; // Background color when selected
+  size?: number; // Checkbox size
+  borderWidth?: number; // Border thickness
 }
 
 const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
@@ -51,6 +58,13 @@ const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
   isChecked,
   onClick,
   checkBoxColor,
+  
+  // Enhanced color customization
+  selectedColor = '#007AFF', // Default blue
+  unselectedColor = '#CCCCCC', // Default gray
+  selectedBackgroundColor = 'transparent',
+  size = 24,
+  borderWidth = 2,
 }) => {
   // Support both APIs: prefer value over isChecked for @react-native-community/checkbox compatibility
   const isSelected = value !== undefined ? value : (isChecked || false);
@@ -76,24 +90,27 @@ const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
     }
   };
 
-  const effectiveCheckColor = checkBoxColor || onCheckColor;
-  const effectiveTintColor = checkBoxColor || tintColor;
+  // Color priority: new props > legacy props > defaults
+  const effectiveCheckColor = selectedColor || checkBoxColor || onCheckColor;
+  const effectiveUnselectedColor = unselectedColor || tintColor;
+  const effectiveSelectedColor = selectedColor || onTintColor || checkBoxColor; // Use selectedColor for border when selected
+  const effectiveSelectedBackground = selectedBackgroundColor || onFillColor;
+  const effectiveBorderWidth = borderWidth || lineWidth;
+  const effectiveSize = size;
 
   const borderColor = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [effectiveTintColor, onTintColor],
+    outputRange: [effectiveUnselectedColor, effectiveSelectedColor],
   });
 
   const backgroundColor = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['transparent', onFillColor],
+    outputRange: ['transparent', effectiveSelectedBackground],
   });
 
   if (hideBox) {
     return null;
   }
-
-  const containerSize = 24;
 
   // Extract any padding from the passed style to apply it to the outer container
   const flatStyle = StyleSheet.flatten(style);
@@ -117,10 +134,10 @@ const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
   const boxStyle = [
     styles.container,
     {
-      width: containerSize,
-      height: containerSize,
-      borderWidth: lineWidth,
-      borderRadius: boxType === 'circle' ? containerSize / 2 : 4,
+      width: effectiveSize,
+      height: effectiveSize,
+      borderWidth: effectiveBorderWidth,
+      borderRadius: boxType === 'circle' ? effectiveSize / 2 : 4,
       opacity: disabled ? 0.5 : 1,
     },
     {
@@ -141,6 +158,7 @@ const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
                 {
                   color: effectiveCheckColor,
                   opacity: animatedValue,
+                  fontSize: effectiveSize * 0.7, // Scale checkmark with checkbox size
                 },
               ]}>
               ✓

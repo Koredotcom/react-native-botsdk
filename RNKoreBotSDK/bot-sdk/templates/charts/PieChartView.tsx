@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, StyleSheet, processColor, Dimensions, Text} from 'react-native';
-import { PieChart } from 'react-native-gifted-charts';
+import { PieChart } from '../../charts';
 import BotText from '../BotText';
 import { generateColor, normalize } from '../../utils/helpers';
 import { TEMPLATE_STYLE_VALUES } from '../../theme/styles';
