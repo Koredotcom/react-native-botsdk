@@ -876,7 +876,7 @@ export default class AdvancedListTemplate extends BaseView<
         <View style={{ backgroundColor: 'transparent' }}>
           <RadioGroup
             radioButtons={radioButtons}
-            color="#e3763b"         // All radio buttons red when selected
+            color="#3c51f0"         // All radio buttons red when selected
             borderColor="#CCCCCC"
             containerStyle={{
               alignItems: 'flex-start',
@@ -1047,7 +1047,7 @@ export default class AdvancedListTemplate extends BaseView<
             <View style={{ flexDirection: 'row' }}>
               <CheckBox
                 style={styles.check_box}
-                checkBoxColor={'#e3763b'}
+                checkBoxColor={'#3c51f0'}
                 isChecked={item.isChecked}
                 onClick={() => {
                   let isSelect = !item.isChecked;
@@ -1058,7 +1058,7 @@ export default class AdvancedListTemplate extends BaseView<
                   this.setSeletedSlot(obj, isSelect);
                 }}
                 // Enhanced color customization - can be overridden by item properties
-                selectedColor={item.selectedColor || '#e3763b'} // Blue when checked
+                selectedColor={item.selectedColor || '#3c51f0'} // Blue when checked
                 unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
                 selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
                 size={item.size || 24} // Checkbox size
