@@ -11,7 +11,7 @@ import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {normalize} from '../utils/helpers';
 
 import FastImage from 'react-native-fast-image';
-import {getButtonTheme} from '../theme/themeHelper';
+import {getBubbleTheme} from '../theme/themeHelper';
 
 interface QuickProps extends BaseViewProps {
   quick_replies: any;
@@ -52,7 +52,7 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
 
     // const bbtheme = getBubbleTheme(this.props?.theme);
 
-    const btheme = getButtonTheme(this.props?.theme);
+    const btheme = getBubbleTheme(this.props?.theme);
 
     const views = this.props?.quick_replies.map((item: any, index: number) => {
       return (
@@ -72,7 +72,8 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
                     styles.quick_container,
 
                     {
-                      borderColor: btheme?.ACTIVE_BG_COLOR || '#3F51B5',
+                      borderColor: btheme?.BUBBLE_LEFT_BG_COLOR || '#3F51B5',
+                      backgroundColor: btheme?.BUBBLE_LEFT_BG_COLOR || '#3F51B5',
                       borderWidth: 1,
                     },
                   ]
@@ -101,7 +102,7 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
                         padding: 5,
                       },
                       {
-                        color: btheme?.ACTIVE_TXT_COLOR,
+                        color: btheme?.BUBBLE_RIGHT_BG_COLOR,
                         fontFamily:
                           this.props?.theme?.v3?.body?.font?.family || 'Inter',
                       },
@@ -124,18 +125,25 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
           alignItems: 'flex-start',
         }}
         style={{
-          backgroundColor:
+          groundColor:
             this.props?.theme?.v3?.body?.background?.color || '#FFFFFF',
-        }}
+        }}back
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={true}
         keyboardShouldPersistTaps={'handled'}
         horizontal={!this.props.isVertical}>
         <View
-          //keyboardShouldPersistTaps="always"
-          style={styles.quick_main_container}>
+        style={styles.quick_main_container}>
+          <View
+            style={{
+              height: 1,
+              backgroundColor: btheme?.BUBBLE_LEFT_BG_COLOR || '#CCCCCC',
+              marginVertical: 2,
+              flexGrow: 1,
+              minWidth: '100%',
+            }}
+          />
           {views}
-          {/* {views && views.length > 0 && <View style={styles.quick_line}></View>} */}
         </View>
       </ScrollView>
     ) : (
