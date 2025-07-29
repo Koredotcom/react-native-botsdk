@@ -842,7 +842,6 @@ export default class AdvancedListTemplate extends BaseView<
     let radioButtons = listItems.map((item: any, _index: number) => {
       // Check if this item is selected by looking in radioOtherOptions
       const isSelected = this.state.radioOtherOptions.some((selectedItem: any) => selectedItem.id === item.id);
-      console.log(`Creating radio button for item:`, item, 'isSelected:', isSelected);
       return {
         id: item.id,
         label: item.label,
@@ -868,10 +867,6 @@ export default class AdvancedListTemplate extends BaseView<
         (obj: any) => obj?.isChecked,
       );
 
-      console.log('Current radioOtherOptions:', this.state.radioOtherOptions);
-      console.log('filterList (checked items):', filterList);
-      console.log('radioButtons being passed to RadioGroup:', radioButtons);
-
       return (
         <View style={{ backgroundColor: 'transparent' }}>
           <RadioGroup
@@ -886,21 +881,15 @@ export default class AdvancedListTemplate extends BaseView<
             // color="#FF6B6B"        // Red selected color
             // borderColor="#CCCCCC"  // Gray border when unselected
             onPress={(setSelectedId: any) => {
-              console.log(`RadioGroup onPress called with selectedId: ${setSelectedId}`);
-
               let selectedItem = listItems.filter(
                 (btn: any) => btn.id === setSelectedId,
               );
-
-              console.log('Found selected item:', selectedItem[0]);
 
               let isSelect = !selectedItem[0].isChecked;
               let obj = {
                 ...selectedItem[0],
                 isChecked: isSelect,
               };
-
-              console.log('Calling setSeletedSlot with:', obj, isSelect);
               this.setSeletedSlot(obj, isSelect, true);
             }}
             selectedId={filterList?.[0] ? filterList?.[0]?.id : undefined}
@@ -984,8 +973,6 @@ export default class AdvancedListTemplate extends BaseView<
     isSelect: any,
     isFromRadio?: boolean,
   ) => {
-    console.log(`setSeletedSlot called with item:`, item, 'isSelect:', isSelect, 'isFromRadio:', isFromRadio);
-
     let newArrayList: any = isFromRadio
       ? [...this.state.radioOtherOptions] // Create a copy
       : [...this.state.otherOptions];
@@ -1001,13 +988,10 @@ export default class AdvancedListTemplate extends BaseView<
       newArrayList = newArrayList.filter((obj: any) => obj.id !== item.id);
     }
 
-    console.log('New array list after setSeletedSlot:', newArrayList);
-
     if (isFromRadio) {
       this.setState({
         radioOtherOptions: newArrayList,
       }, () => {
-        console.log('radioOtherOptions state updated:', this.state.radioOtherOptions);
         this.forceUpdate(); // Force re-render
       });
     } else {
@@ -1143,8 +1127,6 @@ export default class AdvancedListTemplate extends BaseView<
                       };
                     }
 
-                    console.log('button ----->:', button);
-                    console.log('all selections ----->:', allSelections);
                     this.props.payload?.onListItemClick(
                       this.props.payload?.template_type,
                       {
@@ -1213,7 +1195,6 @@ export default class AdvancedListTemplate extends BaseView<
               from={
                 <TouchableOpacity
                   onPress={() => {
-                    // console.log('tem?.buttons? ----->:', item?.buttons);
                     this.setState({
                       showBtnPopover: true,
                     });
@@ -1271,8 +1252,6 @@ export default class AdvancedListTemplate extends BaseView<
                             };
                           }
 
-                          // console.log('button ----->:', button);
-                          console.log('all selections ----->:', allSelections);
                           this.props.payload?.onListItemClick(
                             this.props.payload?.template_type,
                             {
