@@ -22,10 +22,19 @@ const legend: any = {
 };
 
 const MATERIAL_COLORS = [
-  "#4A9AF2",
   "#5BC8C4",
-  "#e74c3c",
-  "#3498db"
+  "#4A9AF2",
+  "#8ECB60",
+  "#BDA100",
+  "#E36CA2",
+  "#591880",
+  "#3AB961",
+  "#654BAF",
+  "#E36CA2",
+  "#1B3880",
+  "#9D1850",
+  "#DB9400",
+  "#008930"
 ];
 
 const colors = [
