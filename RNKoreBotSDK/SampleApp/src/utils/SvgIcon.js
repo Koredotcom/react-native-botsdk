@@ -93,8 +93,8 @@ export class SvgIcon extends React.Component {
         />
       ),
 
-      Like: <Like width={width} height={height} />,
-      Unlike: <UnLike width={width} height={height} />,
+      Like: <Like width={width} height={height} color={color} />,
+      Unlike: <UnLike width={width} height={height} color={color} />,
       UpSolid: <UpSolid width={width} height={height} />,
       RightArrow: <RightSolid width={width} height={height} color={color} />,
       Right: <Right width={width} height={height} color={color} />,

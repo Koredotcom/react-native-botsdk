@@ -18,7 +18,7 @@ export interface SelectDropdownProps {
   data: any[];
   onSelect: (selectedItem: any, index: number) => void;
   renderButton?: (selectedItem: any, isOpened: boolean) => React.ReactElement;
-  renderItem?: (item: any, index: number, isSelected: boolean) => React.ReactElement;
+  renderItem?: (item: any, index: number, isSelected: boolean, onItemPress: (item: any, index: number) => void) => React.ReactElement;
   defaultButtonText?: string;
   disabled?: boolean;
   dropdownStyle?: ViewStyle;
@@ -39,9 +39,6 @@ export interface SelectDropdownProps {
   selectedColor?: string;
   unselectedColor?: string;
   animationDuration?: number;
-}
-
-interface SelectDropdownState {
   isVisible: boolean;
   selectedItem: any;
   selectedIndex: number;
@@ -51,6 +48,8 @@ interface SelectDropdownState {
 class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDropdownState> {
   private fadeAnim: Animated.Value;
   private scaleAnim: Animated.Value;
+  private buttonRef: React.RefObject<View>;
+  private flatListRef: React.RefObject<FlatList>;
 
   constructor(props: SelectDropdownProps) {
     super(props);
@@ -64,26 +63,9 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDr
     
     this.fadeAnim = new Animated.Value(0);
     this.scaleAnim = new Animated.Value(0.95);
+    this.buttonRef = React.createRef();
+    this.flatListRef = React.createRef();
   }
-
-  openDropdown = () => {
-    const { disabled, data, animationDuration = 300 } = this.props;
-    if (disabled || data.length === 0) return;
-    
-    this.setState({ isVisible: true });
-    Animated.parallel([
-      Animated.timing(this.fadeAnim, {
-        toValue: 1,
-        duration: animationDuration,
-        useNativeDriver: true,
-      }),
-      Animated.timing(this.scaleAnim, {
-        toValue: 1,
-        duration: animationDuration,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
 
   closeDropdown = () => {
     const { animationDuration = 300 } = this.props;
@@ -112,9 +94,84 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDr
     this.props.onSelect?.(item, index);
   };
 
-  handleButtonLayout = (event: any) => {
-    const { x, y, width, height } = event.nativeEvent.layout;
-    this.setState({ buttonLayout: { x, y, width, height } });
+  scrollToSelectedItem = () => {
+    const { data } = this.props;
+    const { selectedIndex } = this.state;
+    
+    // Use controlled value if provided
+    const isControlled = this.props.hasOwnProperty('value');
+    const currentSelectedIndex = isControlled 
+      ? data.findIndex(item => item === this.props.value || item?.value === this.props.value?.value || item?.title === this.props.value?.title)
+      : selectedIndex;
+    
+    if (this.flatListRef.current && currentSelectedIndex >= 0 && currentSelectedIndex < data.length) {
+      console.log('Scrolling to selected item at index:', currentSelectedIndex);
+      // Use setTimeout to ensure the FlatList is fully rendered
+      setTimeout(() => {
+        try {
+          this.flatListRef.current?.scrollToIndex({
+            index: currentSelectedIndex,
+            animated: true,
+            viewPosition: 0, // 0 = top, 0.5 = center, 1 = bottom
+          });
+        } catch (error) {
+          // Fallback to scrollToOffset if scrollToIndex fails
+          this.flatListRef.current?.scrollToOffset({
+            offset: currentSelectedIndex * 45, // Updated to match actual item height
+            animated: true,
+          });
+        }
+      }, 100);
+    }
+  };
+
+  openDropdown = () => {
+    const { disabled, data, animationDuration = 300 } = this.props;
+    if (disabled || data.length === 0) return;
+    
+    // Measure button position in window coordinates
+    if (this.buttonRef.current) {
+      this.buttonRef.current.measureInWindow((x, y, width, height) => {
+        this.setState({ 
+          isVisible: true,
+          buttonLayout: { x, y, width, height }
+        });
+        
+        Animated.parallel([
+          Animated.timing(this.fadeAnim, {
+            toValue: 1,
+            duration: animationDuration,
+            useNativeDriver: true,
+          }),
+          Animated.timing(this.scaleAnim, {
+            toValue: 1,
+            duration: animationDuration,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          // Scroll to selected item after animation completes
+          this.scrollToSelectedItem();
+        });
+      });
+    } else {
+      // Fallback to existing behavior
+      this.setState({ isVisible: true });
+      Animated.parallel([
+        Animated.timing(this.fadeAnim, {
+          toValue: 1,
+          duration: animationDuration,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.scaleAnim, {
+          toValue: 1,
+          duration: animationDuration,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        // Scroll to selected item after animation completes
+        this.scrollToSelectedItem();
+      });
+    }
   };
 
   renderDefaultButton = () => {
@@ -127,20 +184,25 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDr
       selectedColor = '#007AFF',
       unselectedColor = '#333333',
       defaultButtonText = 'Select an option',
+      value,
     } = this.props;
     const { selectedItem } = this.state;
+    
+    // Use controlled value if value prop is provided (even if undefined), otherwise use internal state
+    const isControlled = this.props.hasOwnProperty('value');
+    const currentSelectedItem = isControlled ? value : selectedItem;
     
     return (
       <View style={[styles.defaultButton, { borderColor, borderRadius, borderWidth }, buttonStyle]}>
         <Text 
           style={[
             styles.defaultButtonText, 
-            { color: selectedItem ? selectedColor : unselectedColor },
+            { color: currentSelectedItem ? selectedColor : unselectedColor },
             buttonTextStyle
           ]}
           numberOfLines={1}
         >
-          {selectedItem?.title || selectedItem?.label || selectedItem?.name || defaultButtonText}
+          {currentSelectedItem?.title || currentSelectedItem?.label || currentSelectedItem?.name || defaultButtonText}
         </Text>
         <Text style={[styles.arrow, { color: borderColor }]}>▼</Text>
       </View>
@@ -195,6 +257,7 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDr
     const spaceBelow = screenHeight - (buttonLayout.y + buttonLayout.height);
     const spaceAbove = buttonLayout.y;
     
+    // Position below the button by default
     let top = buttonLayout.y + buttonLayout.height + 5;
     
     // If not enough space below, show above
@@ -202,11 +265,29 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDr
       top = buttonLayout.y - dropdownHeight - 5;
     }
     
+    // Calculate centered horizontal position
+    const dropdownWidth = Math.max(buttonLayout.width, 200);
+    const buttonCenterX = buttonLayout.x + (buttonLayout.width / 2);
+    const left = Math.max(10, Math.min(
+      screenWidth - dropdownWidth - 10,
+      buttonCenterX - (dropdownWidth / 2)
+    ));
+    
+    console.log('Dropdown positioning:', {
+      buttonLayout,
+      dropdownWidth,
+      buttonCenterX,
+      left,
+      top,
+      screenWidth,
+      screenHeight
+    });
+    
     return {
       position: 'absolute' as const,
       top,
-      left: buttonLayout.x,
-      width: Math.max(buttonLayout.width, 200),
+      left,
+      width: dropdownWidth,
       maxHeight,
       backgroundColor: dropdownBackgroundColor,
       borderRadius,
@@ -229,19 +310,27 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDr
       data,
       dropdownStyle = {},
       showsVerticalScrollIndicator = true,
+      value, // Add value prop
     } = this.props;
     const { isVisible, selectedItem, selectedIndex } = this.state;
+
+    // Use controlled value if value prop is provided (even if undefined), otherwise use internal state
+    const isControlled = this.props.hasOwnProperty('value');
+    const currentSelectedItem = isControlled ? value : selectedItem;
+    const currentSelectedIndex = isControlled 
+      ? data.findIndex(item => item === value || item?.value === value?.value || item?.title === value?.title)
+      : selectedIndex;
 
     return (
       <View style={styles.container}>
         <TouchableOpacity
+          ref={this.buttonRef}
           onPress={this.openDropdown}
-          onLayout={this.handleButtonLayout}
           disabled={disabled}
           activeOpacity={0.7}
           style={[disabled && styles.disabled]}
         >
-          {renderButton ? renderButton(selectedItem, isVisible) : this.renderDefaultButton()}
+          {renderButton ? renderButton(currentSelectedItem, isVisible) : this.renderDefaultButton()}
         </TouchableOpacity>
 
         <Modal
@@ -266,14 +355,28 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDr
               ]}
             >
               <FlatList
+                ref={this.flatListRef}
                 data={data}
                 keyExtractor={(item, index) => `dropdown-item-${index}`}
                 showsVerticalScrollIndicator={showsVerticalScrollIndicator}
                 bounces={false}
+                getItemLayout={(data, index) => ({
+                  length: 45, // Actual item height from DropdownTemplate styles
+                  offset: 45 * index,
+                  index,
+                })}
+                onScrollToIndexFailed={(info) => {
+                  console.log('ScrollToIndex failed:', info);
+                  // Fallback: scroll to approximate position
+                  this.flatListRef.current?.scrollToOffset({
+                    offset: info.index * 45,
+                    animated: true,
+                  });
+                }}
                 renderItem={({ item, index }) => {
-                  const isSelected = index === selectedIndex;
+                  const isSelected = index === currentSelectedIndex;
                   return renderItem 
-                    ? renderItem(item, index, isSelected)
+                    ? renderItem(item, index, isSelected, this.handleItemPress)
                     : this.renderDefaultItem(item, index, isSelected);
                 }}
               />
