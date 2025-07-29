@@ -17,7 +17,8 @@ import {
   Dimensions,
   StatusBar,
   BackHandler,
-  Alert
+  Alert,
+  TouchableWithoutFeedback
 } from 'react-native';
 import uuid from '../utils/uuid';
 import dayjs from 'dayjs';
@@ -1633,12 +1634,10 @@ export default class KoreChat extends React.Component<
     );
   }
 
-
-
   private renderMenuBottomSheet(): React.ReactNode {
-    // Using Modal instead of BottomSheet for better reliability
-    const shouldShowModal = Array.isArray(this.state.menuItems) && this.state.menuItems.length > 0;
-    
+    const shouldShowModal =
+      Array.isArray(this.state.menuItems) && this.state.menuItems.length > 0;
+  
     return (
       <Modal
         visible={shouldShowModal}
@@ -1646,52 +1645,94 @@ export default class KoreChat extends React.Component<
         transparent={true}
         onRequestClose={() => {
           this.setState({ menuItems: undefined });
-        }}>
-        <View style={{
-          flex: 1,
-          justifyContent: 'flex-end',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        }}>
-          <View style={{ 
-            minHeight: 300, 
-            backgroundColor: '#fff',
-            padding: 20,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 10,
-            elevation: 10,
-            maxHeight: '75%',
-          }}>
-            <View style={{
-              width: 40,
-              height: 4,
-              backgroundColor: '#ccc',
-              borderRadius: 2,
-              alignSelf: 'center',
-              marginBottom: 20,
-            }} />
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333'}}>
-              Menu Options
-            </Text>
-            {this.renderMenuPopupComponent()}
-            <TouchableOpacity
-              style={{
-                marginTop: 20,
-                padding: 15,
-                backgroundColor: '#f0f0f0',
-                borderRadius: 10,
-                alignItems: 'center',
-              }}
-              onPress={() => {
-                this.setState({ menuItems: undefined });
-              }}>
-              <Text style={{fontSize: 16, color: '#666'}}>Close</Text>
-            </TouchableOpacity>
+        }}
+      >
+        {/* Outer area to detect taps */}
+        <TouchableWithoutFeedback
+          onPress={() => {
+            this.setState({ menuItems: undefined });
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'flex-end',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }}
+          >
+            {/* Prevent tap propagation into this area */}
+            <TouchableWithoutFeedback>
+              <View
+                style={{
+                  minHeight: 300,
+                  backgroundColor: '#fff',
+                  padding: 20,
+                  borderTopLeftRadius: 20,
+                  borderTopRightRadius: 20,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: -2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 10,
+                  elevation: 10,
+                  maxHeight: '75%',
+                }}
+              >
+                {/* Drag handle */}
+                <View
+                  style={{
+                    width: 40,
+                    height: 4,
+                    backgroundColor: '#ccc',
+                    borderRadius: 2,
+                    alignSelf: 'center',
+                    marginBottom: 20,
+                  }}
+                />
+                {/* Close icon button */}
+                <TouchableOpacity
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    width: 30,
+                    height: 30,
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: 15,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1,
+                  }}
+                  onPress={() => {
+                    this.setState({ menuItems: undefined });
+                  }}
+                >
+                  <SvgIcon
+                    name={'HeaderClose'}
+                    width={normalize(20)}
+                    height={normalize(20)}
+                    color={'#697586'}
+                  />
+                </TouchableOpacity>
+  
+                {/* Title */}
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    marginBottom: 20,
+                    textAlign: 'left',
+                    color: '#333',
+                  }}
+                >
+                  Menu
+                </Text>
+  
+                {/* Content */}
+                {this.renderMenuPopupComponent()}
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   }
