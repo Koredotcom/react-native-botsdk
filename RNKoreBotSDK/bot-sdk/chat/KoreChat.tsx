@@ -1661,7 +1661,9 @@ export default class KoreChat extends React.Component<
             }}
           >
             {/* Prevent tap propagation into this area */}
-            <TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+            onPress={() => {}}
+            >
               <View
                 style={{
                   minHeight: 300,
