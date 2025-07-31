@@ -10,7 +10,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@react-native-community/netinfo": "^11.4.1",
     "react": "18.3.1",
     "react-native": "0.77.1",
     "rn-kore-bot-socket-lib-v77": "^0.0.2"
