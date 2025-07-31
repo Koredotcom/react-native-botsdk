@@ -1,4 +1,4 @@
-import axios from 'axios';
+// Using native fetch() API instead of axios
 import { EventEmitter } from 'events';
 import BotInfoModel from '../model/BotInfoModel';
 import { IBotClient } from './IBotClient';
@@ -10,7 +10,6 @@ import {
 } from '../constants/Constant';
 import { Platform } from 'react-native';
 import { BotConfigModel } from '../model/BotConfigModel';
-import NetInfo from '@react-native-community/netinfo';
 import Logger from '../utils/Logger';
 
 const RECONNECT_ATTEMPT_LIMIT = 5;
@@ -174,16 +173,34 @@ export class BotClient extends EventEmitter implements IBotClient {
         isAnonymous: body.isAnonymous
       });
 
-      axios
-        .post(jwtAuthorizationUrl, body)
-        .then(response => {
+      fetch(jwtAuthorizationUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+        .then(async response => {
           const duration = Date.now() - startTime;
+          const responseData = await response.json();
+
+          if (!response.ok) {
+            const error: any = new Error(`HTTP ${response.status}`);
+            error.response = {
+              status: response.status,
+              statusText: response.statusText,
+              data: responseData,
+            };
+            throw error;
+          }
+
           Logger.logApiSuccess(jwtAuthorizationUrl, 'POST', {
-            hasJwtToken: !!response.data.jwt,
-            tokenLength: response.data.jwt?.length
+            hasJwtToken: !!responseData.jwt,
+            tokenLength: responseData.jwt?.length
           }, duration);
 
-          this.jwtToken = response.data.jwt;
+          this.jwtToken = responseData.jwt;
           _this.botInfo = new BotInfoModel(config.botName, config.botId, {
             identity: '',
             userName: '',
@@ -191,7 +208,7 @@ export class BotClient extends EventEmitter implements IBotClient {
           _this.initialize(_this.botInfo, _this.botCustomData);
           _this.connectWithJwToken(this.jwtToken, !isFirstTime);
         })
-        .catch(e => {
+        .catch((e: any) => {
           const duration = Date.now() - startTime;
           Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
           Logger.logConnectionError('JWT Token Generation Failed', e);
@@ -254,19 +271,37 @@ export class BotClient extends EventEmitter implements IBotClient {
         botName: _this.botInfo?.botName
       });
 
-      axios
-        .post(jwtAuthorizationUrl, payload)
-        .then(response => {
+      fetch(jwtAuthorizationUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(async response => {
           const duration = Date.now() - startTime;
+          const responseData = await response.json();
+
+          if (!response.ok) {
+            const error: any = new Error(`HTTP ${response.status}`);
+            error.response = {
+              status: response.status,
+              statusText: response.statusText,
+              data: responseData,
+            };
+            throw error;
+          }
+
           Logger.logApiSuccess(jwtAuthorizationUrl, 'POST', {
-            hasUserInfo: !!response.data.userInfo,
-            hasAuthorization: !!response.data.authorization,
-            userId: response.data.userInfo?.userId,
-            tokenType: response.data.authorization?.token_type
+            hasUserInfo: !!responseData.userInfo,
+            hasAuthorization: !!responseData.authorization,
+            userId: responseData.userInfo?.userId,
+            tokenType: responseData.authorization?.token_type
           }, duration);
 
-          _this.userInfo = response.data.userInfo;
-          _this.authorization = response.data.authorization;
+          _this.userInfo = responseData.userInfo;
+          _this.authorization = responseData.authorization;
 
           Logger.logConnectionEvent('JWT Token Authorization Success', {
             userId: _this.userInfo?.userId,
@@ -279,7 +314,7 @@ export class BotClient extends EventEmitter implements IBotClient {
           }
           resolve(true);
         })
-        .catch(e => {
+        .catch((e: any) => {
           const duration = Date.now() - startTime;
           Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
           Logger.logConnectionError('JWT Token Authorization Failed', e);
@@ -310,27 +345,42 @@ export class BotClient extends EventEmitter implements IBotClient {
       isReconnectionAttempt
     });
 
-    axios
-      .post(rtmUrl, payload, {
-        headers: {
-          Authorization: this.authorization.token_type + ' ' + token,
-        },
-      })
-      .then(response => {
+    fetch(rtmUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        Authorization: this.authorization.token_type + ' ' + token,
+      },
+      body: JSON.stringify(payload),
+    })
+      .then(async response => {
         const duration = Date.now() - startTime;
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          const error: any = new Error(`HTTP ${response.status}`);
+          error.response = {
+            status: response.status,
+            statusText: response.statusText,
+            data: responseData,
+          };
+          throw error;
+        }
+
         Logger.logApiSuccess(rtmUrl, 'POST', {
-          hasUrl: !!response.data.url,
-          url: response.data.url?.substring(0, 50) + '...'
+          hasUrl: !!responseData.url,
+          url: responseData.url?.substring(0, 50) + '...'
         }, duration);
 
         Logger.logConnectionEvent('RTM URL Retrieved Successfully', {
           isReconnectionAttempt,
-          hasWebSocketUrl: !!response.data.url
+          hasWebSocketUrl: !!responseData.url
         });
 
-        _this.connect(response.data, isReconnectionAttempt);
+        _this.connect(responseData, isReconnectionAttempt);
       })
-      .catch(e => {
+      .catch((e: any) => {
         const duration = Date.now() - startTime;
         Logger.logApiError(rtmUrl, 'POST', e, duration);
 
@@ -545,31 +595,52 @@ export class BotClient extends EventEmitter implements IBotClient {
       forward: true
     });
 
-    axios
-      .get(rtmUrl, {
-        params: {
-          botId: this.botInfo.taskBotId,
-          limit: 40,
-          offset: 0,
-          forward: true,
-        },
-        headers: {
-          Authorization:
-            this.authorization.token_type +
-            ' ' +
-            this.authorization.accessToken,
-        },
-      })
-      .then(response => {
+    const urlWithParams = new URL(rtmUrl);
+    urlWithParams.searchParams.append('botId', this.botInfo.taskBotId);
+    urlWithParams.searchParams.append('limit', '40');
+    urlWithParams.searchParams.append('offset', '0');
+    urlWithParams.searchParams.append('forward', 'true');
+
+    fetch(urlWithParams.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        Authorization:
+          this.authorization.token_type +
+          ' ' +
+          this.authorization.accessToken,
+      },
+    })
+      .then(async response => {
         const duration = Date.now() - startTime;
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          const error: any = new Error(`HTTP ${response.status}`);
+          error.response = {
+            status: response.status,
+            statusText: response.statusText,
+            data: responseData,
+          };
+          throw error;
+        }
+
         Logger.logApiSuccess(rtmUrl, 'GET', {
-          messageCount: response.data?.length || 0,
-          hasData: !!response.data
+          messageCount: responseData?.length || 0,
+          hasData: !!responseData
         }, duration);
 
-        this.emit(RTM_EVENT.GET_HISTORY, response, this.botInfo);
+        // Create axios-like response object for compatibility
+        const axiosResponse = {
+          data: responseData,
+          status: response.status,
+          statusText: response.statusText,
+          headers: {},
+        };
+
+        this.emit(RTM_EVENT.GET_HISTORY, axiosResponse, this.botInfo);
       })
-      .catch(e => {
+      .catch((e: any) => {
         const duration = Date.now() - startTime;
         Logger.logApiError(rtmUrl, 'GET', e, duration);
       });
@@ -597,15 +668,34 @@ export class BotClient extends EventEmitter implements IBotClient {
 
       const headers = { Authorization: `bearer ${this.getAccessToken()}` };
 
-      axios
-        .post(subscribeUrl, payload, { headers })
-        .then(response => {
+      fetch(subscribeUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...headers,
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(async response => {
           const duration = Date.now() - startTime;
+
+          if (!response.ok) {
+            const responseData = await response.json().catch(() => ({}));
+            const error: any = new Error(`HTTP ${response.status}`);
+            error.response = {
+              status: response.status,
+              statusText: response.statusText,
+              data: responseData,
+            };
+            throw error;
+          }
+
           Logger.logApiSuccess(subscribeUrl, 'POST', {}, duration);
           Logger.logConnectionEvent('Push notification subscription Success', {});
           resolve(true);
         })
-        .catch(e => {
+        .catch((e: any) => {
           const duration = Date.now() - startTime;
           Logger.logApiError(subscribeUrl, 'POST', e, duration);
           Logger.logConnectionError('Push notification subscription Failed', e);
@@ -640,15 +730,33 @@ export class BotClient extends EventEmitter implements IBotClient {
         "X-HTTP-Method-Override": "DELETE"
       };
 
-      axios
-        .post(subscribeUrl, payload, { headers })
-        .then(response => {
+      fetch(subscribeUrl, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          ...headers,
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(async response => {
           const duration = Date.now() - startTime;
+
+          if (!response.ok) {
+            const responseData = await response.json().catch(() => ({}));
+            const error: any = new Error(`HTTP ${response.status}`);
+            error.response = {
+              status: response.status,
+              statusText: response.statusText,
+              data: responseData,
+            };
+            throw error;
+          }
+
           Logger.logApiSuccess(subscribeUrl, 'POST', {}, duration);
           Logger.logConnectionEvent('Push notification unsubscription Success', {});
           resolve(true);
         })
-        .catch(e => {
+        .catch((e: any) => {
           const duration = Date.now() - startTime;
           Logger.logApiError(subscribeUrl, 'POST', e, duration);
           Logger.logConnectionError('Push notification unsubscription Failed', e);
@@ -788,20 +896,20 @@ export class BotClient extends EventEmitter implements IBotClient {
 
   private getReconnectDelay() {
     // Get current connectivity status
-    NetInfo.fetch().then(status => {
-      if (status.isConnected) {
-        this.reconnectAttemptCount++;
-      }
-      else {
-        this.reconnectAttemptCount = 1
-      }
+    // NetInfo.fetch().then(status => {
+    //   if (status.isConnected) {
+    this.reconnectAttemptCount++;
+    // }
+    // else {
+    //   this.reconnectAttemptCount = 1
+    // }
 
-      Logger.info('Network connectivity check for reconnection', {
-        isConnected: status.isConnected,
-        connectionType: status.type,
-        reconnectAttemptCount: this.reconnectAttemptCount
-      });
-    });
+    // Logger.info('Network connectivity check for reconnection', {
+    //   isConnected: status.isConnected,
+    //   connectionType: status.type,
+    //   reconnectAttemptCount: this.reconnectAttemptCount
+    // });
+    // });
 
     return 3000;
   }
@@ -849,28 +957,41 @@ export class BotClient extends EventEmitter implements IBotClient {
       searchIndexId: this.botInfo.searchIndexId
     });
 
-    axios
-      .get(urlString, {
-        headers: {
-          Authorization:
-            this.authorization?.token_type +
-            ' ' +
-            this.authorization?.accessToken,
-          auth: this.jwtToken.toString(),
-        },
-      })
-      .then(response => {
+    fetch(urlString, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        Authorization:
+          this.authorization?.token_type +
+          ' ' +
+          this.authorization?.accessToken,
+        auth: this.jwtToken.toString(),
+      },
+    })
+      .then(async response => {
         const duration = Date.now() - startTime;
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          const error: any = new Error(`HTTP ${response.status}`);
+          error.response = {
+            status: response.status,
+            statusText: response.statusText,
+            data: responseData,
+          };
+          throw error;
+        }
+
         Logger.logApiSuccess(urlString, 'GET', {
-          hasSettings: !!response?.data?.settings,
-          settingsCount: response?.data?.settings?.length || 0
+          hasSettings: !!responseData?.settings,
+          settingsCount: responseData?.settings?.length || 0
         }, duration);
 
-        if (response?.data?.settings) {
-          this.resultViewSettings = response?.data?.settings;
+        if (responseData?.settings) {
+          this.resultViewSettings = responseData?.settings;
         }
       })
-      .catch(e => {
+      .catch((e: any) => {
         const duration = Date.now() - startTime;
         Logger.logApiError(urlString, 'GET', e, duration);
       });
