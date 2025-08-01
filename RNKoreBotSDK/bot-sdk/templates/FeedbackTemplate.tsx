@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 import Svg, { Path } from 'react-native-svg';
 import {CustomRatingBar as RatingBar} from '../components/CustomRatingBar';
@@ -115,10 +116,12 @@ export default class FeedbackTemplate extends BaseView<
   };
 
   private renderPendingFeedback = (viewType: any) => {
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
+    
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={styles.container}>
+        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         {this.props.payload?.text && (
           <Text style={styles.title}>{this.props.payload?.text}</Text>
         )}
@@ -134,10 +137,12 @@ export default class FeedbackTemplate extends BaseView<
   };
 
   private renderEmojiViewFeedback = () => {
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
+    
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={styles.container}>
+        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         <Text style={styles.title}>{this.props.payload?.text}</Text>
         <View style={{marginTop: 10, marginBottom: 10}}>
           <RatingBar
@@ -190,10 +195,12 @@ export default class FeedbackTemplate extends BaseView<
   };
 
   private renderStarViewFeedback = () => {
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
+    
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={styles.container}>
+        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         <Text style={styles.title}>{this.props.payload?.text}</Text>
         <View style={{marginTop: 10, marginBottom: 10}}>
           <RatingBar
@@ -203,8 +210,8 @@ export default class FeedbackTemplate extends BaseView<
             itemCount={5}
             itemPadding={4}
             ratingElement={{
-              full: this.renderFullStar(45, '#E9A93B'),
-              half: this.renderHalfStar(45, '#54D3C2'),
+              full: this.renderFullStar(45, '#F59E0B'),
+              half: this.renderHalfStar(45, '#F59E0B'),
               empty: this.renderEmptyStar(45, '#a7b0be'),
             }}
             onRatingUpdate={value => {
@@ -237,10 +244,12 @@ export default class FeedbackTemplate extends BaseView<
   };
 
   private renderThumbsUpDownFeedback = () => {
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
+    
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={styles.container}>
+        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         <Text style={[styles.title1, {}]}>{this.props.payload?.text}</Text>
         <View style={styles.thumb_main}>
           {this.props.payload?.thumpsUpDownArrays.map(
@@ -345,6 +354,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 6,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Color.black,
+    // borderColor removed - will be applied dynamically
   },
 });
