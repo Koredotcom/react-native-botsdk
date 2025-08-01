@@ -1,5 +1,5 @@
-import {BotClient} from './BotClient';
-import {IBotClient} from './IBotClient';
+import { BotClient } from './BotClient';
+import { IBotClient } from './IBotClient';
 
 export class KoreBotClient extends BotClient implements IBotClient {
   private static _instance: any;
@@ -35,8 +35,4 @@ export class KoreBotClient extends BotClient implements IBotClient {
     super.checkSocketAndReconnect();
   }
 
-  getBotHistory() {
-    //Commented temporarily as it is not working
-    //super.getBotHistory();
-  }
 }

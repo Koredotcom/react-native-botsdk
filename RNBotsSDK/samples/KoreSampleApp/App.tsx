@@ -20,12 +20,12 @@ const BotChatComponent = () => {
   const [connectionColor, setConnectionColor] = useState('#dc3545');
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
-  
+
   const botClient = useRef<any>(null);
 
   useEffect(() => {
     setupBotClient();
-    
+
     // Cleanup function
     return () => {
       botClient.current?.removeAllListeners();
@@ -35,7 +35,7 @@ const BotChatComponent = () => {
 
   const setupBotClient = () => {
     botClient.current = KoreBotClient.getInstance();
-    
+
     // Setup event listeners
     botClient.current.on(RTM_EVENT.CONNECTING, () => {
       updateStatus('Connecting...', '#ffc107');
@@ -69,14 +69,14 @@ const BotChatComponent = () => {
     const botConfig = {
       // Your bot configuration
       botName: 'MyAssistant',
-      botId: 'PLEASE_ENTER_BOT_ID',
-      clientId: 'PLEASE_ENTER_CLIENT_ID',,
-      clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
-      botUrl: 'https://bots.kore.ai',
-      identity: 'user@example.com',
-      jwtServerUrl: 'https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/',
+      botId: 'botId',
+      clientId: 'clientId',
+      clientSecret: 'clientSecret',
+      botUrl: 'botUrl',
+      identity: 'identity',
+      jwtServerUrl: 'jwtServerUrl',
       isWebHook: false,
-      value_aud: 'your-audience-value',
+      value_aud: 'value_aud',
       isHeaderVisible: true,
       isFooterVisible: true
     };
@@ -105,7 +105,7 @@ const BotChatComponent = () => {
     try {
       botClient.current.sendMessage(inputText);
       setInputText(''); // Clear input after sending
-      
+
       // Add user message to messages array for display
       addMessage({
         type: 'user',
@@ -128,7 +128,7 @@ const BotChatComponent = () => {
           </Text>
         </View>
       </View>
-      
+
       <View style={styles.controls}>
         <TouchableOpacity style={styles.connectButton} onPress={connect}>
           <Text style={styles.buttonText}>Connect</Text>
