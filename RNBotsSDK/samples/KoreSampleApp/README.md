@@ -32,14 +32,6 @@ Make sure you have the required peer dependencies installed:
 npm install react@>=18.0.0 react-native@>=0.70.0
 ```
 
-### Additional Dependencies
-
-The library requires these dependencies to be installed in your project:
-
-```bash
-npm install @react-native-community/netinfo axios events react-native-uuid
-```
-
 ## 🚀 Quick Start
 
 ### Basic Setup
