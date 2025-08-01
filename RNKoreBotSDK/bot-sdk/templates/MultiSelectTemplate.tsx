@@ -11,6 +11,7 @@ import {normalize} from '../utils/helpers';
 import CheckBox from '../components/CustomCheckBox';
 import Color from '../theme/Color';
 import {isIOS} from '../utils/PlatformCheck';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface MultiSelectProps extends BaseViewProps {}
@@ -40,13 +41,15 @@ export default class MultiSelectTemplate extends BaseView<
     if (!payload?.elements || payload.elements?.length === 0) {
       return <></>;
     }
-
+    const btheme = getBubbleTheme(this.props?.theme);
     return (
-      <View style={[styles.ele_main, isIOS && {marginLeft: normalize(10)}]}>
+      <View style={[styles.ele_main, isIOS && {marginLeft: normalize(5)}]}>
         <View style={styles.che_main}>
           <CheckBox
             style={styles.check_box}
             boxType="square"
+            selectedColor={btheme?.BUBBLE_RIGHT_BG_COLOR} 
+            unselectedColor={btheme?.BUBBLE_LEFT_BG_COLOR}
             value={payload?.isChecked || false}
             onValueChange={value => {
               let payload: any = this.state.mPayload;
@@ -78,12 +81,12 @@ export default class MultiSelectTemplate extends BaseView<
     if (!collections || collections?.length === 0) {
       return <></>;
     }
-
+    const btheme = getBubbleTheme(this.props?.theme);
     return (
       <View style={[styles.col_main, {width: (windowWidth / 4) * 3}]}>
         {collections.map((item: any, index: number) => {
           return (
-            <View style={[styles.col_item_main]}>
+            <View style={[styles.col_item_main, {borderColor: btheme?.BUBBLE_LEFT_BG_COLOR}]}>
               <View style={styles.col_check_main}>
                 <CheckBox
                   style={styles.check_box}
@@ -99,8 +102,8 @@ export default class MultiSelectTemplate extends BaseView<
                   onAnimationType={'stroke'}
                   offAnimationType={'stroke'}
                   // Enhanced color customization - can be overridden by item properties
-                  selectedColor={item.selectedColor || '#007AFF'} // Blue when checked
-                  unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
+                  selectedColor={btheme?.BUBBLE_RIGHT_BG_COLOR} // Blue when checked
+                  unselectedColor={btheme?.BUBBLE_LEFT_BG_COLOR} // Gray when unchecked
                   selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
                   size={item.size || 24} // Checkbox size
                   borderWidth={item.borderWidth || 2} // Border thickness
@@ -167,6 +170,7 @@ export default class MultiSelectTemplate extends BaseView<
   }
 
   render() {
+    const btheme = getBubbleTheme(this.props?.theme);
     let selectList = this.getSelectedList();
     if (!this.state.mPayload) {
       return <></>;
@@ -205,9 +209,9 @@ export default class MultiSelectTemplate extends BaseView<
                 style={[
                   styles.btn_main,
                   selectList?.length === 0
-                    ? {backgroundColor: Color.gray}
-                    : {backgroundColor: '#303f9f'},
-                  this.isViewDisable() && {backgroundColor: Color.gray},
+                    ? {backgroundColor: btheme?.BUBBLE_RIGHT_BG_COLOR}
+                    : {backgroundColor: btheme?.BUBBLE_RIGHT_BG_COLOR},
+                  //this.isViewDisable() && {backgroundColor: Color.gray},
                 ]}>
                 <Text style={[styles.btn_text]}>{btn?.title}</Text>
               </TouchableOpacity>
@@ -240,7 +244,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginStart: normalize(30),
+    marginStart: normalize(0),
   },
   item_title: {
     textAlign: 'center',
@@ -261,8 +265,10 @@ const styles = StyleSheet.create({
     borderColor: Color.black,
     borderWidth: StyleSheet.hairlineWidth,
     padding: normalize(8),
+    marginTop: 5,
+    marginStart: normalize(0),
   },
-  col_main: {marginStart: normalize(30)},
+  col_main: {marginStart: normalize(0)},
   select_all: {
     justifyContent: 'center',
     // backgroundColor: 'red',
