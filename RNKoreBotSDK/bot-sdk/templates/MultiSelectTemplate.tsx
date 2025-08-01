@@ -69,7 +69,7 @@ export default class MultiSelectTemplate extends BaseView<
             }}
           />
           <Text
-            style={[styles.select_all, isIOS && {marginLeft: normalize(5)}]}>
+            style={[styles.select_all, {marginLeft: normalize(5)}]}>
             {'Select all'}
           </Text>
         </View>
@@ -157,7 +157,7 @@ export default class MultiSelectTemplate extends BaseView<
                   numberOfLines={1}
                   style={[
                     styles.item_title,
-                    isIOS && {marginLeft: normalize(5)},
+                    {marginLeft: normalize(5)},
                   ]}>
                   {item?.title}
                 </Text>
