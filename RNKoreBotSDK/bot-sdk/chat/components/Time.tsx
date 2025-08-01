@@ -137,7 +137,6 @@ export default class Time extends BaseView<TimeProps, TimeState> {
       return (
         <View
           style={[
-            // containerStyle,
             styles[position].container,
           ]}>
           <Text
@@ -145,15 +144,12 @@ export default class Time extends BaseView<TimeProps, TimeState> {
               {
                 fontSize: normalize(10),
                 backgroundColor: 'transparent',
-                // textAlign: 'right',
                 marginTop: normalize(3),
                 opacity: 0.8,
               },
               {
-                color:
-                  this.props?.theme?.v3?.body?.time_stamp?.color || '#1d2939',
-                fontFamily:
-                  this.props?.theme?.v3?.body?.font?.family || 'Inter',
+                color: this.props?.theme?.v3?.body?.time_stamp?.color || '#1d2939',
+                fontFamily: this.props?.theme?.v3?.body?.font?.family || 'Inter',
               },
               {
                 fontSize: normalize(9),
