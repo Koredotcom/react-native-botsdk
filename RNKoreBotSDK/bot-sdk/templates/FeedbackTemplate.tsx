@@ -18,6 +18,7 @@ import {normalize} from '../utils/helpers';
 interface FeedbackProps extends BaseViewProps {}
 interface FeedbackState extends BaseViewState {
   rating?: any;
+  selectedThumbIndex?: number;
 }
 
 const FeedbackTypes = {
@@ -47,6 +48,7 @@ export default class FeedbackTemplate extends BaseView<
     super(props);
     this.state = {
       rating: 0,
+      selectedThumbIndex: -1,
     };
   }
 
@@ -243,9 +245,13 @@ export default class FeedbackTemplate extends BaseView<
         <View style={styles.thumb_main}>
           {this.props.payload?.thumpsUpDownArrays.map(
             (item: any, index: number) => {
+              const isLiked = this.state.selectedThumbIndex === index;
               return (
                 <TouchableOpacity
                   onPress={() => {
+                    // Update the selected index state
+                    this.setState({ selectedThumbIndex: index });
+                    
                     // console.log('item ---->:', item);
                     this.props.payload.onListItemClick(
                       this.props.payload.template_type,
@@ -260,18 +266,18 @@ export default class FeedbackTemplate extends BaseView<
                   <View
                     style={[
                       styles.thumb_item,
-                      {backgroundColor: ThumbsUpDown[index % 2].bg},
+                      {backgroundColor: isLiked ? ThumbsUpDown[index % 2].color : ThumbsUpDown[index % 2].bg},
                     ]}>
                     <SvgIcon
                       name={ThumbsUpDown[index % 2].icon}
                       width={normalize(22)}
                       height={normalize(22)}
-                      color={'#697586'}
+                      color={isLiked ? '#ffffff' : ThumbsUpDown[index % 2].color}
                     />
                     <Text
                       style={[
                         styles.thumb_text,
-                        {color: ThumbsUpDown[index % 2].color},
+                        {color: isLiked ? '#ffffff' : ThumbsUpDown[index % 2].color},
                       ]}>
                       {item?.reviewText}
                     </Text>
