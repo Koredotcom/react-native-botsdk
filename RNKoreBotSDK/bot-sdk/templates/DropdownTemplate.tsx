@@ -37,6 +37,7 @@ export default class DropdownTemplate extends BaseView<
     super(props);
     this.state = {
       selectedValue: undefined,
+      item: undefined,
     };
   }
 
@@ -44,8 +45,8 @@ export default class DropdownTemplate extends BaseView<
     return (
       <SelectDropdown
         data={this.props.payload.elements}
+        value={this.state.item}
         onSelect={(selectedItem, index) => {
-          //setSelectedValue(selectedItem);
           this.setState({
             selectedValue: selectedItem,
             item: this.props.payload.elements[index],
@@ -69,9 +70,15 @@ export default class DropdownTemplate extends BaseView<
         }}
         // search={false}
         // searchPlaceHolder={'Search'}
-        renderItem={(selectedItem: any, index: number, isSelected: boolean) => {
+        renderItem={(selectedItem: any, index: number, isSelected: boolean, onItemPress: (item: any, index: number) => void) => {
           return (
-            <View key={'item_' + index}>
+            <TouchableOpacity 
+              key={'item_' + index}
+              onPress={() => {
+                onItemPress(selectedItem, index);
+              }}
+              activeOpacity={0.7}
+            >
               <View style={styles.single_item}>
                 <Text
                   style={{
@@ -82,7 +89,7 @@ export default class DropdownTemplate extends BaseView<
                 </Text>
               </View>
               <View style={styles.line} />
-            </View>
+            </TouchableOpacity>
           );
         }}
       />
