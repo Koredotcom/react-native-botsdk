@@ -92,6 +92,10 @@ const styles = {
 
 export default class Message extends React.Component<MessageProps> {
   botIconUrl: any = null;
+  state = {
+    imageLoadFailed: false,
+  };
+  
   static defaultProps = {
     renderAvatar: null,
     renderDay: null,
@@ -159,6 +163,8 @@ export default class Message extends React.Component<MessageProps> {
   private setBotIconUrl = async (url: any) => {
     if (this.botIconUrl !== url) {
       this.botIconUrl = url;
+      // Reset image load failed state when new URL is set
+      this.setState({ imageLoadFailed: false });
       AsyncStorage.setItem(BOT_ICON_URL, url);
     }
   };
@@ -176,87 +182,48 @@ export default class Message extends React.Component<MessageProps> {
       this.props?.theme?.v3?.body?.icon?.show
     ) {
       this.setBotIconUrl(currentMessage.icon);
-      let name: any;
-      const isShowBotIcon =
-        this.props?.theme?.v3?.body?.icon?.bot_icon || false;
+      const isShowBotIcon = this.props?.theme?.v3?.body?.icon?.bot_icon || false;
 
       if (!isShowBotIcon) {
-        name =
-          currentMessage?.botInfo?.chatBot?.[0]?.toUpperCase() || undefined;
+        return <View style={{width: normalize(5)}} />;
       }
+
       return (
         <View
           style={[
-            styles.bot_icon_con,
-
-            isTimeTop && {marginTop: normalize(20)},
+            styles.bot_icon_con
           ]}>
           <View
             style={[
               styles.bot_icon_con2,
               {
-                backgroundColor: isShowBotIcon
-                  ? Color.transparent
-                  : this.props.theme?.v3?.general?.colors?.primary,
+                backgroundColor: Color.transparent,
                 alignItems: 'center',
                 justifyContent: 'center',
               },
             ]}>
-            {isShowBotIcon ? (
-              <FastImage
-                source={{
-                  uri: currentMessage.icon,
-                  priority: FastImage.priority.high,
-                  cache: FastImage.cacheControl.immutable, // Use cache effectively
-                }}
-                resizeMode={FastImage.resizeMode.cover}
-                style={[styles.bot_icon, {alignSelf: 'center'}]}
-              />
-            ) : (
-              name && (
-                <Text
-                  style={{
-                    color: this.props.theme?.v3?.general?.colors?.secondary,
-                    fontSize: normalize(14),
-                  }}>
-                  {name}
-                </Text>
-              )
-            )}
+            <FastImage
+              source={
+                this.state.imageLoadFailed || !currentMessage.icon
+                  ? require('../../assets/placehoder/default_bot_icon.png')
+                  : {
+                      uri: currentMessage.icon,
+                      priority: FastImage.priority.high,
+                      cache: FastImage.cacheControl.immutable,
+                    }
+              }
+              resizeMode={FastImage.resizeMode.cover}
+              style={[styles.bot_icon, {alignSelf: 'center'}]}
+              onError={() => {
+                this.setState({ imageLoadFailed: true });
+              }}
+            />
           </View>
         </View>
       );
     }
 
     return <View style={{width: normalize(5)}} />;
-
-    // try {
-    //   console.log(
-    //     'this.props currentMessage------>:',
-    //     JSON.stringify(currentMessage),
-    //   );
-    // } catch (error) {}
-
-    // if (
-    //   currentMessage &&
-    //   currentMessage.user &&
-    //   user._id === currentMessage.user._id &&
-    //   !showUserAvatar
-    // ) {
-    //   return null;
-    // }
-
-    // if (
-    //   currentMessage &&
-    //   currentMessage.user &&
-    //   currentMessage.user.avatar === null
-    // ) {
-    //   return null;
-    // }
-
-    // const {...props} = this.props;
-
-    //return <></>;
   }
 
   render() {
