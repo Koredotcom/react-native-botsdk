@@ -9,8 +9,8 @@ import { generateColor, normalize } from '../../utils/helpers';
 import { TEMPLATE_STYLE_VALUES } from '../../theme/styles';
 const windowWidth = Dimensions.get('window').width;
 const MATERIAL_COLORS = [
-  "#4A9AF2",
   "#5BC8C4",
+  "#4A9AF2",
   "#e74c3c",
   "#3498db"
 ];

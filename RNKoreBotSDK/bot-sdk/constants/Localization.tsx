@@ -23,10 +23,19 @@ import { Platform } from 'react-native';
  * 
  * 4. Add new locale:
  *    LocalizationManager.addLocaleStrings('it', {
+ *      BACK_DIALOG_TITLE: 'Vuoi chiudere la conversazione o minimizzare?',
  *      CANCEL: 'ANNULLA',
  *      CLOSE: 'CHIUDI',
  *      MINIMIZE: 'MINIMIZZA'
  *    });
+ * 
+ * 5. Update specific keys in existing locale (smart merge):
+ *    LocalizationManager.addLocaleStrings('fr', {
+ *      CANCEL: 'NOUVEAU ANNULER',    // Overrides existing CANCEL
+ *      NEW_KEY: 'NOUVELLE VALEUR'    // Adds new key  
+ *    });
+ *    // Result: All other keys (CLOSE, MINIMIZE, etc.) are preserved
+ * 
  */
 
 // Localized strings for the application
@@ -250,13 +259,74 @@ export class Localization {
   }
 
   /**
-   * Add new locale strings (for extending localization)
+   * Add or update locale strings (smart merge behavior)
+   * 
+   * Behavior:
+   * - If locale doesn't exist: Creates new locale with provided strings
+   * - If locale exists: 
+   *   - Existing keys: Overrides values with new ones
+   *   - New keys: Adds them to existing locale
+   *   - Untouched keys: Preserves existing values
+   * 
    * @param locale - Locale code
-   * @param strings - Object containing localized strings
+   * @param strings - Object containing localized strings to add/update
    */
   public addLocaleStrings(locale: string, strings: Record<string, string>): void {
-    (LOCALIZED_STRINGS as any)[locale] = strings;
-    console.log('Localization: Added new locale:', locale);
+    const existingStrings = (LOCALIZED_STRINGS as any)[locale];
+    
+    if (!existingStrings) {
+      // Create new locale
+      (LOCALIZED_STRINGS as any)[locale] = strings;
+      console.log(`Localization: Created new locale "${locale}" with ${Object.keys(strings).length} strings`);
+    } else {
+      // Smart merge: override existing keys, add new keys, preserve untouched keys
+      (LOCALIZED_STRINGS as any)[locale] = {
+        ...existingStrings,  // Keep all existing keys
+        ...strings,          // Override existing + add new keys
+      };
+      
+      // Detailed logging
+      const updatedKeys: string[] = [];
+      const newKeys: string[] = [];
+      
+      Object.keys(strings).forEach(key => {
+        if (existingStrings[key]) {
+          updatedKeys.push(key);
+        } else {
+          newKeys.push(key);
+        }
+      });
+      
+      console.log(`Localization: Updated locale "${locale}"`);
+      if (updatedKeys.length > 0) {
+        console.log(`  ✏️  Overridden keys: [${updatedKeys.join(', ')}]`);
+      }
+      if (newKeys.length > 0) {
+        console.log(`  ➕ Added new keys: [${newKeys.join(', ')}]`);
+      }
+      
+      const preservedCount = Object.keys(existingStrings).length - updatedKeys.length;
+      console.log(`  ✅ Preserved ${preservedCount} existing keys`);
+    }
+  }
+
+  /**
+   * Update a single localized string key
+   * @param locale - Locale code
+   * @param key - String key to update
+   * @param value - New value for the key
+   */
+  public updateLocalizedString(locale: string, key: string, value: string): void {
+    this.addLocaleStrings(locale, { [key]: value });
+  }
+
+  /**
+   * Get current strings for a locale (useful for debugging)
+   * @param locale - Locale code
+   * @returns Object with current strings or undefined if locale doesn't exist
+   */
+  public getLocaleStrings(locale: string): Record<string, string> | undefined {
+    return LOCALIZED_STRINGS[locale as keyof typeof LOCALIZED_STRINGS];
   }
 }
 
