@@ -12,6 +12,7 @@ import {convertToRNStyle, normalize, renderImage} from '../utils/helpers';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
+import {getBubbleTheme} from '../theme/themeHelper';
 
 const BORDER = {
   WIDTH: TEMPLATE_STYLE_VALUES.BORDER_WIDTH,
@@ -46,6 +47,7 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
     if (item?.cardContentStyles) {
       cardContentStyles = convertToRNStyle(item?.cardContentStyles);
     }
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
 
     return (
       <View
@@ -144,7 +146,7 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
               </View>
             )}
             {item?.cardDescription && (
-              <View style={[styles.sub_view_container]}>
+              <View style={[styles.sub_view_container, {borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || '#ff0000'}]}>
                 {item?.cardDescription?.map((desc: any, index: number) => {
                   return (
                     <View key={index + ''} style={styles.desc_container}>
@@ -400,13 +402,14 @@ const styles = StyleSheet.create({
     // borderLeftWidth: BORDER.WIDTH,
     // borderRightWidth: BORDER.WIDTH,
     //borderColor: '#95B6FB',
-    borderColor: '#85B7FE',
+    // borderColor: '#85B7FE',
     paddingStart: 10,
     // margin: 10,
     // borderRadius: BORDER.RADIUS,
     borderBottomEndRadius: BORDER.RADIUS,
     borderBottomStartRadius: BORDER.RADIUS,
     paddingBottom: 10,
+    borderWidth: 1
   },
   image_container: {
     // height: 50,
