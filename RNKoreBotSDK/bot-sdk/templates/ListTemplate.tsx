@@ -11,6 +11,7 @@ import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
+import { getBubbleTheme } from '../theme/themeHelper';
 
 interface ListProps extends BaseViewProps {}
 interface ListState extends BaseViewState {}
@@ -31,8 +32,9 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
   getSingleElementView = (item: any, index: number, _size: number = 0) => {
     let Image_Http_URL = {uri: item?.image_url};
     let buttons = item?.buttons ? [...item?.buttons] : []; //, ...item?.buttons, ...item?.buttons];
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
-      <View key={index + '_' + index} style={styles.main_view_1}>
+      <View key={index + '_' + index} style={[styles.main_view_1, {borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR}]}>
         <TouchableOpacity
           style={styles.sub_container}
           onPress={
@@ -59,7 +61,7 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
                 styles.displayTextStyle,
 
                 {
-                  color: Color.text_color, ////this.props.theme?.v3?.general?.colors?.primary_text,
+                  color: Color.black, ////this.props.theme?.v3?.general?.colors?.primary_text,
                   fontFamily: this.props.theme?.v3?.body?.font?.family,
                 },
                 botStyles[this.props?.theme?.v3?.body?.font?.size || 'medium']
@@ -74,7 +76,7 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
 
                 {
                   //color: this.props.theme?.v3?.general?.colors?.primary_text,
-                  color: Color.sub_text_color,
+                  color: Color.black,
                   fontFamily: this.props.theme?.v3?.body?.font?.family,
                 },
                 botStyles['small']?.size,
@@ -185,6 +187,7 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
                       styles.more_text,
                       {
                         fontFamily: this.props.theme?.v3?.body?.font?.family,
+                        color: Color.black
                       },
                       botStyles[
                         this.props?.theme?.v3?.body?.font?.size || 'medium'
@@ -223,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
     color: TEMPLATE_STYLE_VALUES.VIEW_MORE_TEXT_COLOR,
     // alignSelf: 'flex-start',
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
   more_sub_con1: {

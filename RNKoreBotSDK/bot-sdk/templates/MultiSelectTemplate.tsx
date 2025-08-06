@@ -43,7 +43,7 @@ export default class MultiSelectTemplate extends BaseView<
     }
     const btheme = getBubbleTheme(this.props?.theme);
     return (
-      <View style={[styles.ele_main, isIOS && {marginLeft: normalize(5)}]}>
+      <View style={[styles.ele_main]}>
         <View style={styles.che_main}>
           <CheckBox
             style={styles.check_box}
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginStart: normalize(0),
+    marginStart: normalize(5),
   },
   item_title: {
     textAlign: 'center',
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginStart: normalize(0),
   },
-  col_main: {marginStart: normalize(0)},
+  col_main: {marginStart: normalize(5), marginTop: normalize(5)},
   select_all: {
     justifyContent: 'center',
     // backgroundColor: 'red',
@@ -281,8 +281,6 @@ const styles = StyleSheet.create({
   },
   che_main: {
     flexDirection: 'row',
-    marginStart: -normalize(6),
-    marginTop: normalize(5),
     marginBottom: normalize(5),
   },
   ele_main: {flexDirection: 'column', marginBottom: normalize(5)},

@@ -115,7 +115,7 @@ export default class RadioOptionTemplate extends BaseView<
                 style={{
                   color: Color.black,
                   fontSize: normalize(14),
-                  fontWeight: 400,
+                  fontWeight: 'bold',
                 }}>
                 {this.props.payload?.heading?.trim()}
                 {/* isFilterApply={true}

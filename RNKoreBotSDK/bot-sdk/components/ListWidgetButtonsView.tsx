@@ -6,6 +6,7 @@ import Popover from 'react-native-popover-view';
 import RenderImage from '../utils/RenderImage';
 import {normalize} from '../utils/helpers';
 import {IThemeType} from '../theme/IThemeType';
+import { getBubbleTheme } from '../theme/themeHelper';
 
 interface ListButtonsProps {
   buttonsLayout: any;
@@ -72,6 +73,7 @@ export default class ListWidgetButtonsView extends React.Component<
   };
 
   private renderMoreButton = (buttons: any, index: number) => {
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <Popover
         key={index + ' ' + index}
@@ -93,8 +95,8 @@ export default class ListWidgetButtonsView extends React.Component<
               style={[
                 styles.more_text,
                 {
-                  fontFamily:
-                    this.props.theme?.v3?.body?.font?.family || 'Inter',
+                  color: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,
+                  fontFamily: this.props.theme?.v3?.body?.font?.family || 'Inter',
                 },
               ]}>
               {'...More'}
@@ -122,6 +124,7 @@ export default class ListWidgetButtonsView extends React.Component<
     if (!btn) {
       return <></>;
     }
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <TouchableOpacity
         onPress={() => {
@@ -146,6 +149,7 @@ export default class ListWidgetButtonsView extends React.Component<
             style={[
               styles.btn_title,
               {
+                color: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,
                 fontFamily: this.props.theme?.v3?.body?.font?.family || 'Inter',
               },
             ]}>
