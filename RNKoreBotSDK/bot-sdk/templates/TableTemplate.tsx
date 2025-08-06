@@ -308,7 +308,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
       return null;
     }
     let flexArry: any = [];
-
+    const btheme = getBubbleTheme(this.props?.theme);
     const Wrapper: any = this.props.isFromViewMore ? ScrollView : View;
     return (
       <View
@@ -328,7 +328,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
           keyboardDismissMode="none"
           contentInsetAdjustmentBehavior="scrollableAxes"
           horizontal={true}>
-          <View style={[styles.subContainer_more]}>
+          <View style={[styles.subContainer_more,{borderColor:btheme?.BUBBLE_LEFT_BG_COLOR}]}>
             <View style={[styles.subContainer2_more]}>
               {payload?.columns.map((coloum: any, i: number) => {
                 flexArry[i] = coloum[0].length;
@@ -348,7 +348,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
                 );
               })}
             </View>
-            <View style={styles.thick_line} />
+            <View style={[styles.thick_line]} />
             <View style={styles.view_more_main}>
               {this.getTableRowViewsMore(payload?.elements, flexArry)}
             </View>
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
   thick_line: {
     height: 1,
     opacity: 1,
-    backgroundColor: TEMPLATE_STYLE_VALUES.BORDER_COLOR,
+    backgroundColor: 'transparent',
   },
   titles: {
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
