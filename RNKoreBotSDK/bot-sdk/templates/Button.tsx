@@ -8,6 +8,7 @@ import BotText from './BotText';
 import {ThemeContext} from '../theme/ThemeContext';
 import {BubbleTheme, ButtonTheme} from '../constants/Constant';
 import {getBubbleTheme, getButtonTheme} from '../theme/themeHelper';
+import { getWindowWidth } from '../charts';
 
 interface ButtonProps extends BaseViewProps {
   buttonContainerStyle?: any;
@@ -34,12 +35,13 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
   //   );
   // }
 
-  private getSingleButtonsViewForFlatList = (item: any) => {
+  private getSingleButtonsViewForFlatList = (item: any, payload: any) => {
     return this.getSingleButtonView(
       item.item,
       item.index,
       item?.btheme,
       item?.bbtheme,
+      payload
     );
   };
 
@@ -48,6 +50,7 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
     index = 0,
     btheme: ButtonTheme,
     bbtheme: BubbleTheme,
+    payload: any
   ) => {
     return (
       <View key={index + ''} style={styles.item_container}>
@@ -56,8 +59,10 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
           style={[
             styles.btn_view,
             {
+              width: payload.fullWidth ? getWindowWidth() * 0.75 : undefined,
+              backgroundColor: payload.variation == 'backgroundInverted' ? bbtheme.BUBBLE_RIGHT_BG_COLOR : payload.variation == 'textInverted' ? bbtheme?.BUBBLE_LEFT_BG_COLOR : Color.white,
               borderColor: bbtheme?.BUBBLE_LEFT_BG_COLOR || '#3F51B5',
-              borderWidth: 1,
+              borderWidth: payload.variation == 'backgroundInverted' ? 0 : 1,
             },
           ]}
           onPress={() => {
@@ -72,7 +77,7 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
             style={[
               styles.item_text,
               {
-                color: btheme.ACTIVE_TXT_COLOR,
+                color: payload.variation == 'backgroundInverted' ? bbtheme.BUBBLE_RIGHT_TEXT_COLOR : payload.variation == 'textInverted' ? bbtheme.BUBBLE_RIGHT_BG_COLOR : btheme.ACTIVE_TXT_COLOR,
                 fontFamily:
                   this.props?.theme?.v3?.body?.font?.family || 'Inter',
               },
@@ -86,7 +91,8 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
     );
   };
 
-  private renderButtonsView = (list: []) => {
+  private renderButtonsView = (payload: any) => {
+    let list = payload.buttons;
     if (!list || list.length === 0) {
       return <></>;
     }
@@ -95,14 +101,14 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={styles.btn_views_1}>
+        style={{flexDirection: payload.stackedButtons || payload.fullWidth ? 'column' : 'row'}}>
         {list.map((item: any, index: any) => {
           return this.getSingleButtonsViewForFlatList({
             item,
             index,
             btheme,
-            bbtheme,
-          });
+            bbtheme
+          }, payload);
         })}
       </View>
     );
@@ -121,7 +127,7 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
                 theme={this.props.theme}
               />
             )}
-            {this.renderButtonsView(this.props.payload.buttons)}
+            {this.renderButtonsView(this.props.payload)}
           </View>
         )}
       </View>
@@ -160,7 +166,7 @@ const styles = StyleSheet.create({
   btn_view: {
     flexDirection: 'column',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 5,
     padding: 10,
     fontWeight: 'bold',
   },

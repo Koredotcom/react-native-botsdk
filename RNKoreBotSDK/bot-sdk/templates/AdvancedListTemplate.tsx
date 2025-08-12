@@ -203,7 +203,7 @@ export default class AdvancedListTemplate extends BaseView<
 
     return (
       <View
-        style={{ backgroundColor: Color.white, width: (windowWidth / 4) * 3.3 }}>
+        style={{ backgroundColor: Color.white, width: (windowWidth / 4) * 3.5 }}>
         <View
           style={[
             styles.default_main_container,
@@ -1323,9 +1323,8 @@ export default class AdvancedListTemplate extends BaseView<
     return (
       <View
         style={{
-          alignContent: 'center',
-          justifyContent: 'center',
-          marginTop: normalize(5),
+          alignContent: 'flex-start',
+          justifyContent: 'flex-start',
         }}
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}>
         {this.state?.payload &&
@@ -1560,7 +1559,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E4E5E7',
     width: '95%',
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
   },
   buttons_container: {
     minWidth: 50,

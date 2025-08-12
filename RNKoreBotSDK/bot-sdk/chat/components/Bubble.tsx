@@ -24,24 +24,10 @@ import {
 } from '../../utils/helpers';
 import {BotChatContext} from '../BotChatContext';
 import {TEMPLATE_TYPES} from '../../constants/Constant';
-import Button from '../../templates/Button';
-import CardTemplate from '../../templates/CardTemplate';
 import BotText from '../../templates/BotText';
-import ListTemplate from '../../templates/ListTemplate';
-import ImageTemplate from '../../templates/ImageTemplate';
-import TableTemplate from '../../templates/TableTemplate';
 import {ThemeType} from '../../theme/ThemeType';
 import {ThemeContext} from '../../theme/ThemeContext';
 import {IThemeType} from '../../theme/IThemeType';
-import ErrorTemplate from '../../templates/ErrorTemplate';
-import CarouselTemplate from '../../templates/CarouselTemplate';
-import AdvancedListTemplate from '../../templates/AdvancedListTemplate';
-import MiniTableTemplate from '../../templates/MiniTableTemplate';
-import BarChartTemplate from '../../templates/charts/BarChartTemplate';
-import StackBarChartTemplate from '../../templates/charts/StackBarChartTemplate';
-import PieChartView from '../../templates/charts/PieChartView';
-import LineChartTemplate from '../../templates/charts/LineChartTemplate';
-import DateTemplate from '../../templates/DateTemplate';
 import BotTemplate from '../../templates/BotTemplate';
 import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
 import CustomTemplate from '../../templates/CustomTemplate';
@@ -369,64 +355,6 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
     );
   };
 
-  private renderBubbleViews1 = (
-    templateType: string,
-    payload: any,
-    theme: IThemeType,
-  ) => {
-    //console.log('templateType ----->:', templateType);
-
-    // console.log('================ ================ ===============');
-    // console.log('theme?.v3?.body?.font ----->:', theme?.v3?.body?.font);
-    // console.log('================ ================ ===============');
-    switch (templateType) {
-      case TEMPLATE_TYPES.TEXT:
-      case TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE:
-        return this.renderMessageText();
-      case TEMPLATE_TYPES.BUTTON:
-        return <Button payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.CARD_TEMPLATE:
-        return <CardTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.LIST_TEMPLATE:
-        return <ListTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.IMAGE_MESSAGE:
-        return <ImageTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.TABLE_TEMPLATE:
-        return <TableTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.QUICK_REPLIES:
-        return this.renderBotText(templateType);
-      case TEMPLATE_TYPES.ERROR_TEMPLATE:
-        return <ErrorTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.CAROUSEL_TEMPLATE:
-        return <CarouselTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.ADVANCED_LIST_TEMPLATE:
-        return <AdvancedListTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.MINI_TABLE_TEMPLATE:
-        return <MiniTableTemplate payload={payload} theme={theme} />;
-
-      case TEMPLATE_TYPES.BAR_CHART_TEMPLATE:
-        if (payload?.stacked) {
-          return <StackBarChartTemplate payload={payload} theme={theme} />;
-        }
-        return <BarChartTemplate payload={payload} theme={theme} />;
-
-      case TEMPLATE_TYPES.PIE_CHART_TEMPLATE:
-        return <PieChartView payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.LINE_CHART_TEMPLATE:
-        return <LineChartTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.DATE_TEMPLATE:
-        return <DateTemplate payload={payload} theme={theme} />;
-      case TEMPLATE_TYPES.DATE_RANGE_TEMPLATE:
-        return <DateTemplate payload={payload} theme={theme} />;
-    }
-    return (
-      <Text style={{padding: 10}}>
-        {"Pending template type: '"}
-        {templateType}
-        {"'"}
-      </Text>
-    );
-  };
   private checkIsLastMessage = () => {
     const {nextMessage} = this.props;
     if (this.isHiddenDialog(nextMessage)) {
@@ -525,7 +453,7 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
     }
 
     return (
-      <View style={{marginTop: normalize(5)}}>
+      <View style={{marginTop: normalize(0)}}>
         {this.renderBubbleViews(templateType, payload, theme)}
       </View>
     );
@@ -576,9 +504,7 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
                 fontSize: normalize(10),
                 textAlign: 'center',
                 opacity: 0.8,
-
                 marginStart: 5,
-                // backgroundColor: 'green',
               },
               isUserMessage && {
                 marginEnd: 10,
@@ -586,12 +512,12 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
               {
                 color: theme?.v3?.body?.time_stamp?.color || '#1d2939',
                 fontFamily: theme?.v3?.body?.font?.family || 'Inter',
-
                 opacity: 1,
               },
               {
                 fontWeight: '700',
-                fontSize: normalize(13),
+                alignSelf:'center',
+                fontSize: normalize(10),
               },
             ]}>
             {isUserMessage ? 'You' : KoraBotClient.getInstance().getBotName()}
