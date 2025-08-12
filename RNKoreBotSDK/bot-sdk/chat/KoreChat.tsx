@@ -2349,7 +2349,7 @@ export default class KoreChat extends React.Component<
               textAlign: 'left',
               color: '#333'
             }}>
-              {this.getLocalizedString('BACK_DIALOG_TITLE')}
+              {this.getLocalizedString('back_dialog_title')}
             </Text>
             
             <View style={{
@@ -2366,7 +2366,7 @@ export default class KoreChat extends React.Component<
                 }}
                 onPress={this.handleDialogCancel}>
                 <Text style={{fontSize: 16, color: '#333', fontWeight: '500'}}>
-                  {this.getLocalizedString('CANCEL')}
+                  {this.getLocalizedString('cancel')}
                 </Text>
               </TouchableOpacity>
 
@@ -2380,7 +2380,7 @@ export default class KoreChat extends React.Component<
                 }}
                 onPress={this.handleDialogClose}>
                 <Text style={{fontSize: 16, color: '#333', fontWeight: '500'}}>
-                  {this.getLocalizedString('CLOSE')}
+                  {this.getLocalizedString('close')}
                 </Text>
               </TouchableOpacity>
 
@@ -2393,7 +2393,7 @@ export default class KoreChat extends React.Component<
                 }}
                 onPress={this.handleDialogMinimize}>
                 <Text style={{fontSize: 16, color: '#333', fontWeight: '500'}}>
-                  {this.getLocalizedString('MINIMIZE')}
+                  {this.getLocalizedString('minimize')}
                 </Text>
               </TouchableOpacity>
             </View>

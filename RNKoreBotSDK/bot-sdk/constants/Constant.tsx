@@ -129,6 +129,8 @@ export const TEMPLATE_TYPES = {
   CLOCK_TEMPLATE: 'clockTemplate',
   LISTWIDGET_TEMPLATE: 'listWidget',
   USER_ATTACHEMENT_TEMPLATE: 'user_attachement',
+  ARTICLE_TEMPLATE: 'articleTemplate',
+  ANSWER_TEMPLATE: 'answerTemplate',
 };
 
 export const RENDER_KORA_BUBBLE = 'RENDER_KORA_BUBBLE';

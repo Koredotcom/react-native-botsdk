@@ -41,34 +41,30 @@ import { Platform } from 'react-native';
 // Localized strings for the application
 const LOCALIZED_STRINGS = {
   en: {
-    BACK_DIALOG_TITLE: 'Would you like to close the conversation or minimize?',
-    CANCEL: 'CANCEL',
-    CLOSE: 'CLOSE',
-    MINIMIZE: 'MINIMIZE',
+    back_dialog_title: 'Would you like to close the conversation or minimize?',
+    cancel: 'CANCEL',
+    close: 'CLOSE',
+    minimize: 'MINIMIZE',
+    view_more: 'View More',
+    answered_by_ai: 'Answered by AI'
   },
   es: {
-    BACK_DIALOG_TITLE: '¿Te gustaría cerrar la conversación o minimizar?',
-    CANCEL: 'CANCELAR',
-    CLOSE: 'CERRAR',
-    MINIMIZE: 'MINIMIZAR',
+    back_dialog_title: '¿Te gustaría cerrar la conversación o minimizar?',
+    cancel: 'CANCELAR',
+    close: 'CERRAR',
+    minimize: 'MINIMIZAR',
   },
   fr: {
-    BACK_DIALOG_TITLE: 'Souhaitez-vous fermer la conversation ou la minimiser?',
-    CANCEL: 'ANNULER',
-    CLOSE: 'FERMER',
-    MINIMIZE: 'MINIMISER',
+    back_dialog_title: 'Souhaitez-vous fermer la conversation ou la minimiser?',
+    cancel: 'ANNULER',
+    close: 'FERMER',
+    minimize: 'MINIMISER',
   },
   de: {
-    BACK_DIALOG_TITLE: 'Möchten Sie das Gespräch schließen oder minimieren?',
-    CANCEL: 'ABBRECHEN',
-    CLOSE: 'SCHLIEßEN',
-    MINIMIZE: 'MINIMIEREN',
-  },
-  hi: {
-    BACK_DIALOG_TITLE: 'क्या आप बातचीत को बंद करना चाहते हैं या न्यूनतम करना चाहते हैं?',
-    CANCEL: 'रद्द करें',
-    CLOSE: 'बंद करें',
-    MINIMIZE: 'न्यूनतम करें',
+    back_dialog_title: 'Möchten Sie das Gespräch schließen oder minimieren?',
+    cancel: 'ABBRECHEN',
+    close: 'SCHLIEßEN',
+    minimize: 'MINIMIEREN',
   },
 };
 
