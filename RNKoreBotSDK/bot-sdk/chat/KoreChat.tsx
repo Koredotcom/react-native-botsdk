@@ -1246,6 +1246,7 @@ export default class KoreChat extends React.Component<
       case TEMPLATE_TYPES.FEEDBACK_TEMPLATE:
       case TEMPLATE_TYPES.FORM_TEMPLATE:
       case TEMPLATE_TYPES.CLOCK_TEMPLATE:
+      case TEMPLATE_TYPES.OTP_TEMPLATE:
       case TEMPLATE_TYPES.LISTWIDGET_TEMPLATE:
       case TEMPLATE_TYPES.IMAGE_MESSAGE:
         if (!isFromViewMore) {
