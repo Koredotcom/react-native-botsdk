@@ -33,6 +33,7 @@ import VideoTemplate from './VideoTemplate';
 import Attachements from './Attachemnts';
 import ArticleTemplate from './ArticleTemplate';
 import AnswerTemplate from './AnswerTemplate';
+import OTPTemplate from './OTPTemplate';
 
 export interface BotTemplateProps {
   templateType: string;
@@ -169,6 +170,8 @@ export default class BotTemplate extends React.Component<
         return <ArticleTemplate payload={payload} theme={theme} />;
       case TEMPLATE_TYPES.ANSWER_TEMPLATE:
         return <AnswerTemplate payload={payload} theme={theme} />;
+      case TEMPLATE_TYPES.OTP_TEMPLATE:
+          return <OTPTemplate payload={payload} theme={theme} />;
     }
     return (
       <Text style={{padding: 10}}>
