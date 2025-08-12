@@ -31,6 +31,8 @@ import ListWidgetTemplate from './ListWidgetTemplate';
 import AudioTemplate from './AudioTemplate';
 import VideoTemplate from './VideoTemplate';
 import Attachements from './Attachemnts';
+import ArticleTemplate from './ArticleTemplate';
+import AnswerTemplate from './AnswerTemplate';
 
 export interface BotTemplateProps {
   templateType: string;
@@ -159,11 +161,14 @@ export default class BotTemplate extends React.Component<
         return <ListWidgetTemplate payload={payload} theme={theme} />;
       case TEMPLATE_TYPES.AUDIO_MESSAGE:
         return <AudioTemplate payload={payload} theme={theme} />;
-
       case TEMPLATE_TYPES.VIDEO_MESSAGE:
         return <VideoTemplate payload={payload} theme={theme} />;
       case TEMPLATE_TYPES.USER_ATTACHEMENT_TEMPLATE:
         return <Attachements payload={payload} theme={theme} />;
+      case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
+        return <ArticleTemplate payload={payload} theme={theme} />;
+      case TEMPLATE_TYPES.ANSWER_TEMPLATE:
+        return <AnswerTemplate payload={payload} theme={theme} />;
     }
     return (
       <Text style={{padding: 10}}>
