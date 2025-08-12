@@ -46,7 +46,8 @@ const LOCALIZED_STRINGS = {
     close: 'CLOSE',
     minimize: 'MINIMIZE',
     view_more: 'View More',
-    answered_by_ai: 'Answered by AI'
+    answered_by_ai: 'Answered by AI',
+    did_not_get_code: 'Didn\'t get a code?'
   },
   es: {
     back_dialog_title: '¿Te gustaría cerrar la conversación o minimizar?',
