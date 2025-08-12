@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface FormProps extends BaseViewProps {}
@@ -30,6 +31,7 @@ export default class FormTemplate extends BaseView<FormProps, FormState> {
       return <></>;
     }
 
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     const Wrapper: any = this.state.inputText ? TouchableOpacity : View;
 
     return (
@@ -89,10 +91,10 @@ export default class FormTemplate extends BaseView<FormProps, FormState> {
                   style={[
                     styles.button,
                     {
-                      backgroundColor: Color.button_blue,
+                      backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR || Color.button_blue,
                     },
                   ]}>
-                  <Text style={{color: Color.white}}>
+                  <Text style={{color: bubbleTheme.BUBBLE_RIGHT_TEXT_COLOR || Color.white}}>
                     {form?.fieldButton?.title}
                   </Text>
                 </Wrapper>
@@ -104,10 +106,11 @@ export default class FormTemplate extends BaseView<FormProps, FormState> {
     );
   };
   render() {
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return this.props?.payload?.formFields ? (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={styles.container}>
+        style={[styles.container, {backgroundColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || '#e4e5eb'}]}>
         <Text style={styles.heading}>{this.props?.payload?.heading}</Text>
         {this.renderFormFields(this.props?.payload?.formFields)}
       </View>
@@ -145,7 +148,6 @@ const styles = StyleSheet.create({
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
   container: {
-    backgroundColor: '#e4e5eb',
     marginEnd: 10,
     borderRadius: 5,
     width: (windowWidth / 4) * 3,

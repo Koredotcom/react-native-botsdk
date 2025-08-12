@@ -17,6 +17,7 @@ import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {getButtonTheme} from '../theme/themeHelper';
 import {isAndroid, isIOS} from '../utils/PlatformCheck';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface CarouselProps extends BaseViewProps {}
@@ -68,8 +69,9 @@ export default class CarouselTemplate extends BaseView<
       cache: FastImage.cacheControl.immutable, // Use cache effectively
     };
     const MainWrapper: any = item?.default_action ? TouchableOpacity : View;
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
-      <View key={index} style={[styles.container]}>
+      <View key={index} style={[styles.container, {borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || 'transparent',borderWidth:1}]}>
         {/* {item?.image_url && item?.title && ( */}
         <MainWrapper
           style={{flex: 1}}
@@ -164,7 +166,7 @@ export default class CarouselTemplate extends BaseView<
                 }}
                 style={[
                   styles.top_sec_main,
-                  isIOS ? {marginTop: 5} : {marginTop: 15},
+                  isIOS ? {marginTop: 5} : {marginTop: 15}
                 ]}>
                 <Text numberOfLines={2} style={[{color: Color.blue}]}>
                   {item?.default_action?.url}
@@ -185,7 +187,7 @@ export default class CarouselTemplate extends BaseView<
     count: number,
     isStacked?: boolean,
   ) => {
-    const bTheme = getButtonTheme(this.props?.theme);
+    const bTheme = getBubbleTheme(this.props?.theme);
     return (
       <TouchableOpacity
         disabled={this.isViewDisable()}
@@ -204,17 +206,11 @@ export default class CarouselTemplate extends BaseView<
             borderRadius: 5,
           },
           isStacked && {
-            borderColor: this.isViewDisable()
-              ? bTheme.INACTIVE_BG_COLOR
-              : bTheme.ACTIVE_BG_COLOR,
+            borderColor: bTheme.BUBBLE_RIGHT_BG_COLOR,
             borderWidth: 1,
           },
           {
-            backgroundColor: this.isViewDisable()
-              ? bTheme.INACTIVE_BG_COLOR
-              : isStacked
-              ? Color.white
-              : bTheme.ACTIVE_BG_COLOR,
+            backgroundColor: isStacked ? Color.white : bTheme.BUBBLE_RIGHT_BG_COLOR
           },
         ]}>
         {/* <View style={styles.line} /> */}
@@ -223,15 +219,9 @@ export default class CarouselTemplate extends BaseView<
             style={[
               styles.item_text,
               {
-                color: this.isViewDisable()
-                  ? bTheme.INACTIVE_TXT_COLOR || bTheme.ACTIVE_TXT_COLOR
-                  : this.props?.theme?.v3?.body?.buttons?.color || Color.white,
+                color: isStacked ? bTheme.BUBBLE_RIGHT_BG_COLOR : bTheme.BUBBLE_RIGHT_TEXT_COLOR,
                 fontFamily: this.props?.theme?.v3?.body?.font?.family,
-              },
-              isStacked &&
-                !this.isViewDisable() && {
-                  color: bTheme.ACTIVE_BG_COLOR,
-                },
+              }
             ]}>
             {item.title}
           </Text>
@@ -286,15 +276,16 @@ export default class CarouselTemplate extends BaseView<
     return (
       <Carousel
         loop={false}
-        width={width}
+        width={width * 0.85}
         height={height}
         //autoPlay={true}
         data={list}
-        mode="parallax"
+        mode="undefined"
+        style={{ alignSelf: 'flex-start', overflow: 'visible', justifyContent: 'flex-start' }}
         //scrollAnimationDuration={5000}
         onSnapToItem={index => console.log('parallax current index:', index)}
         renderItem={({item, index}: any) => (
-          <View style={[{}, styles.shadowContainer]}>
+          <View style={[{width: width*0.80}, styles.shadowContainer]}>
             {this.getSingleCarouselView(item, index)}
           </View>
         )}
@@ -330,7 +321,7 @@ const styles = StyleSheet.create({
   bot_sec_main: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   mid_sec_text: {
     flex: 1,
@@ -346,6 +337,7 @@ const styles = StyleSheet.create({
   },
   top_sec_text: {
     flex: 1,
+    marginTop:  10,
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
     color: TEMPLATE_STYLE_VALUES.TEXT_COLOR,
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
@@ -354,12 +346,11 @@ const styles = StyleSheet.create({
   top_sec_main: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start'
   },
   stack_main: {
     flex: 1,
-    marginLeft: 10,
-    marginEnd: 5,
+    marginHorizontal: 15
   },
   sub_container: {
     backgroundColor: Color.white,
@@ -373,7 +364,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: normalize(150),
-    width: '90%',
+    width: '95%',
     resizeMode: 'stretch',
     //margin: 0,
     marginTop: 10,
@@ -384,15 +375,13 @@ const styles = StyleSheet.create({
   image_con: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
     padding: 5,
   },
   shadowContainer: {
     flex: 1,
-
-    justifyContent: 'center',
-    marginRight: '18.5%',
-    margin: 5,
+    justifyContent: 'flex-start',
+    // marginRight: '18.5%',
+    // margin: 5,
     borderRadius: 10,
     backgroundColor: 'white', // Set the background color of the view
     // borderRadius: 10, // Optional: Set borderRadius for rounded corners
@@ -416,9 +405,6 @@ const styles = StyleSheet.create({
     //marginRight: '20.5%',
     margin: 5,
     borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#EBECF1',
-    backgroundColor: 'white', // Set the background color of the view
     // borderRadius: 10, // Optional: Set borderRadius for rounded corners
     padding: 1, // Optional: Set padding for inner content
     ...Platform.select({
@@ -438,23 +424,23 @@ const styles = StyleSheet.create({
     // padding: 5,
     backgroundColor: Color.white,
     borderRadius: 10,
-    marginBottom: 5,
-    marginRight: 5,
+    margin: -1
     // width: width * 0.6,
   },
 
   btnStyles: {
     //flex: 1,
     justifyContent: 'flex-end',
+    marginBottom: 5,
+    marginEnd: 5
   },
   title: {
     fontStyle: 'normal',
     fontFamily: 'Inter',
-    marginStart: 10,
+    marginHorizontal: 15,
     marginBottom: 5,
-    marginEnd: 10,
     alignSelf: 'flex-start',
-    marginTop: 0,
+    marginTop: 10,
     fontWeight: '500',
   },
 
@@ -462,9 +448,8 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontStyle: 'normal',
     fontFamily: 'Inter',
-    marginStart: 10,
+    marginHorizontal: 15,
     marginBottom: 5,
-    marginEnd: 10,
     alignSelf: 'flex-start',
     marginTop: 0,
     opacity: 0.8,

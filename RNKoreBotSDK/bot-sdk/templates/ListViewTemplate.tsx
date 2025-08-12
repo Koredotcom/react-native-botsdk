@@ -15,6 +15,7 @@ import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import BotText from './BotText';
 import {TEMPLATE_TYPES} from '../constants/Constant';
+import {getBubbleTheme} from '../theme/themeHelper';
 
 interface ListProps extends BaseViewProps {}
 interface ListState extends BaseViewState {}
@@ -38,10 +39,11 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
     index: number,
     _size: number = 0,
   ) => {
+    const btheme = getBubbleTheme(this.props?.theme);
     let Image_Http_URL = {uri: item?.image_url};
     let buttons = item?.buttons ? [...item?.buttons] : []; //, ...item?.buttons, ...item?.buttons];
     return (
-      <View key={index + '_' + index} style={styles.main_view_1}>
+      <View key={index + '_' + index} style={[styles.main_view_1, {borderColor: btheme?.BUBBLE_LEFT_BG_COLOR}]}>
         <TouchableOpacity
           style={styles.sub_container}
           onPress={
@@ -72,7 +74,7 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
           <View style={styles.sub_container_1}>
             <Text style={[styles.displayTextStyle]}>{item.title}</Text>
 
-            <Text style={[styles.descTextStyle]}>{item.subtitle}</Text>
+            <Text style={[styles.descTextStyle,{color: Color.black}]}>{item.subtitle}</Text>
           </View>
           <View style={styles.item_value_con}>
             <Text style={styles.item_value}>{item?.value}</Text>
@@ -223,7 +225,7 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
-  item_value_con: {justifyContent: 'center', marginEnd: normalize(5)},
+  item_value_con: { marginTop: normalize(5)}, //{justifyContent: 'center', marginEnd: normalize(5)},
   image_view: {
     // marginTop: 10,
     height: normalize(45),
@@ -335,7 +337,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     color: Color.text_color,
-    fontWeight: '700',
+    fontWeight: '500',
   },
   displayTextHeaderStyle: {
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
@@ -348,14 +350,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
     color: Color.text_color,
-    fontWeight: '800',
+    fontWeight: '500',
   },
   descTextStyle: {
     fontWeight: '400',
     fontSize: normalize(13),
     fontStyle: 'normal',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
-    marginEnd: 10,
+    marginTop: 10,
     flex: 1,
 
     color: Color.sub_text_color,

@@ -62,7 +62,8 @@ export default class ImageTemplate extends BaseView<ImageProps, ImageState> {
           style={[
             styles.main_container,
             {
-              backgroundColor: bbtheme?.BUBBLE_LEFT_BG_COLOR || '#4B4EDE',
+              borderColor: bbtheme?.BUBBLE_LEFT_BG_COLOR || '#4B4EDE',
+              borderWidth: 1
             },
           ]}>
           {this.state.imageUri && (
@@ -91,7 +92,7 @@ export default class ImageTemplate extends BaseView<ImageProps, ImageState> {
               style={[
                 styles.button_text,
                 {
-                  color: Color.blue,
+                  color: bbtheme.BUBBLE_RIGHT_BG_COLOR || Color.blue,
                   fontFamily:
                     this.props?.theme?.v3?.body?.font?.family || 'Inter',
                 },
@@ -121,7 +122,6 @@ const styles = StyleSheet.create({
   main_container_3: {
     backgroundColor: Color.white,
     minWidth: '90%',
-    padding: 10,
   },
   main_container_1: {
     //backgroundColor: 'yellow',

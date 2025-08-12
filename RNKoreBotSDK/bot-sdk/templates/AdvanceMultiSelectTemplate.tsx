@@ -15,6 +15,7 @@ import CheckBox from '../components/CustomCheckBox';
 import Color from '../theme/Color';
 import FastImage from 'react-native-fast-image';
 import {isIOS} from '../utils/PlatformCheck';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface AdvanceMultiSelectProps extends BaseViewProps {}
@@ -56,7 +57,7 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
 
   render() {
     let selectList = this.getSelectedList();
-
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'}>
         {this.props.payload?.heading && (
@@ -119,11 +120,11 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                 style={[
                   styles.btn_main,
                   selectList?.length === 0
-                    ? {backgroundColor: Color.gray}
-                    : {backgroundColor: '#303f9f'},
-                  this.isViewDisable() && {backgroundColor: Color.gray},
+                    ? {backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR || Color.gray}
+                    : {backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR || '#303f9f'},
+                  // this.isViewDisable() && {backgroundColor: Color.gray},
                 ]}>
-                <Text style={[styles.btn_text]}>{btn?.title}</Text>
+                <Text style={[styles.btn_text, {color: bubbleTheme.BUBBLE_RIGHT_TEXT_COLOR || Color.white}]}>{btn?.title}</Text>
               </TouchableOpacity>
             );
           })}
@@ -152,7 +153,7 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
     if (!elements || elements?.length === 0) {
       return <></>;
     }
-
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <View>
         {elements.map((item: any, index: number) => {
@@ -169,8 +170,8 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                     boxType={'square'}
                     value={item?.isChecked || false}
                     // Enhanced color customization - can be overridden by item properties
-                    selectedColor={item.selectedColor || '#007AFF'} // Blue when checked
-                    unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
+                    selectedColor={bubbleTheme.BUBBLE_RIGHT_BG_COLOR || item.selectedColor || '#007AFF'} // Blue when checked
+                    unselectedColor={bubbleTheme.BUBBLE_LEFT_BG_COLOR || item.unselectedColor || '#CCCCCC'} // Gray when unchecked
                     selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
                     size={item.size || 24} // Checkbox size
                     borderWidth={item.borderWidth || 2} // Border thickness
@@ -195,7 +196,7 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                       });
                     }}
                   />
-                  <Text style={[styles.select_all, {marginLeft: normalize(3)}]}>
+                  <Text style={[styles.select_all, {marginLeft: normalize(5)}]}>
                     {'Select all'}
                   </Text>
                 </View>
@@ -230,7 +231,7 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
     if (!collections || collections?.length === 0) {
       return <></>;
     }
-
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <View style={[styles.col_main, {width: (windowWidth / 4) * 3}]}>
         {collections.map((item: any, index: number) => {
@@ -247,8 +248,8 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                   onAnimationType={'stroke'}
                   offAnimationType={'stroke'}
                   // Enhanced color customization - can be overridden by item properties
-                  selectedColor={item.selectedColor || '#007AFF'} // Blue when checked
-                  unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
+                  selectedColor={bubbleTheme.BUBBLE_RIGHT_BG_COLOR || item.selectedColor || '#007AFF'} // Blue when checked
+                  unselectedColor={bubbleTheme.BUBBLE_LEFT_BG_COLOR || item.unselectedColor || '#CCCCCC'} // Gray when unchecked
                   selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
                   size={item.size || 24} // Checkbox size
                   borderWidth={item.borderWidth || 2} // Border thickness
@@ -295,7 +296,7 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                 <ImageBackground
                   style={[
                     styles.image_view,
-                    isIOS && {marginLeft: normalize(7)},
+                    {marginLeft: normalize(7)},
                   ]}
                   source={this.placeholderImage}>
                   <FastImage
@@ -304,9 +305,14 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                     resizeMode={'cover'}
                   />
                 </ImageBackground>
-                <Text numberOfLines={1} style={styles.item_title}>
-                  {item?.title}
-                </Text>
+                <View style={styles.col_item_content}>
+                  <Text numberOfLines={1} style={styles.item_title}>
+                    {item?.title}
+                  </Text>
+                  <Text numberOfLines={1} style={[styles.item_title, {fontSize: normalize(12), marginTop: 5}]}>
+                    {item?.description}
+                  </Text>
+                </View>
               </View>
             </View>
           );
@@ -317,10 +323,9 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
 }
 
 const styles = StyleSheet.create({
-  btn_text: {color: Color.white, fontSize: normalize(14)},
+  btn_text: {fontSize: normalize(14)},
   btn_main: {
     backgroundColor: '#303f9f',
-    //marginBottom: 10,
     padding: 10,
     borderRadius: 5,
     justifyContent: 'center',
@@ -329,16 +334,16 @@ const styles = StyleSheet.create({
   view_more_text: {color: '#0076FF', fontSize: normalize(15)},
   view_more_main: {padding: 10},
   item_title: {
-    textAlign: 'center',
-    alignSelf: 'center',
+    textAlign: 'left',
+    alignSelf: 'left',
     color: Color.black,
     fontWeight: 'normal',
     fontSize: normalize(14),
     flexShrink: 1,
+    marginStart: 5
   },
   col_check_main: {
     flexDirection: 'row',
-    // backgroundColor: 'yellow',
     alignItems: 'center',
   },
   col_item_main: {
@@ -349,10 +354,13 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     padding: normalize(8),
   },
+  col_item_content: {
+    flexDirection: 'column',
+    flexShrink:1,
+  },
   col_main: {marginStart: normalize(0)},
   select_all: {
     justifyContent: 'center',
-    // backgroundColor: 'red',
     textAlign: 'center',
     alignSelf: 'center',
 
@@ -363,7 +371,6 @@ const styles = StyleSheet.create({
   che_main: {
     flexDirection: 'row',
     marginStart: normalize(0),
-    // marginTop: normalize(5),
     marginBottom: normalize(10),
   },
   ele_main: {flexDirection: 'column', marginBottom: normalize(5)},
@@ -374,17 +381,11 @@ const styles = StyleSheet.create({
     fontSize: normalize(15),
   },
   check_box: {
-    // width: normalize(50),
-    // height: normalize(50),
-    // backgroundColor: 'green',
     justifyContent: 'center',
     alignSelf: 'center',
-    width: normalize(20),
-    height: normalize(20),
-    marginEnd: normalize(10),
+    height: normalize(25),
   },
   image_view: {
-    // marginTop: 10,
     height: normalize(45),
     width: normalize(45),
     justifyContent: 'center',
