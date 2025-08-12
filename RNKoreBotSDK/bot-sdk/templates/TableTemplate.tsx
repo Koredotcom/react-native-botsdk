@@ -10,6 +10,7 @@ import {
 import BotText from './BotText';
 import {normalize} from '../utils/helpers';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 const SLICE = 2;
@@ -92,7 +93,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
     }
     let flexArry: any = [];
     return (
-      <View style={[styles.mainContainer, {width: (windowWidth / 4) * 3}]}>
+      <View style={[styles.mainContainer, {width: (windowWidth*0.80)}]}>
         <View style={styles.subContainer}>
           {this.getTableRowViews(payload?.elements, flexArry)}
           {!this.props.isFromViewMore && (
@@ -307,7 +308,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
       return null;
     }
     let flexArry: any = [];
-
+    const btheme = getBubbleTheme(this.props?.theme);
     const Wrapper: any = this.props.isFromViewMore ? ScrollView : View;
     return (
       <View
@@ -315,7 +316,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
           [
             styles.mainContainer,
             styles.main_con2,
-            {width: (windowWidth / 4) * 3},
+            {width: (windowWidth*0.80)},
           ],
         ]}>
         <Wrapper
@@ -327,7 +328,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
           keyboardDismissMode="none"
           contentInsetAdjustmentBehavior="scrollableAxes"
           horizontal={true}>
-          <View style={[styles.subContainer_more]}>
+          <View style={[styles.subContainer_more,{borderColor:btheme?.BUBBLE_LEFT_BG_COLOR}]}>
             <View style={[styles.subContainer2_more]}>
               {payload?.columns.map((coloum: any, i: number) => {
                 flexArry[i] = coloum[0].length;
@@ -336,7 +337,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
                     key={i + ''}
                     style={[
                       styles.titles,
-                      {flex: coloum[0].length, color: '#2E3A92'},
+                      {flex: coloum[0].length, color: Color.black},
                       {
                         fontFamily: this.props?.theme?.v3?.body?.font?.family,
                       },
@@ -347,7 +348,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
                 );
               })}
             </View>
-            <View style={styles.thick_line} />
+            <View style={[styles.thick_line]} />
             <View style={styles.view_more_main}>
               {this.getTableRowViewsMore(payload?.elements, flexArry)}
             </View>
@@ -362,12 +363,15 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
     if (!elements || elements.length === 0) {
       return null;
     }
+    const btheme = getBubbleTheme(this.props?.theme);
     for (let i = 0; i < elements.length; i++) {
+      const isEvenRow = i % 2 === 0;
       let view = (
         <View key={'_' + i + '' + i} style={{flexDirection: 'column'}}>
           <View
             style={{
               flexDirection: 'row',
+              backgroundColor: isEvenRow ? btheme?.BUBBLE_LEFT_BG_COLOR : 'white'
             }}>
             {elements[i].Values.map((value: any, index: number) => {
               return (
@@ -445,7 +449,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
 
 const styles = StyleSheet.create({
   mainContainer_2: {
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -467,7 +471,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     minHeight: 50,
     marginTop: 10,
-    width: windowWidth - normalize(50),
   },
   tb_row_con: {
     flex: 1,
@@ -548,7 +551,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#A6A7BC',
+    backgroundColor: 'transparent',
     paddingTop: 7,
     paddingBottom: 7,
   },
@@ -571,7 +574,7 @@ const styles = StyleSheet.create({
   thick_line: {
     height: 1,
     opacity: 1,
-    backgroundColor: TEMPLATE_STYLE_VALUES.BORDER_COLOR,
+    backgroundColor: 'transparent',
   },
   titles: {
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
@@ -580,7 +583,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     //padding: 10,
 
-    fontWeight: 'bold',
+    fontWeight: '500',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
 });

@@ -10,6 +10,7 @@ import {
 import {RadioButton} from '../components/CustomRadioButton';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface RadioOptionProps extends BaseViewProps {}
@@ -75,7 +76,7 @@ export default class RadioOptionTemplate extends BaseView<
     if (!radioOptions || radioOptions?.length === 0) {
       return <></>;
     }
-
+    const btheme = getBubbleTheme(this.props?.theme);
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
@@ -84,10 +85,12 @@ export default class RadioOptionTemplate extends BaseView<
           console.log(`Rendering radio ${index}: isChecked=${item?.isChecked}, title=${item?.title}`);
           return (
             <RadioButton
-              size={20}
+              color={btheme?.BUBBLE_RIGHT_BG_COLOR}
+              borderColor={btheme?.BUBBLE_LEFT_BG_COLOR}
+              size={25}
               borderSize={1}
               id={item?.id || `option-${index}`}
-              label={`${item?.title} - ${item?.value}`}
+              label={`${item?.title}\n${item?.value}`}
               selected={!!item?.isChecked}
               onPress={(id: string) => {
                 console.log(`Radio option ${index} pressed for id: ${id}, current isChecked: ${item?.isChecked}`);
@@ -102,6 +105,7 @@ export default class RadioOptionTemplate extends BaseView<
     return <></>;
   };
   render() {
+    const btheme = getBubbleTheme(this.props?.theme);
     return (
       <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'}>
         {this.props.payload && (
@@ -110,8 +114,8 @@ export default class RadioOptionTemplate extends BaseView<
               <Text
                 style={{
                   color: Color.black,
-                  fontSize: normalize(16),
-                  fontWeight: 600,
+                  fontSize: normalize(14),
+                  fontWeight: 'bold',
                 }}>
                 {this.props.payload?.heading?.trim()}
                 {/* isFilterApply={true}
@@ -135,7 +139,7 @@ export default class RadioOptionTemplate extends BaseView<
                   );
                 }
               }}
-              style={[styles.btn_main, {backgroundColor: '#303f9f'}]}>
+              style={[styles.btn_main, {backgroundColor: btheme?.BUBBLE_RIGHT_BG_COLOR}]}>
               <Text style={[styles.btn_text]}>{'Confirm'}</Text>
             </TouchableOpacity>
           </View>

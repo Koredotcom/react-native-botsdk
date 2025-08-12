@@ -6,6 +6,7 @@ import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {normalize} from '../utils/helpers';
 import Carousel from 'react-native-reanimated-carousel';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface MiniTableProps extends BaseViewProps {}
@@ -49,7 +50,7 @@ export default class MiniTableTemplate extends BaseView<
         width={width}
         height={height}
         data={payload.elements}
-        mode="parallax"
+        mode="undefined"
         modeConfig={{
           // parallaxAdjacentItemScale: 0.5,
           //parallaxScrollingOffset: 100,
@@ -74,8 +75,6 @@ export default class MiniTableTemplate extends BaseView<
     switch (type) {
       case 'horizontal':
         return this.renderHorizontalTable(payload);
-      case 'vertical':
-        return this.renderVerticalTable(payload);
       default:
         return this.renderVerticalTable(payload);
     }
@@ -131,6 +130,7 @@ export default class MiniTableTemplate extends BaseView<
                         flex: coloum?.[0]?.length,
                         color: '#2E3A92',
                         paddingEnd: 5,
+                        paddingStart: 5
                       },
                       {
                         fontFamily: this.props?.theme?.v3?.body?.font?.family,
@@ -165,9 +165,10 @@ export default class MiniTableTemplate extends BaseView<
     if (!elements || elements?.length === 0) {
       return null;
     }
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     for (let i = 0; i < elements?.length; i++) {
       let view = (
-        <View key={'key_' + i} style={{flexDirection: 'column'}}>
+        <View key={'key_' + i} style={[{flexDirection: 'column'}, {backgroundColor: i % 2 == 0 ? bubbleTheme.BUBBLE_LEFT_BG_COLOR || '#ffffff' : '#ffffff'}]}>
           <View
             style={{
               flexDirection: 'row',
@@ -180,12 +181,13 @@ export default class MiniTableTemplate extends BaseView<
                     {
                       flex: flexArry[index],
                       paddingEnd: 5,
+                      paddingLeft: 5
                     },
                     styles.view_more_sub,
                     isVertical && {
                       paddingTop: 10,
                       paddingBottom: 10,
-                    },
+                    }
                   ]}>
                   <Text
                     style={[
@@ -292,7 +294,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#A6A7BC',
     paddingTop: 15,
     paddingBottom: 15,
   },
