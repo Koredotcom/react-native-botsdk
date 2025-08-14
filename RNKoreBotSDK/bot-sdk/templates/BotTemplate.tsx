@@ -34,6 +34,7 @@ import Attachements from './Attachemnts';
 import ArticleTemplate from './ArticleTemplate';
 import AnswerTemplate from './AnswerTemplate';
 import OTPTemplate from './OTPTemplate';
+import ResetPinTemplate from './ResetPinTemplate';
 
 export interface BotTemplateProps {
   templateType: string;
@@ -172,6 +173,8 @@ export default class BotTemplate extends React.Component<
         return <AnswerTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.OTP_TEMPLATE:
           return <OTPTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
+      case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
+            return <ResetPinTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
     }
     return (
       <Text style={{padding: 10}}>
