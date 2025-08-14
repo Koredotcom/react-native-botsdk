@@ -76,8 +76,8 @@ export default class CarouselTemplate extends BaseView<
         <MainWrapper
           style={{flex: 1}}
           onPress={() => {
-            if (this.props.payload?.onListItemClick) {
-              this.props.payload.onListItemClick(
+            if (this.props.onListItemClick) {
+              this.props.onListItemClick(
                 this.props.payload.template_type,
                 item?.default_action,
               );
@@ -157,8 +157,8 @@ export default class CarouselTemplate extends BaseView<
             {item?.default_action?.type === 'web_url' && (
               <TouchableOpacity
                 onPress={() => {
-                  if (this.props.payload?.onListItemClick) {
-                    this.props.payload.onListItemClick(
+                  if (this.props.onListItemClick) {
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       item?.default_action,
                     );
@@ -193,8 +193,8 @@ export default class CarouselTemplate extends BaseView<
         disabled={this.isViewDisable()}
         key={index}
         onPress={() => {
-          if (this.props.payload?.onListItemClick) {
-            this.props.payload.onListItemClick(
+          if (this.props.onListItemClick) {
+            this.props.onListItemClick(
               this.props.payload.template_type,
               item,
             );

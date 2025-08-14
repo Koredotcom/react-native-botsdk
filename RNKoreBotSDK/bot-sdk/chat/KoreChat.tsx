@@ -100,6 +100,7 @@ try {
 }
 
 import CustomAlertComponent from '../components/CustomAlertComponent';
+import TemplateBottomSheet from './components/TemplateBottomSheet';
 
 dayjs.extend(localizedFormat);
 
@@ -181,6 +182,8 @@ interface KoraChatState {
   isTTSenable?: boolean;
   isReconnecting?: boolean;
   showBackButtonDialog?: boolean;
+  showTemplateBottomSheet: boolean;
+  messageBottomSheet?: any
 }
 
 export default class KoreChat extends React.Component<
@@ -308,6 +311,8 @@ export default class KoreChat extends React.Component<
       currentTemplateHeading: undefined,
       isReconnecting: false,
       showBackButtonDialog: false,
+      showTemplateBottomSheet: false,
+      messageBottomSheet: null
     };
   }
 
@@ -698,6 +703,14 @@ export default class KoreChat extends React.Component<
       ];
     }
 
+    if (modifiedMessages.length === 1){
+      let message = modifiedMessages[0];
+      if (message.type === 'bot_response' && this.isSliderView(message)) {
+        this.setState({showTemplateBottomSheet: true, messageBottomSheet: message})
+        return;
+      }
+    }
+
     this.setState(
       {
         messages: KoreChat.append(this.state.messages, modifiedMessages),
@@ -725,6 +738,19 @@ export default class KoreChat extends React.Component<
       console.log('TTS stoped error1 -->:', error1);
     }
   };
+
+  isSliderView=(message: any) => {
+    return message.message &&
+      message.message[0] &&
+      message.message[0].component &&
+      message.message[0].component.type === 'template' &&
+      message.message[0].component.payload &&
+      message.message[0].component.payload.payload &&
+      message.message[0].component.payload.payload.template_type && 
+      message.message[0].component.payload.payload.sliderView && (
+      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.OTP_TEMPLATE ||
+      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.FEEDBACK_TEMPLATE);
+  }
 
   private textToSpeech = (botResponse: any) => {
     if (!this.state.isTTSenable) {
@@ -879,10 +905,35 @@ export default class KoreChat extends React.Component<
           isTyping={this.props.isTyping}
           onDragList={this.props.onDragList}
         />
+        {(this.state.messageBottomSheet && this.state.showTemplateBottomSheet) && (
+          this.renderTemplateBottomSheet()
+        )}
         {this.renderChatFooter()}
       </View>
     );
   };
+
+  renderTemplateBottomSheet = () => {
+    let message = this.state.messageBottomSheet;
+    let isShow = this.state.showTemplateBottomSheet;
+
+    if (!message) return <></>;
+    let theme = this.context as IThemeType;
+    return(
+      <TemplateBottomSheet 
+      isShow= {isShow && message} 
+      messageId={message.messageId} 
+      payload={message.message[0].component.payload.payload}
+      templateType={message.message[0].component.payload.payload.template_type}
+      theme={theme}
+      onListItemClick={this.onListItemClick}
+      onSliderClosed={() =>{
+        this.setState({showTemplateBottomSheet: false})
+      }}
+      />
+    ) 
+  }
+
   onSendPlainText = (message?: any) => {
     this.onSendText({text: message});
   };

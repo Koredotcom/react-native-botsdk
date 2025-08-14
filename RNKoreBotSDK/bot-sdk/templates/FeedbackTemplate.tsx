@@ -10,11 +10,13 @@ import {
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
-const windowWidth = Dimensions.get('window').width;
 import Svg, { Path } from 'react-native-svg';
 import {CustomRatingBar as RatingBar} from '../components/CustomRatingBar';
 import {SvgIcon} from '../utils/SvgIcon';
 import {normalize} from '../utils/helpers';
+
+const windowWidth = Dimensions.get('window').width;
+let width = windowWidth * 0.8 ;
 
 interface FeedbackProps extends BaseViewProps {}
 interface FeedbackState extends BaseViewState {
@@ -51,6 +53,9 @@ export default class FeedbackTemplate extends BaseView<
       rating: 0,
       selectedThumbIndex: -1,
     };
+    if (this.props.onBottomSheetClose) {
+      width = windowWidth * 0.90;
+    }
   }
 
   // SVG Star Components
@@ -121,7 +126,7 @@ export default class FeedbackTemplate extends BaseView<
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
+        style={[styles.container, {width: width, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         {this.props.payload?.text && (
           <Text style={styles.title}>{this.props.payload?.text}</Text>
         )}
@@ -142,7 +147,7 @@ export default class FeedbackTemplate extends BaseView<
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
+        style={[styles.container, {width: width, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         <Text style={styles.title}>{this.props.payload?.text}</Text>
         <View style={{marginTop: 10, marginBottom: 10}}>
           <RatingBar
@@ -175,9 +180,9 @@ export default class FeedbackTemplate extends BaseView<
               let startObj = starObjArray?.[0] || null;
 
               if (startObj && startObj?.value) {
-                if (this.props.payload?.onListItemClick) {
+                if (this.props.onListItemClick) {
                   setTimeout(() => {
-                    this.props.payload.onListItemClick(
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       {
                         title: startObj?.value + '',
@@ -185,6 +190,9 @@ export default class FeedbackTemplate extends BaseView<
                       },
                     );
                   }, 1000);
+                }
+                if (this.props.onBottomSheetClose){
+                  this.props.onBottomSheetClose()
                 }
               }
             }}
@@ -196,13 +204,13 @@ export default class FeedbackTemplate extends BaseView<
 
   private renderStarViewFeedback = () => {
     const bubbleTheme = getBubbleTheme(this.props?.theme);
-    
+    let paddingHorizontal = this.props.onBottomSheetClose ? normalize(35) : normalize(25)
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
+        style={[styles.container, { width: width, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         <Text style={styles.title}>{this.props.payload?.text}</Text>
-        <View style={styles.rating_container}>
+        <View style={[styles.rating_container, {paddingHorizontal: paddingHorizontal}]}>
           <RatingBar
             initialRating={0}
             direction="horizontal"
@@ -224,9 +232,9 @@ export default class FeedbackTemplate extends BaseView<
               let startObj = starObjArray?.[0] || null;
 
               if (startObj && startObj?.value) {
-                if (this.props.payload?.onListItemClick) {
+                if (this.props.onListItemClick) {
                   setTimeout(() => {
-                    this.props.payload.onListItemClick(
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       {
                         title: startObj?.value + '',
@@ -234,6 +242,9 @@ export default class FeedbackTemplate extends BaseView<
                       },
                     );
                   }, 1000);
+                }
+                if (this.props.onBottomSheetClose){
+                  this.props.onBottomSheetClose()
                 }
               }
             }}
@@ -249,7 +260,7 @@ export default class FeedbackTemplate extends BaseView<
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={[styles.container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
+        style={[styles.container, { width: width, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || Color.black }]}>
         <Text style={[styles.title1, {}]}>{this.props.payload?.text}</Text>
         <View style={styles.thumb_main}>
           {this.props.payload?.thumpsUpDownArrays.map(
@@ -262,14 +273,19 @@ export default class FeedbackTemplate extends BaseView<
                     this.setState({ selectedThumbIndex: index });
                     
                     // console.log('item ---->:', item);
-                    this.props.payload.onListItemClick(
-                      this.props.payload.template_type,
-                      {
-                        title: item?.value + '',
-                        type: 'postback',
-                        ...item,
-                      },
-                    );
+                    if (this.props.onListItemClick) {
+                      this.props.onListItemClick(
+                        this.props.payload.template_type,
+                        {
+                          title: item?.value + '',
+                          type: 'postback',
+                          ...item,
+                        },
+                      );
+                    }
+                    if (this.props.onBottomSheetClose){
+                      this.props.onBottomSheetClose()
+                    }
                   }}
                   style={styles.thumb_item_main}>
                   <View
@@ -336,12 +352,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   rating_container: {
+    flexShrink: 1,
     marginTop: normalize(10), 
     paddingVertical: normalize(10), 
-    paddingHorizontal: normalize(25),
     borderRadius: 6,
     alignSelf: 'center', 
-    flex: 1, 
     backgroundColor:'#EEF2F6'
   },
   title: {
@@ -357,8 +372,6 @@ const styles = StyleSheet.create({
     fontSize: TEMPLATE_STYLE_VALUES.SUB_TEXT_SIZE,
   },
   container: {
-
-    width: (windowWidth / 4) * 3.2,
     marginBottom: 10,
     padding: 10,
     borderRadius: 6,

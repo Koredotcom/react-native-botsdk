@@ -14,17 +14,22 @@ import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
 import { LocalizationManager } from '../constants/Localization';
+import { normalize } from '../utils/helpers';
 const windowWidth = Dimensions.get('window').width;
+let width = windowWidth * 0.8 ;
 
 interface OTPProps extends BaseViewProps {}
 interface OTPState extends BaseViewState {
   inputText?: string;
+  otpValues: any,
+  focusedIndex: number
 }
 
-const handleChange = (text, index) => {
+const handleChange = (text: string, index: number) => {
 };
 
 export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
+      inputsRef: Array<any> = [];
       constructor(props: OTPProps) {
         super(props);
         this.state = {
@@ -32,13 +37,17 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
           focusedIndex: -1,  // -1 means no input is focused initially
         };
         this.inputsRef = [];
+        
+        if (this.props.onBottomSheetClose) {
+          width = windowWidth * 0.90;
+        }
       }
 
       private getLocalizedString = (key: string): string => {
         return LocalizationManager.getLocalizedString(key);
-    };
+      };
       
-      handleChange = (text, index) => {
+      handleChange = (text: any, index: number) => {
         const newOtp = [...this.state.otpValues];
         newOtp[index] = text;
       
@@ -49,13 +58,13 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
         }
       };
       
-      handleKeyPress = (e, index) => {
+      handleKeyPress = (e: any, index: number) => {
         if (e.nativeEvent.key === 'Backspace' && this.state.otpValues[index] === '' && index > 0) {
           this.inputsRef[index - 1]?.focus();
         }
       };
       
-      handleFocus = (index) => {
+      handleFocus = (index: number) => {
         this.setState({ focusedIndex: index });
       };
       
@@ -63,16 +72,19 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
         this.setState({ focusedIndex: -1 });
       };
       
-      
       render() {
         const bubbleTheme = getBubbleTheme(this.props?.theme);
         const Wrapper: any = this.state.inputText ? TouchableOpacity : View;
         let payload = this.props.payload
+        let borderColor = this.props.onBottomSheetClose ? Color.transparent : bubbleTheme.BUBBLE_LEFT_BG_COLOR;
+        let padding = this.props.onBottomSheetClose ? 0 : 10;
         return payload ? (
           <>
-            <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'} style={[styles.main_Container, { borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR }]}>
+            <View 
+            pointerEvents={this.isViewDisable() ? 'none' : 'auto'} 
+            style={[styles.main_Container, { width: width, padding: padding, borderColor: borderColor}]}>
               
-              <Text style={[styles.label, { fontSize: 15, fontWeight: '500' }]}>
+              <Text style={[styles.label, { fontSize: 16, fontWeight: 'bold' }]}>
                 {payload.title}
               </Text>
       
@@ -92,31 +104,31 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
       
               {/* OTP Inputs */}
               <View style={styles.feilds_Container}>
-        {Array.from({ length: payload.pinLength }).map((_, index) => (
-          <TextInput
-            key={index}
-            ref={(ref) => (this.inputsRef[index] = ref)}
-            style={[
-              styles.input,
-              {
-                borderColor:
-                  this.state.focusedIndex === index
-                    ? bubbleTheme?.BUBBLE_RIGHT_BG_COLOR || 'blue' // highlight color when focused
-                    : bubbleTheme?.BUBBLE_LEFT_BG_COLOR || 'gray', // default border color
-              },
-            ]}
-            placeholder="0"
-            placeholderTextColor="#e4e5eb"
-            keyboardType="numeric"
-            maxLength={1}
-            value={this.state.otpValues[index]}
-            onChangeText={(text) => this.handleChange(text, index)}
-            onKeyPress={(e) => this.handleKeyPress(e, index)}
-            onFocus={() => this.handleFocus(index)}
-            onBlur={this.handleBlur}
-          />
-        ))}
-      </View>
+                {Array.from({ length: payload.pinLength }).map((_, index) => (
+                  <TextInput
+                    key={index}
+                    ref={(ref) => (this.inputsRef[index] = ref)}
+                    style={[
+                      styles.input,
+                      {
+                        borderColor:
+                          this.state.focusedIndex === index
+                            ? bubbleTheme?.BUBBLE_RIGHT_BG_COLOR || 'blue' // highlight color when focused
+                            : bubbleTheme?.BUBBLE_LEFT_BG_COLOR || 'gray', // default border color
+                      },
+                    ]}
+                    placeholder="0"
+                    placeholderTextColor="#e4e5eb"
+                    keyboardType="numeric"
+                    maxLength={1}
+                    value={this.state.otpValues[index]}
+                    onChangeText={(text) => this.handleChange(text, index)}
+                    onKeyPress={(e) => this.handleKeyPress(e, index)}
+                    onFocus={() => this.handleFocus(index)}
+                    onBlur={this.handleBlur}
+                  />
+                ))}
+              </View>
               {/* Resend & Submit */}
               <View style={[styles.otpBtns_Container,{flexDirection: 'row', marginTop: 5}]}>
               <Text style={{ fontSize: 15, marginEnd: 4 }}>{this.getLocalizedString('did_not_get_code')}</Text>
@@ -128,11 +140,17 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
                       }}
                       onPress={() => {
                         console.log('Resend OTP clicked');
-                        this.props.payload.onListItemClick(payload.template_type, {
-                          title: payload.otpButtons[1].payload,
-                          payload: payload.otpButtons[1].payload,
-                          type: 'postback',
-                        });
+                        if (this.props.onListItemClick) {
+                          this.props.onListItemClick(payload.template_type, {
+                            title: payload.otpButtons[1].payload,
+                            payload: payload.otpButtons[1].payload,
+                            type: 'postback',
+                          });
+                        }
+                        
+                        if (this.props.onBottomSheetClose){
+                          this.props.onBottomSheetClose()
+                        }
                       }}
                     >
                       {payload.otpButtons[1].title}
@@ -145,11 +163,16 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
                     const length = this.state?.inputText?.length || 0;
                     if ((this.state?.inputText?.length || 0) == payload.pinLength) {
                       Keyboard.dismiss();
-                      this.props.payload.onListItemClick(payload.template_type, {
-                        title,
-                        payload: this.state.inputText,
-                        type: 'postback',
-                      });
+                      if (this.props.onListItemClick) {
+                        this.props.onListItemClick(payload.template_type, {
+                          title,
+                          payload: this.state.inputText,
+                          type: 'postback',
+                        });
+                      }
+                      if (this.props.onBottomSheetClose){
+                        this.props.onBottomSheetClose()
+                      }
                     }
  
                   }}
@@ -176,29 +199,27 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
 
 const styles = StyleSheet.create({
     main_Container:{
-        marginTop: 0,
-        marginEnd: 10,
-        padding: 10,
-        borderRadius: 5,
-        width: (windowWidth / 4) * 3,
-        backgroundColor: Color.white,
-        borderWidth: 1,
+      marginTop: 0,
+      marginEnd: 10,
+      borderRadius: 5,
+      backgroundColor: Color.white,
+      borderWidth: 1,
     },
     label:{
-        color: Color.black,
-        fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
-        fontWeight: '400',
-        letterSpacing: 0.2,
-        fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
+      color: Color.black,
+      fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
+      fontWeight: '400',
+      letterSpacing: 0.2,
+      fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
     },
     mobileNo_Circle_Container:{
       marginTop: 15
     },
     circle_Container:{
-        width:30,
-        height:30,
-        borderRadius:15,
-        backgroundColor: Color.red
+      width:30,
+      height:30,
+      borderRadius:15,
+      backgroundColor: Color.red
     },
     image: {
       width: 15, // must set width
@@ -219,7 +240,7 @@ const styles = StyleSheet.create({
       marginBottom: 10,
       borderRadius: 5,
       letterSpacing: 0.2,
-      marginEnd: 10,
+      marginEnd: normalize(10),
     },
     otpBtns_Container:{
       marginTop: 0

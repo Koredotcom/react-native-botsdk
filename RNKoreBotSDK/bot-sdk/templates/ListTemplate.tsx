@@ -41,8 +41,8 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
             !item?.default_action
               ? undefined
               : () => {
-                  if (this.props.payload.onListItemClick) {
-                    this.props.payload.onListItemClick(
+                  if (this.props.onListItemClick) {
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       item?.default_action,
                     );
@@ -90,8 +90,8 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
             !item?.default_action
               ? undefined
               : () => {
-                  if (this.props.payload.onListItemClick) {
-                    this.props.payload.onListItemClick(
+                  if (this.props.onListItemClick) {
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       item?.default_action,
                     );
@@ -115,8 +115,8 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
                 <TouchableOpacity
                   key={i + '_'}
                   onPress={() => {
-                    if (this.props.payload.onListItemClick) {
-                      this.props.payload.onListItemClick(
+                    if (this.props.onListItemClick) {
+                      this.props.onListItemClick(
                         this.props.payload.template_type,
                         btn,
                       );
@@ -174,8 +174,8 @@ export default class ListTemplate extends BaseView<ListProps, ListState> {
                 <TouchableOpacity
                   style={styles.more_sub_con1}
                   onPress={() => {
-                    if (this.props.payload.onListItemClick) {
-                      this.props.payload.onListItemClick(
+                    if (this.props.onListItemClick) {
+                      this.props.onListItemClick(
                         this.props.payload.template_type,
                         btn,
                         true,
