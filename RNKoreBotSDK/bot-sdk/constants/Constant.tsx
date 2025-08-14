@@ -131,7 +131,8 @@ export const TEMPLATE_TYPES = {
   USER_ATTACHEMENT_TEMPLATE: 'user_attachement',
   ARTICLE_TEMPLATE: 'articleTemplate',
   ANSWER_TEMPLATE: 'answerTemplate',
-  OTP_TEMPLATE: 'otpValidationTemplate'
+  OTP_TEMPLATE: 'otpValidationTemplate',
+  RESET_PIN_TEMPLATE: 'resetPinTemplate'
 };
 
 export const RENDER_KORA_BUBBLE = 'RENDER_KORA_BUBBLE';

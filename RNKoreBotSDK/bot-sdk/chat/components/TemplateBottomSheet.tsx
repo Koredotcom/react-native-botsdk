@@ -7,6 +7,7 @@ import Color from "../../theme/Color";
 import OTPTemplate from "../../templates/OTPTemplate";
 import FeedbackTemplate from "../../templates/FeedbackTemplate";
 import { IThemeType } from "../../theme/IThemeType";
+import ResetPinTemplate from "../../templates/ResetPinTemplate";
 
 interface TemplateBottomSheetProps{
     isShow: boolean,
@@ -85,6 +86,8 @@ export default class TemplateBottomSheet extends PureComponent<
             return <OTPTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} onBottomSheetClose={this.props.onSliderClosed}/>
           case TEMPLATE_TYPES.FEEDBACK_TEMPLATE:
             return <FeedbackTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} onBottomSheetClose={this.props.onSliderClosed}/>
+          case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
+            return <ResetPinTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} onBottomSheetClose={this.props.onSliderClosed}/>
           default: return null;
         }
       }

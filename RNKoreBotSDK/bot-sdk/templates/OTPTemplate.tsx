@@ -15,6 +15,7 @@ import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
 import { LocalizationManager } from '../constants/Localization';
 import { normalize } from '../utils/helpers';
+import { isIOS } from '../utils/PlatformCheck';
 const windowWidth = Dimensions.get('window').width;
 let width = windowWidth * 0.8 ;
 
@@ -174,11 +175,10 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
                         this.props.onBottomSheetClose()
                       }
                     }
- 
                   }}
                   style={[
                     styles.button,
-                    { backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR || Color.button_blue },
+                    { backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR || Color.button_blue , marginBottom: isIOS ? 15 : 0},
                   ]}
                 >
                   <Text

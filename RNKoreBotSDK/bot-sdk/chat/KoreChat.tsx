@@ -749,7 +749,8 @@ export default class KoreChat extends React.Component<
       message.message[0].component.payload.payload.template_type && 
       message.message[0].component.payload.payload.sliderView && (
       message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.OTP_TEMPLATE ||
-      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.FEEDBACK_TEMPLATE);
+      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.FEEDBACK_TEMPLATE ||
+      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.RESET_PIN_TEMPLATE);
   }
 
   private textToSpeech = (botResponse: any) => {
@@ -1298,6 +1299,7 @@ export default class KoreChat extends React.Component<
       case TEMPLATE_TYPES.FORM_TEMPLATE:
       case TEMPLATE_TYPES.CLOCK_TEMPLATE:
       case TEMPLATE_TYPES.OTP_TEMPLATE:
+      case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
       case TEMPLATE_TYPES.LISTWIDGET_TEMPLATE:
       case TEMPLATE_TYPES.IMAGE_MESSAGE:
         if (!isFromViewMore) {
