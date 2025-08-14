@@ -254,8 +254,8 @@ export default class AdvancedListTemplate extends BaseView<
           <View style={styles.see_main}>
             <TouchableOpacity
               onPress={() => {
-                if (this.props.payload?.onListItemClick) {
-                  this.props.payload?.onListItemClick(
+                if (this.props.onListItemClick) {
+                  this.props.onListItemClick(
                     this.props.payload?.template_type.trim(),
                     this.props.payload?.listItems,
                     true,
@@ -297,8 +297,8 @@ export default class AdvancedListTemplate extends BaseView<
             flexDirection: 'column',
           }}
           onPress={() => {
-            if (item?.type && this.props.payload?.onListItemClick) {
-              this.props.payload?.onListItemClick(
+            if (item?.type && this.props.onListItemClick) {
+              this.props.onListItemClick(
                 this.props.payload?.template_type.trim(),
                 {
                   ...item,
@@ -715,7 +715,7 @@ export default class AdvancedListTemplate extends BaseView<
               }}>
               <TouchableOpacity
                 onPress={() => {
-                  this.props.payload?.onListItemClick(
+                  this.props.onListItemClick(
                     this.props.payload?.template_type.trim(),
                     { ...item, item_type: item_type },
                   );
@@ -791,7 +791,7 @@ export default class AdvancedListTemplate extends BaseView<
                           showPopover: false,
                         });
 
-                        this.props.payload?.onListItemClick(
+                        this.props.onListItemClick(
                           this.props.payload?.template_type.trim(),
                           { ...option, item_type: item_type },
                         );
@@ -1101,7 +1101,7 @@ export default class AdvancedListTemplate extends BaseView<
               <TouchableOpacity
                 key={index + ''}
                 onPress={() => {
-                  if (this.props.payload?.onListItemClick) {
+                  if (this.props.onListItemClick) {
                     let other = {};
                     let allSelections = [];
                     
@@ -1127,7 +1127,7 @@ export default class AdvancedListTemplate extends BaseView<
                       };
                     }
 
-                    this.props.payload?.onListItemClick(
+                    this.props.onListItemClick(
                       this.props.payload?.template_type,
                       {
                         ...button,
@@ -1226,7 +1226,7 @@ export default class AdvancedListTemplate extends BaseView<
                     <TouchableOpacity
                       key={index + ''}
                       onPress={() => {
-                        if (this.props.payload?.onListItemClick) {
+                        if (this.props.onListItemClick) {
                           let other = {};
                           let allSelections = [];
                           
@@ -1252,7 +1252,7 @@ export default class AdvancedListTemplate extends BaseView<
                             };
                           }
 
-                          this.props.payload?.onListItemClick(
+                          this.props.onListItemClick(
                             this.props.payload?.template_type,
                             {
                               ...button,

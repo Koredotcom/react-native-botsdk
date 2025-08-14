@@ -81,8 +81,8 @@ export default class ImageTemplate extends BaseView<ImageProps, ImageState> {
           <TouchableOpacity
             onPress={() => {
               console.log('url ' + this.state.imageUri);
-              if (this.props.payload.onListItemClick) {
-                this.props.payload.onListItemClick(
+              if (this.props.onListItemClick) {
+                this.props.onListItemClick(
                   TEMPLATE_TYPES.IMAGE_MESSAGE,
                   this.state.imageUri,
                 );

@@ -8,6 +8,8 @@ export interface BaseViewProps {
   //onListItemClick?: (type?: any, item?: any) => {};
   payload?: any;
   theme?: IThemeType;
+  onListItemClick?: any;
+  onBottomSheetClose?: any;
 }
 
 export interface BaseViewState {}
@@ -18,7 +20,9 @@ class BaseView<
 > extends React.Component<T, S> {
   static contextType = ThemeContext;
   static propTypes: {
-    payload: {};
+    payload: {}
+    onListItemClick: undefined
+    onBottomSheetClose: undefined
   };
 
   constructor(props: T) {
@@ -30,7 +34,7 @@ class BaseView<
   };
 
   protected isViewDisable = (): boolean => {
-    return !this.props.payload?.isLastMessage || false;
+    return this.props.onBottomSheetClose ? false : !this.props.payload?.isLastMessage || false;
   };
 
   // protected getTemplateWidth = () => {

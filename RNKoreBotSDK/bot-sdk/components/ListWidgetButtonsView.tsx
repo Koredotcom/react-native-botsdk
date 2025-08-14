@@ -14,6 +14,7 @@ interface ListButtonsProps {
   isFromMore?: boolean;
   theme?: IThemeType;
   payload?: any;
+  onListItemClick: any
 }
 interface ListButtonsState {
   showBtnPopover?: boolean;
@@ -130,7 +131,7 @@ export default class ListWidgetButtonsView extends React.Component<
         onPress={() => {
           onBtnPress?.();
           if (!btn?.isMoreButton) {
-            this.props.payload?.onListItemClick(
+            this.props.onListItemClick(
               this.props.payload?.template_type.trim(),
               btn,
             );

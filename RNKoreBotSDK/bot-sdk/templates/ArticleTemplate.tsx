@@ -16,13 +16,13 @@ import { getBubbleTheme } from '../theme/themeHelper';
 import Base64Image from '../utils/Base64Image';
 import { LocalizationManager } from '../constants/Localization';
 
-interface ListProps extends BaseViewProps {}
-interface ListState extends BaseViewState {}
+interface ArticleProps extends BaseViewProps {}
+interface ArticleState extends BaseViewState {}
 const windowWidth = Dimensions.get('window').width;
 
 const width = windowWidth * 0.8 ;
 
-export default class ArticleTemplate extends BaseView<ListProps, ListState> {
+export default class ArticleTemplate extends BaseView<ArticleProps, ArticleState> {
     constructor(props: any) {
         super(props);
     }

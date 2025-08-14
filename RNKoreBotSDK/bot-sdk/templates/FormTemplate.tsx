@@ -79,7 +79,7 @@ export default class FormTemplate extends BaseView<FormProps, FormState> {
                       title = this.state?.inputText;
                     }
 
-                    this.props.payload.onListItemClick(
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       {
                         title: title,

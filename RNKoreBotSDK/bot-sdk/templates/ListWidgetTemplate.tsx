@@ -121,6 +121,7 @@ export default class ListWidgetTemplate extends BaseView<
                 buttons={value?.menu}
                 theme={this.props.theme}
                 payload={this.props.payload}
+                onListItemClick={this.props.onListItemClick}
               />
             </View>
           </Popover>
@@ -276,6 +277,7 @@ export default class ListWidgetTemplate extends BaseView<
                   buttons={item?.buttons}
                   theme={this.props.theme}
                   payload={this.props.payload}
+                  onListItemClick={this.props.onListItemClick}
                 />
               )}
             </View>

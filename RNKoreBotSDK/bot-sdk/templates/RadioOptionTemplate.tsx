@@ -128,8 +128,8 @@ export default class RadioOptionTemplate extends BaseView<
               onPress={() => {
                 const item = this.state.selectedItem?.postback;
 
-                if (item && this.props.payload.onListItemClick) {
-                  this.props.payload.onListItemClick(
+                if (item && this.props.onListItemClick) {
+                  this.props.onListItemClick(
                     this.props.payload.template_type,
                     {
                       title: item?.title,

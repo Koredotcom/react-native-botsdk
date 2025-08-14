@@ -13,13 +13,13 @@ import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 import { LocalizationManager } from '../constants/Localization';
 
-interface ListProps extends BaseViewProps {}
-interface ListState extends BaseViewState {}
+interface AnswerProps extends BaseViewProps {}
+interface AnswerState extends BaseViewState {}
 const windowWidth = Dimensions.get('window').width;
 
 const width = windowWidth * 0.8 ;
 
-export default class AnswerTemplate extends BaseView<ListProps, ListState> {
+export default class AnswerTemplate extends BaseView<AnswerProps, AnswerState> {
     constructor(props: any) {
             super(props);
         }
