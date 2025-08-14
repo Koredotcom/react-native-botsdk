@@ -51,8 +51,8 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
               ? undefined
               : () => {
                   //console.log('item ---->:', item);
-                  if (this.props.payload.onListItemClick) {
-                    this.props.payload.onListItemClick(
+                  if (this.props.onListItemClick) {
+                    this.props.onListItemClick(
                       TEMPLATE_TYPES.LIST_VIEW_TEMPLATE,
                       item?.default_action,
                       false,
@@ -93,8 +93,8 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
                 <TouchableOpacity
                   key={i + '_'}
                   onPress={() => {
-                    if (this.props.payload.onListItemClick) {
-                      this.props.payload.onListItemClick(
+                    if (this.props.onListItemClick) {
+                      this.props.onListItemClick(
                         this.props.payload.template_type,
                         btn,
                       );
@@ -160,8 +160,8 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
                   heading: this.props.payload?.heading,
                 };
 
-                if (this.props.payload.onListItemClick) {
-                  this.props.payload.onListItemClick(
+                if (this.props.onListItemClick) {
+                  this.props.onListItemClick(
                     this.props.payload.template_type,
                     data1,
                     true,

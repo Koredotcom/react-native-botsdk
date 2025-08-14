@@ -140,7 +140,7 @@ export default class DropdownTemplate extends BaseView<
                   if (!item) {
                     return;
                   }
-                  this.props.payload.onListItemClick(
+                  this.props.onListItemClick(
                     this.props.payload.template_type,
                     {
                       title: item?.title,
@@ -193,7 +193,7 @@ export default class DropdownTemplate extends BaseView<
               // console.log('selected item_3  --------> :', item);
               this.setState({selectedValue: itemValue, item: item});
 
-              // this.props.payload.onListItemClick(
+              // this.props.onListItemClick(
               //   this.props.payload.template_type,
               //   {
               //     title: item?.title,
@@ -209,7 +209,7 @@ export default class DropdownTemplate extends BaseView<
               let item = elements[itemIndex];
               //  console.log('selected item_2  --------> :', item);
               this.setState({selectedValue: itemValue, item: item});
-              // this.props.payload.onListItemClick(
+              // this.props.onListItemClick(
               //   this.props.payload.template_type,
               //   {
               //     title: item?.title,

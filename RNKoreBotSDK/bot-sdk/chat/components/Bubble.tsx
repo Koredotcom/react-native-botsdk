@@ -346,6 +346,7 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
         theme={theme}
         currentMessage={this.props.currentMessage}
         messageTextProps={messageTextProps}
+        onListItemClick={this.props.onListItemClick}
         // textContainerStyle={
         //   {
         //     // backgroundColor: 'green',

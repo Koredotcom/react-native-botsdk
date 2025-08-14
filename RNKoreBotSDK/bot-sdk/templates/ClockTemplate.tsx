@@ -41,8 +41,8 @@ export default class ClockTemplate extends BaseView<ClockProps, ClockState> {
       },
       () => {
         setTimeout(() => {
-          if (this.props.payload.onListItemClick) {
-            this.props.payload.onListItemClick(
+          if (this.props.onListItemClick) {
+            this.props.onListItemClick(
               this.props.payload.template_type,
               {
                 title: time,

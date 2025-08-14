@@ -70,8 +70,8 @@ export default class TableListTemplate extends BaseView<
               onPress={() => {
                 //  console.log('item?.default_action ===>:', item?.default_action);
 
-                if (this.props.payload.onListItemClick) {
-                  this.props.payload.onListItemClick(
+                if (this.props.onListItemClick) {
+                  this.props.onListItemClick(
                     this.props.payload.template_type,
                     item?.default_action,
                   );
@@ -114,8 +114,8 @@ export default class TableListTemplate extends BaseView<
                       //   item?.title?.url?.link,
                       // );
 
-                      if (this.props.payload.onListItemClick) {
-                        this.props.payload.onListItemClick(
+                      if (this.props.onListItemClick) {
+                        this.props.onListItemClick(
                           this.props.payload.template_type,
                           {
                             ...item?.title?.url,
@@ -146,8 +146,8 @@ export default class TableListTemplate extends BaseView<
                 </View>
                 <ValueWrapper
                   onPress={() => {
-                    if (this.props.payload.onListItemClick) {
-                      this.props.payload.onListItemClick(
+                    if (this.props.onListItemClick) {
+                      this.props.onListItemClick(
                         this.props.payload.template_type,
                         {
                           ...item?.value,
