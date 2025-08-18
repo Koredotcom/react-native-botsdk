@@ -679,16 +679,13 @@ export default class KoreChat extends React.Component<
     
     let modifiedMessages: any = null;
     const itemId = getItemId();
-    modifiedMessages = [
-      {
-        ...newMessages,
-        itemId: itemId,
-      },
-    ];
 
-    console.log('📝 Modified messages with itemId:', JSON.stringify(modifiedMessages, null, 2));
+    // Check if this message has actual attachment data (not just the string "attachments")
+    const hasRealAttachments = newMessages?.message?.[0]?.component?.payload?.attachments && 
+                              newMessages?.message?.[0]?.component?.payload?.attachments !== "attachments" &&
+                              newMessages?.message?.[0]?.component?.payload?.attachments !== "";
 
-    if (newMessages?.message?.[0]?.component?.payload?.attachments) {
+    if (hasRealAttachments) {
       console.log('📎 Processing attachment template');
       let attachmentTemplate = {
         type: 'user_message',
@@ -709,10 +706,20 @@ export default class KoreChat extends React.Component<
         },
       ];
       console.log('📎 Attachment template created:', JSON.stringify(modifiedMessages, null, 2));
+    } else {
+      // For messages without attachments, process normally
+      modifiedMessages = [
+        {
+          ...newMessages,
+          itemId: itemId,
+        },
+      ];
+      console.log('📝 Regular message with itemId:', JSON.stringify(modifiedMessages, null, 2));
     }
 
     // Check for slider view bottom sheet (from upstream)
-    if (modifiedMessages.length === 1){
+    // Only check if we have a single message (not attachment + text combo)
+    if (modifiedMessages.length === 1 && !newMessages?.message?.[0]?.component?.payload?.attachments){
       let message = modifiedMessages[0];
       if (message.type === 'bot_response' && this.isSliderView(message)) {
         this.setState({showTemplateBottomSheet: true, messageBottomSheet: message})
@@ -721,12 +728,15 @@ export default class KoreChat extends React.Component<
     }
 
     console.log('💬 Current messages count before append:', this.state.messages.length);
+    console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
+    
     this.setState(
       {
         messages: KoreChat.append(this.state.messages, modifiedMessages),
       },
       () => {
         console.log('💬 Messages updated, new count:', this.state.messages.length);
+        console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
         console.log('🔊 Starting text-to-speech in 1 second');
         setTimeout(() => {
           this.textToSpeech(newMessages);
@@ -1002,17 +1012,9 @@ export default class KoreChat extends React.Component<
           data_type: payload.data_type,
         });
 
-        // console.log('message ------->:', message);
-        if (message && message?.text?.trim?.()?.length !== 0) {
-          setTimeout(() => {
-            this.onSend({
-              message,
-              data: data,
-              shouldResetInputToolbar,
-              data_type,
-            });
-          }, 500);
-        }
+        // Don't send the text message separately when attachments are present
+        // The attachment payload already includes the text
+        console.log('📎 Attachment message sent, skipping separate text message');
       } else {
         this.onSend({
           message,
@@ -1137,9 +1139,9 @@ export default class KoreChat extends React.Component<
     shouldResetInputToolbar = true,
     data_type = '',
   }): void => {
-    // console.log('message --->:', message);
-    // console.log('data --->:', data);
-    // console.log('data_type --->:', data_type);
+    console.log('🚀 onSend called with message:', message);
+    console.log('🚀 onSend called with data:', data);
+    console.log('🚀 onSend called with data_type:', data_type);
 
     this.clearQuickReplies();
     if (shouldResetInputToolbar === true) {
@@ -1154,6 +1156,9 @@ export default class KoreChat extends React.Component<
         data,
         data_type,
       );
+      console.log('📤 User sent message data:', JSON.stringify(messageData, null, 2));
+      console.log('📤 User sent message type:', messageData?.type);
+      
       setTimeout(() => {
         this.scrollToBottom(true);
       }, 100);
