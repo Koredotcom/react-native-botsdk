@@ -21,6 +21,6 @@ export {default as CustomTemplate} from '../bot-sdk/templates/CustomTemplate';
 
 export {default as InputToolbar} from '../bot-sdk/chat/components/InputToolbar';
 
-export type { UUID } from '../bot-sdk/utils/uuid';
+export { UUID } from '../bot-sdk/utils/uuid';
 
 export default KoreChat;
