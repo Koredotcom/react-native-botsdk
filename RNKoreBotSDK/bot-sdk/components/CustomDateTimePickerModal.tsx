@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, StyleSheet, Platform, Button} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomModal from './CustomModal';
+import { LazyDateTimePicker, FallbackDateTimePicker } from './LazyDateTimePicker';
 
 interface CustomDateTimePickerModalProps {
   isVisible: boolean;
@@ -77,7 +77,7 @@ class CustomDateTimePickerModal extends Component<
     if (Platform.OS === 'android') {
       // On Android, show the native picker directly
       return isVisible ? (
-        <DateTimePicker
+        <LazyDateTimePicker
           value={this.state.selectedDate}
           mode={mode}
           is24Hour={Boolean(is24Hour)}
@@ -85,6 +85,7 @@ class CustomDateTimePickerModal extends Component<
           minimumDate={minimumDate}
           maximumDate={maximumDate}
           onChange={this.handleDateChange}
+          fallbackComponent={FallbackDateTimePicker}
         />
       ) : null;
     }
@@ -98,7 +99,7 @@ class CustomDateTimePickerModal extends Component<
         animationType="slide">
         <View style={styles.modalContent}>
           <View style={styles.pickerContainer}>
-            <DateTimePicker
+            <LazyDateTimePicker
               value={this.state.selectedDate}
               mode={mode}
               is24Hour={Boolean(is24Hour)}
@@ -107,6 +108,7 @@ class CustomDateTimePickerModal extends Component<
               maximumDate={maximumDate}
               onChange={this.handleDateChange}
               style={styles.picker}
+              fallbackComponent={FallbackDateTimePicker}
             />
           </View>
           

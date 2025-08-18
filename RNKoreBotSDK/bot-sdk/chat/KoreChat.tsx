@@ -616,13 +616,15 @@ export default class KoreChat extends React.Component<
 
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
-        // if (data) {
-        //   console.log('data ------->:', JSON.stringify(data));
-        // }
+        if (data) {
+          console.log('🤖 Bot Response Data ------->:', JSON.stringify(data, null, 2));
+        }
         if (data.type === 'ack') {
+          console.log('📨 Received ACK message, setting loading state');
           this.setIsBotResponseLoading(true);
           return;
         }
+        console.log('✅ Processing bot message, stopping loading state');
         setTimeout(() => {
           this.setIsBotResponseLoading(false);
         }, 150);
@@ -673,6 +675,8 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
+    console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
+    
     let modifiedMessages: any = null;
     const itemId = getItemId();
     modifiedMessages = [
@@ -682,7 +686,10 @@ export default class KoreChat extends React.Component<
       },
     ];
 
+    console.log('📝 Modified messages with itemId:', JSON.stringify(modifiedMessages, null, 2));
+
     if (newMessages?.message?.[0]?.component?.payload?.attachments) {
+      console.log('📎 Processing attachment template');
       let attachmentTemplate = {
         type: 'user_message',
         message: [
@@ -701,8 +708,10 @@ export default class KoreChat extends React.Component<
           itemId: itemId,
         },
       ];
+      console.log('📎 Attachment template created:', JSON.stringify(modifiedMessages, null, 2));
     }
 
+    // Check for slider view bottom sheet (from upstream)
     if (modifiedMessages.length === 1){
       let message = modifiedMessages[0];
       if (message.type === 'bot_response' && this.isSliderView(message)) {
@@ -711,11 +720,14 @@ export default class KoreChat extends React.Component<
       }
     }
 
+    console.log('💬 Current messages count before append:', this.state.messages.length);
     this.setState(
       {
         messages: KoreChat.append(this.state.messages, modifiedMessages),
       },
       () => {
+        console.log('💬 Messages updated, new count:', this.state.messages.length);
+        console.log('🔊 Starting text-to-speech in 1 second');
         setTimeout(() => {
           this.textToSpeech(newMessages);
         }, 1000);
