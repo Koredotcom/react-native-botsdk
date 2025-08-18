@@ -265,9 +265,13 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
       return null;
     }
     if (typeof text !== 'string') {
-      console.log('value is not a string type   : ', text);
+      console.log('⚠️  Bot text value is not a string type:', text);
+      console.log('⚠️  Type of text:', typeof text);
+      console.log('⚠️  Full message data:', JSON.stringify(this.props.currentMessage, null, 2));
       return <></>;
     }
+    
+    console.log('✅ Rendering bot text:', text);
     const theme = this.context as ThemeType;
     return (
       <BotText

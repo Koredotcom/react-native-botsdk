@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import BotText from './BotText';
-import {Picker} from '@react-native-picker/picker';
+import { LazyPicker, FallbackPicker } from '../components/lazy-loading';
 import Color from '../theme/Color';
 import {normalize} from '../utils/helpers';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
@@ -175,10 +175,9 @@ export default class DropdownTemplate extends BaseView<
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
         style={[styles.calendar, {}]}>
-        <Picker
+        <LazyPicker
           selectedValue={this.state.selectedValue}
           mode={mode}
-          placeholder={this.props.payload?.placeholder}
           itemStyle={{
             fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
             color: isIOS ? Color.black : Color.white,
@@ -186,6 +185,7 @@ export default class DropdownTemplate extends BaseView<
           }}
           //selectionColor={'green'}
           style={[styles.calendar, {margin: 5, backgroundColor: 'red'}]}
+          fallbackComponent={FallbackPicker}
           onValueChange={(itemValue: any, itemIndex: number) => {
             if (itemIndex !== 0 && !this.state.selectedValue) {
               itemIndex = itemIndex - 1;
@@ -220,7 +220,7 @@ export default class DropdownTemplate extends BaseView<
             }
           }}>
           {!this.state.selectedValue && (
-            <Picker.Item
+            <LazyPicker.Item
               key={'placeholder'}
               label={this.props.payload?.placeholder}
               value={this.props.payload?.placeholder}
@@ -234,7 +234,7 @@ export default class DropdownTemplate extends BaseView<
           )}
           {elements?.map((item: any, index: any) => {
             return (
-              <Picker.Item
+              <LazyPicker.Item
                 key={index}
                 label={item?.title}
                 value={item?.value}
@@ -247,7 +247,7 @@ export default class DropdownTemplate extends BaseView<
               />
             );
           })}
-        </Picker>
+        </LazyPicker>
       </View>
     );
   }
