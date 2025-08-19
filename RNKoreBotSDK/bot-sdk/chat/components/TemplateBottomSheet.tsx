@@ -8,15 +8,20 @@ import OTPTemplate from "../../templates/OTPTemplate";
 import FeedbackTemplate from "../../templates/FeedbackTemplate";
 import { IThemeType } from "../../theme/IThemeType";
 import ResetPinTemplate from "../../templates/ResetPinTemplate";
+import { ThemeContext } from "../../theme/ThemeContext";
+import CustomTemplate, { CustomViewProps, CustomViewState } from "../../templates/CustomTemplate";
 
 interface TemplateBottomSheetProps{
     isShow: boolean,
     messageId: string,
     templateType: string,
     payload: any,
-    theme: IThemeType,
     onListItemClick: any,
-    onSliderClosed: any
+    onSliderClosed: any,
+    templateInjection?: Map<
+        string,
+        CustomTemplate<CustomViewProps, CustomViewState>
+    >
 }
 
 interface TemplateBottomSheetState{}
@@ -25,6 +30,7 @@ export default class TemplateBottomSheet extends PureComponent<
   TemplateBottomSheetProps,
   TemplateBottomSheetState
 > { 
+    static contextType = ThemeContext;
     constructor(props: TemplateBottomSheetProps){
         super(props);
     }
@@ -74,13 +80,35 @@ export default class TemplateBottomSheet extends PureComponent<
                 />
                 </TouchableOpacity>
             )}
-            {this.renderSlideTemplates(this.props.templateType, payload, this.props.theme)}
+            {this.renderSlideTemplates(this.props.templateType, payload)}
             </View>
         </View>
         </Modal>
     }
 
-    renderSlideTemplates = (templateType: string, payload: any, theme: IThemeType) =>{
+    renderSlideTemplates = (templateType: string, payload: any) =>{
+        let theme = this.context as IThemeType;
+        console.log('this.props?.templateInjection '+this.props?.templateInjection);
+        if (this.props?.templateInjection) {
+            let templateInjection: Map<string, any> = this.props?.templateInjection;
+
+            let CustomView = templateInjection?.get?.(templateType);
+
+            if (CustomView) {
+                try {
+                    return (
+                        <CustomView
+                        payload={payload}
+                        theme={theme}
+                        onListItemClick={this.props.onListItemClick}
+                        isLastMessage={true}
+                        onBottomSheetClose={this.props.onSliderClosed}
+                        />
+                    );
+                } catch (error) {
+                }
+            }
+        }
         switch(templateType) {
           case TEMPLATE_TYPES.OTP_TEMPLATE:
             return <OTPTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} onBottomSheetClose={this.props.onSliderClosed}/>
@@ -90,5 +118,5 @@ export default class TemplateBottomSheet extends PureComponent<
             return <ResetPinTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} onBottomSheetClose={this.props.onSliderClosed}/>
           default: return null;
         }
-      }
+    }
 }
