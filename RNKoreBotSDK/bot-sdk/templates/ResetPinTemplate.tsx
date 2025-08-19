@@ -33,7 +33,7 @@ export default class ResetPinTemplate extends BaseView<ResetPinProps, ResetPinSt
           inputText: '',
           isPinMatch: true,
         };
-        if( this.props.onBottomSheetClose){
+        if (this.props.onBottomSheetClose){
           window =  windowWidth * 0.9;
         }
       }
