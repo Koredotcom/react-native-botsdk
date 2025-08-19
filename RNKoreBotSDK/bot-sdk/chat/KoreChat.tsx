@@ -953,6 +953,7 @@ export default class KoreChat extends React.Component<
       onSliderClosed={() =>{
         this.setState({showTemplateBottomSheet: false})
       }}
+      templateInjection={this.props.templateInjection}
       />
     ) 
   }
