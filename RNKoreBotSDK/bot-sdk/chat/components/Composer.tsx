@@ -94,13 +94,17 @@ export function Composer({
   return (
     <View
       style={[
-        {justifyContent: 'center', backgroundColor: Color.transparent},
+        {
+          justifyContent: 'center',
+          alignItems: 'stretch',
+          backgroundColor: Color.transparent,
+        },
         isIOS && {
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: outLineColor,
           borderRadius: 4,
           backgroundColor: bgColor,
-          minHeight: normalize(40),
+          minHeight: normalize(composerHeightNew + 16),
         },
       ]}>
       <View
@@ -115,6 +119,7 @@ export function Composer({
             borderColor: outLineColor,
             borderRadius: 4,
             backgroundColor: bgColor,
+            minHeight: normalize(composerHeightNew + 16),
           },
         ]}>
         <TextInput
@@ -133,15 +138,13 @@ export function Composer({
           onChangeText={onTextChanged}
           style={[
             styles.textInput,
+
             {
               minHeight: normalize(composerHeightNew),
               paddingRight: theme?.v3?.footer?.buttons?.emoji?.show ? 4 : 8,
             },
             {
               color: textColor, //bubbleTheme.BUBBLE_LEFT_TEXT_COLOR,
-            },
-            isIOS && {
-              marginTop: 12,
             },
           ]}
           autoFocus={textInputAutoFocus}
@@ -214,14 +217,11 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: normalize(16),
-    marginTop: 5,
-    marginBottom: 5,
     paddingLeft: 8,
-    alignItems: 'center',
-    verticalAlign: 'middle',
+    paddingRight: 8,
+    minHeight: normalize(isIOS ? 34 : 36),
+    paddingVertical: isIOS ? 8 : 6,
     textAlignVertical: 'center',
-    paddingVertical: 0,
-    marginVertical: 0,
     color: Color.text_color,
   },
 });
