@@ -230,9 +230,8 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
-  item_value_con: { marginTop: normalize(5)}, //{justifyContent: 'center', marginEnd: normalize(5)},
+  item_value_con: { alignSelf: 'center', marginEnd: normalize(5)},
   image_view: {
-    // marginTop: 10,
     height: normalize(45),
     width: normalize(45),
     justifyContent: 'center',
@@ -245,7 +244,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
     color: TEMPLATE_STYLE_VALUES.VIEW_MORE_TEXT_COLOR,
-    // alignSelf: 'flex-start',
     alignSelf: 'flex-end',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
