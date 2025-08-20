@@ -948,7 +948,6 @@ export default class KoreChat extends React.Component<
       messageId={message.messageId} 
       payload={message.message[0].component.payload.payload}
       templateType={message.message[0].component.payload.payload.template_type}
-      theme={theme}
       onListItemClick={this.onListItemClick}
       onSliderClosed={() =>{
         this.setState({showTemplateBottomSheet: false})
