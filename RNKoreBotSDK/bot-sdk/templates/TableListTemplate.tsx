@@ -15,6 +15,7 @@ import FastImage from 'react-native-fast-image';
 import {image_size} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
+const width = windowWidth * 0.80;
 
 interface TableListProps extends BaseViewProps {}
 interface TableListState extends BaseViewState {}
@@ -38,7 +39,7 @@ export default class TableListTemplate extends BaseView<
     if (!data) {
       return <></>;
     }
-
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <View style={styles.main}>
         <View style={styles.sub}>
@@ -182,7 +183,7 @@ export default class TableListTemplate extends BaseView<
               </View>
 
               {index !== data?.rowItems?.length - 1 && (
-                <View style={styles.line}></View>
+                <View style={[styles.line, {backgroundColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR}]}></View>
               )}
             </MainWrapper>
           );
@@ -199,20 +200,12 @@ export default class TableListTemplate extends BaseView<
     return (
       <View
         style={[
-          {width: (windowWidth / 4) * 3.2, backgroundColor: Color.white},
+          {width: width, backgroundColor: Color.white},
         ]}>
-        <View style={{marginBottom: 10}}>
-          {/* {title && (
-            <Text style={[styles.title, {marginBottom: 5}]}>{title}</Text>
-          )}
-          {description && (
-            <Text style={styles.sectionHeaderDesc}>{description}</Text>
-          )} */}
-        </View>
         <View
           style={[
             styles.main_con,
-            {width: (windowWidth / 4) * 3.2, backgroundColor: Color.white, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR, borderWidth: 1.0},
+            {width: width, backgroundColor: Color.white, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR, borderWidth: 1.0},
           ]}>
           {this.renderElements(this.props?.payload?.elements)}
         </View>
