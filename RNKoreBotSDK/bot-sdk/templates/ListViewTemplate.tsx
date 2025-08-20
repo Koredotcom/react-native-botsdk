@@ -32,11 +32,6 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
   private placeholderImage: any;
   constructor(props: any) {
     super(props);
-    if (this.props.onBottomSheetClose){
-      width = windowWidth * 0.90;
-    } else {
-      width = windowWidth * 0.80;
-    }
   }
 
   private getSingleElementView = (
@@ -195,6 +190,11 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
   };
 
   render() {
+    if (this.props.onBottomSheetClose){
+      width = windowWidth * 0.90;
+    } else {
+      width = windowWidth * 0.80;
+    }
     const size =
       this.props.payload?.moreCount || this.props.payload.elements?.length || 0;
     return this.props.payload ? (
