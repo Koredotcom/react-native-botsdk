@@ -102,6 +102,7 @@ try {
 
 import CustomAlertComponent from '../components/CustomAlertComponent';
 import TemplateBottomSheet from './components/TemplateBottomSheet';
+import ArticleTemplate from '../templates/ArticleTemplate';
 
 dayjs.extend(localizedFormat);
 
@@ -654,8 +655,6 @@ export default class KoreChat extends React.Component<
       // );
     });
   };
-
-
 
   private isQuickReplies = (data: any) => {
     if (
@@ -1361,6 +1360,18 @@ export default class KoreChat extends React.Component<
         }
 
         break;
+        
+      case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
+        this.setState(
+            {
+              currentTemplate: template_type,
+              currentTemplateData: item,
+              themeData: theme,
+              showSeeMoreModal: true,
+            },
+          );
+
+        break;
       case TEMPLATE_TYPES.LIST_TEMPLATE:
       case TEMPLATE_TYPES.CAROUSEL_TEMPLATE:
         this.computePostBack(item, template_type);
@@ -1902,6 +1913,16 @@ export default class KoreChat extends React.Component<
               </View>
             </ScrollView>
           </View>
+        );
+        break;
+      case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
+        const payload = this.state.currentTemplateData;
+        return (
+          <ScrollView horizontal={false} style={[styles.scrollView, {marginBottom: normalize(10)}]}>
+              <View style={styles.sroll_sub}>
+                <ArticleTemplate payload={payload} theme={this.state.themeData} onListItemClick={this.props.onListItemClick} onBottomSheetClose={{}} />;
+            </View>
+          </ScrollView>
         );
     }
   }
