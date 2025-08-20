@@ -21,7 +21,7 @@ interface ListProps extends BaseViewProps {}
 interface ListState extends BaseViewState {}
 const windowWidth = Dimensions.get('window').width;
 
-const width = (windowWidth / 4) * 3.1;
+let width = windowWidth*0.75;
 
 export const LIST_TYPES = {
   web_url: 'web_url',
@@ -32,6 +32,11 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
   private placeholderImage: any;
   constructor(props: any) {
     super(props);
+    if (this.props.onBottomSheetClose){
+      width = windowWidth * 0.90;
+    } else {
+      width = windowWidth * 0.80;
+    }
   }
 
   private getSingleElementView = (
@@ -43,7 +48,7 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
     let Image_Http_URL = {uri: item?.image_url};
     let buttons = item?.buttons ? [...item?.buttons] : []; //, ...item?.buttons, ...item?.buttons];
     return (
-      <View key={index + '_' + index} style={[styles.main_view_1, {borderColor: btheme?.BUBBLE_LEFT_BG_COLOR}]}>
+      <View key={index + '_' + index} style={[styles.main_view_1, {width: width, borderColor: btheme?.BUBBLE_LEFT_BG_COLOR}]}>
         <TouchableOpacity
           style={styles.sub_container}
           onPress={
