@@ -25,11 +25,6 @@ let width = windowWidth * 0.8 ;
 export default class ArticleTemplate extends BaseView<ArticleProps, ArticleState> {
     constructor(props: any) {
         super(props);
-        if (this.props.onBottomSheetClose){
-            width = windowWidth * 0.9;
-        } else {
-            width = windowWidth * 0.8;
-        }
     }
 
     private getLocalizedString = (key: string): string => {
@@ -37,6 +32,11 @@ export default class ArticleTemplate extends BaseView<ArticleProps, ArticleState
     };
 
     render() {
+        if (this.props.onBottomSheetClose){
+            width = windowWidth * 0.9;
+        } else {
+            width = windowWidth * 0.8;
+        }
         return this.props.payload ? (
         <View style={styles.main_container}>
             {this.renderElementsView(this.props.payload?.elements, this.props.payload?.displayLimit)}
