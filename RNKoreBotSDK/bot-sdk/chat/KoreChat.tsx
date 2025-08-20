@@ -28,6 +28,7 @@ import InputToolbar from './components/InputToolbar';
 import MessageContainer from './components/MessageContainer';
 import NetInfo from '@react-native-community/netinfo';
 import {ThemeProvider} from '../theme/ThemeContext';
+import {getBubbleTheme} from '../theme/themeHelper';
 import {
   MIN_COMPOSER_HEIGHT,
   MAX_COMPOSER_HEIGHT,
@@ -1808,6 +1809,7 @@ export default class KoreChat extends React.Component<
   }
 
   private renderSeeMorePopupComponent(): any {
+    const bubbleTheme = getBubbleTheme(this.state.themeData);
     switch (this.state.currentTemplate) {
       case TEMPLATE_TYPES.LIST_VIEW_TEMPLATE:
         const data = this.state.currentTemplateData;
@@ -1819,7 +1821,7 @@ export default class KoreChat extends React.Component<
             <View>
               {this.state?.currentTemplateHeading && (
                 <View style={styles.sub_container_title1}>
-                  <Text style={[styles.displayTextHeaderStyle]}>
+                  <Text style={[styles.displayTextHeaderStyle,{fontWeight: 600}]}>
                     {this.state?.currentTemplateHeading}
                   </Text>
                 </View>
@@ -1857,7 +1859,7 @@ export default class KoreChat extends React.Component<
                           styles.tab_title,
                           tab?.isChecked
                             ? {
-                                backgroundColor: Color.button_blue,
+                                backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,
                                 color: Color.white,
                               }
                             : {
@@ -1894,7 +1896,8 @@ export default class KoreChat extends React.Component<
                       );
                     },
                   }}
-                  theme={undefined}
+                  theme={this.state.themeData}
+                  onBottomSheetClose={{}}
                 />
               </View>
             </ScrollView>
@@ -1936,23 +1939,29 @@ export default class KoreChat extends React.Component<
               alignSelf: 'center',
               marginBottom: 20,
             }} />
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333'}}>
-              More Details
-            </Text>
-            {this.renderSeeMorePopupComponent()}
             <TouchableOpacity
               style={{
-                marginTop: 20,
-                padding: 15,
-                backgroundColor: '#f0f0f0',
-                borderRadius: 10,
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                width: 30,
+                height: 30,
+                borderRadius: 15,
                 alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1,
               }}
               onPress={() => {
                 this.setState({ showSeeMoreModal: false });
               }}>
-              <Text style={{fontSize: 16, color: '#666'}}>Close</Text>
+              <SvgIcon
+                    name={'HeaderClose'}
+                    width={normalize(20)}
+                    height={normalize(20)}
+                    color={'#697586'}
+                  />
             </TouchableOpacity>
+            {this.renderSeeMorePopupComponent()}
           </View>
         </View>
       </Modal>
@@ -2553,8 +2562,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sroll_sub: {
-    justifyContent: 'center',
-    alignItems: 'center',
     flex: 1,
   },
   scrollView: {
@@ -2563,7 +2570,7 @@ const styles = StyleSheet.create({
     marginBottom: normalize(50),
   },
   line: {
-    width: windowWidth,
+    width: windowWidth * 0.90,
     height: StyleSheet.hairlineWidth,
     backgroundColor: Color.black,
     marginBottom: 10,
