@@ -1692,23 +1692,30 @@ export default class KoreChat extends React.Component<
               alignSelf: 'center',
               marginBottom: 20,
             }} />
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333'}}>
-              Attach File
-            </Text>
-            {this.renderAssetPopupComponent()}
             <TouchableOpacity
-              style={{
-                marginTop: 20,
-                padding: 15,
-                backgroundColor: '#f0f0f0',
-                borderRadius: 10,
-                alignItems: 'center',
-              }}
-              onPress={() => {
-                this.setState({ showAttachmentModal: false });
-              }}>
-              <Text style={{fontSize: 16, color: '#666'}}>Close</Text>
-            </TouchableOpacity>
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1,
+                  }}
+                  onPress={() => {
+                    this.setState({ showAttachmentModal: false });
+                  }}
+                >
+                  <SvgIcon
+                    name={'HeaderClose'}
+                    width={normalize(20)}
+                    height={normalize(20)}
+                    color={'#697586'}
+                  />
+                </TouchableOpacity>
+            {this.renderAssetPopupComponent()}
           </View>
         </View>
       </Modal>
