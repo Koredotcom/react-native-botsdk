@@ -675,7 +675,7 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
-    console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
+    // console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
     
     let modifiedMessages: any = null;
     const itemId = getItemId();
@@ -705,7 +705,6 @@ export default class KoreChat extends React.Component<
           itemId: itemId,
         },
       ];
-      console.log('📎 Attachment template created:', JSON.stringify(modifiedMessages, null, 2));
     } else {
       // For messages without attachments, process normally
       modifiedMessages = [
@@ -714,7 +713,6 @@ export default class KoreChat extends React.Component<
           itemId: itemId,
         },
       ];
-      console.log('📝 Regular message with itemId:', JSON.stringify(modifiedMessages, null, 2));
     }
 
     // Check for slider view bottom sheet (from upstream)
@@ -727,16 +725,16 @@ export default class KoreChat extends React.Component<
       }
     }
 
-    console.log('💬 Current messages count before append:', this.state.messages.length);
-    console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
+    // console.log('💬 Current messages count before append:', this.state.messages.length);
+    // console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
     
     this.setState(
       {
         messages: KoreChat.append(this.state.messages, modifiedMessages),
       },
       () => {
-        console.log('💬 Messages updated, new count:', this.state.messages.length);
-        console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
+        // console.log('💬 Messages updated, new count:', this.state.messages.length);
+        // console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
         console.log('🔊 Starting text-to-speech in 1 second');
         setTimeout(() => {
           this.textToSpeech(newMessages);
@@ -1769,7 +1767,6 @@ export default class KoreChat extends React.Component<
                     right: 10,
                     width: 30,
                     height: 30,
-                    backgroundColor: '#f0f0f0',
                     borderRadius: 15,
                     alignItems: 'center',
                     justifyContent: 'center',
