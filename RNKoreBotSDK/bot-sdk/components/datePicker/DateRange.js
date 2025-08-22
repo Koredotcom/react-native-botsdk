@@ -3,7 +3,7 @@ import {Text, View, TouchableOpacity, Platform} from 'react-native';
 import dayjs from 'dayjs';
 import normalize from './normalizeText';
 import Month from './Month';
-import { LazyPicker, FallbackPicker } from '../lazy-loading';
+import {Picker} from '@react-native-picker/picker';
 import {SvgIcon} from '../../utils/SvgIcon';
 import Color from '../../theme/Color';
 import {isAndroid} from '../../utils/PlatformCheck';
@@ -399,24 +399,23 @@ export default class DateRange extends Component {
                 backgroundColor: this.props.calendarBgColor,
               },
             ]}>
-            <LazyPicker
+            <Picker
               selectedValue={this.state.selectedYear}
               mode={'dropdown'}
-              fallbackComponent={FallbackPicker}
               onValueChange={itemValue => {
                 this.setState({selectedYear: itemValue});
                 //
               }}>
               {rangeArray.map((value, index) => {
                 return (
-                  <LazyPicker.Item
+                  <Picker.Item
                     key={index}
                     label={String(value)}
                     value={value}
                   />
                 );
               })}
-            </LazyPicker>
+            </Picker>
             {this.renderButton()}
           </View>
         )}
