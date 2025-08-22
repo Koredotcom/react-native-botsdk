@@ -86,6 +86,7 @@ import {SvgIcon} from '../utils/SvgIcon';
 import FileIcon from '../utils/FileIcon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ListViewTemplate from '../templates/ListViewTemplate';
+import Toast from 'react-native-toast-message';
 import CustomTemplate, {
   CustomViewProps,
   CustomViewState,
@@ -2553,6 +2554,7 @@ export default class KoreChat extends React.Component<
               <CustomAlertComponent ref={this.alertRef} />
             </View>
           </Wrapper>
+          <Toast />
         </ThemeProvider>
       );
     }
@@ -2560,6 +2562,7 @@ export default class KoreChat extends React.Component<
       <View style={styles.container} onLayout={this.onInitialLayoutViewLayout}>
         {this.renderLoading()}
         <CustomAlertComponent ref={this.alertRef} />
+        <Toast />
       </View>
     );
   }
