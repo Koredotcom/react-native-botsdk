@@ -66,6 +66,50 @@ export {
   FallbackDocumentPicker
 } from '../LazyDocumentPicker';
 
+// Lazy SVG components
+export { 
+  LazySvg,
+  LazySvgPath,
+  LazySvgRect,
+  LazySvgCircle,
+  LazySvgText,
+  useLazySvg,
+  FallbackSvg,
+  FallbackSvgPath,
+  FallbackSvgRect,
+  FallbackSvgCircle,
+  FallbackSvgText
+} from '../LazySvg';
+
+// Lazy FastImage components
+export { 
+  LazyFastImage,
+  useLazyFastImage,
+  FallbackFastImage
+} from '../LazyFastImage';
+
+// Lazy Popover components
+export { 
+  LazyPopover,
+  useLazyPopover,
+  FallbackPopover
+} from '../LazyPopover';
+
+// Lazy Communications components
+export { 
+  LazyCommunications,
+  useLazyCommunications,
+  FallbackCommunications,
+  FallbackCommunicationsAPI
+} from '../LazyCommunications';
+
+// Lazy Orientation components
+export { 
+  LazyOrientation,
+  useLazyOrientation,
+  FallbackOrientation
+} from '../LazyOrientation';
+
 // Enhanced modal with lazy loading
 export { default as CustomDateTimePickerModal } from '../CustomDateTimePickerModal';
 
@@ -118,3 +162,34 @@ export type {
   DocumentPickerResponse,
   DocumentPickerModule,
 } from '../LazyDocumentPicker';
+
+export type {
+  LazySvgProps,
+  SvgProps,
+  SvgPathProps,
+  SvgRectProps,
+  SvgCircleProps,
+  SvgTextProps,
+  SvgModule,
+} from '../LazySvg';
+
+export type {
+  LazyFastImageProps,
+  FastImageProps,
+  FastImageModule,
+} from '../LazyFastImage';
+
+export type {
+  LazyPopoverProps,
+  PopoverProps,
+} from '../LazyPopover';
+
+export type {
+  LazyCommunicationsProps,
+  CommunicationsModule,
+} from '../LazyCommunications';
+
+export type {
+  LazyOrientationProps,
+  OrientationModule,
+} from '../LazyOrientation';
