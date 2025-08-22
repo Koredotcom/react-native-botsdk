@@ -1,275 +1,219 @@
-// // AudioPlayer.tsx
-// import React, {Component} from 'react';
-// import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-// import {Slider} from '@react-native-assets/slider';
-// // import TrackPlayer, {
-// //   Event,
-// //   PlaybackState,
-// //   State,
-// // } from 'react-native-track-player';
-// import {SvgIcon} from '../utils/SvgIcon';
-// import {normalize} from '../utils/helpers';
-// import Color from '../theme/Color';
-// import uuid from '../utils/uuid';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
+import Popover from "react-native-popover-view";
+import Sound from "react-native-sound";
+import Slider from "@react-native-community/slider";
+import RNFS from "react-native-fs";
+import { SvgIcon } from "../utils/SvgIcon";
+import { normalize } from "../utils/helpers";
+import Toast from "react-native-toast-message";
 
-// interface AudioPlayerProps {
-//   url: string;
-//   title?: string;
-//   artist?: string;
-//   artwork?: string;
-//   onMenuClick?: any;
-//   isStopPlayer?: boolean;
-// }
+type AudioPlayerProps = {
+  audioUrl: string; // remote or local file URL
+};
 
-// interface AudioPlayerState {
-//   isPlaying: boolean;
+type AudioPlayerState = {
+  isPlaying: boolean;
+  duration: number;
+  position: number;
+  showMenu: boolean;
+};
 
-//   position: number;
-//   duration: number;
-//   isMuted: boolean;
-// }
+export default class AudioPlayer extends React.PureComponent<AudioPlayerProps, AudioPlayerState> {
+  private sound: Sound | null = null;
+  private intervalRef: NodeJS.Timeout | null = null;
 
-// class AudioPlayer extends Component<AudioPlayerProps, AudioPlayerState> {
-//   private positionUpdateInterval: number | undefined;
-//   eventListener: any;
-//   isFristTime: boolean;
+  constructor(props: AudioPlayerProps) {
+    super(props);
+    this.state = {
+      isPlaying: false,
+      duration: 0,
+      position: 0,
+      showMenu: false,
+    };
+  }
 
-//   constructor(props: AudioPlayerProps) {
-//     super(props);
-//     this.isFristTime = true;
-//     this.state = {
-//       isPlaying: false,
-//       position: 0,
-//       duration: 0,
-//       isMuted: false,
-//     };
-//   }
+  componentDidMount() {
+    this.loadSound();
+  }
 
-//   componentDidUpdate(
-//     prevProps: Readonly<AudioPlayerProps>,
-//     prevState: Readonly<AudioPlayerState>,
-//     snapshot?: any,
-//   ): void {
-//     if (prevProps.isStopPlayer !== this.props.isStopPlayer) {
-//       // TrackPlayer.getActiveTrackIndex().then(
-//       //   async (index: number | undefined) => {
-//       //     if (index !== undefined) {
-//       //       try {
-//       //         await TrackPlayer.reset();
-//       //       } catch (error) {
-//       //         console.log('TrackPlayer.reset error --->:', error);
-//       //       }
+  componentDidUpdate(prevProps: AudioPlayerProps) {
+    if (prevProps.audioUrl !== this.props.audioUrl) {
+      this.releaseSound();
+      this.loadSound();
+    }
+  }
 
-//       //       try {
-//       //         await TrackPlayer.remove(index);
-//       //       } catch (error) {
-//       //         console.log('TrackPlayer.remove error --->:', error);
-//       //       }
-//       //     }
-//       //   },
-//       // );
-//     }
-//   }
+  componentWillUnmount() {
+    this.releaseSound();
+    if (this.intervalRef) {
+      clearInterval(this.intervalRef);
+    }
+  }
 
-//   // componentDidMount() {
-//   //   setTimeout(() => {
-//   //     this.initApp()
-//   //       .then(() => {
-//   //         this.eventListener = TrackPlayer.addEventListener(
-//   //           Event.PlaybackState,
-//   //           (event: PlaybackState) => {
-//   //             this.onPlaybackStateChanged(event?.state);
-//   //           },
-//   //         );
+  loadSound() {
+    const { audioUrl } = this.props;
+    this.sound = new Sound(audioUrl, "", (error) => {
+      if (error) {
+        console.log("Failed to load sound", error);
+        return;
+      }
+      this.setState({ duration: this.sound?.getDuration() || 0 });
+    });
+  }
 
-//   //         this.positionUpdateInterval = setInterval(this.updatePosition, 500);
-//   //       })
-//   //       .catch(error => {
-//   //         console.error('initApp failed:', error);
-//   //       });
-//   //   }, 1000);
-//   // }
+  releaseSound() {
+    if (this.sound) {
+      this.sound.release();
+      this.sound = null;
+    }
+  }
 
-//   private initApp = async () => {
-//     try {
-//       // await TrackPlayer.setupPlayer();
-//     } catch (error) {
-//       console.log('setupPlayer error ----->:', error);
-//     }
-//     try {
-//       // await TrackPlayer.removeUpcomingTracks();
-//     } catch (error) {
-//       console.log('removeUpcomingTracks error ----->:', error);
-//     }
-//     try {
-//       // await TrackPlayer.add({
-//       //   // key: uuid.v4() + '',
-//       //   //id: uuid.v4() + '',
-//       //   url: this.props.url, //'https://file-examples.com/storage/fe0e5e78596682d89b36118/2017/11/file_example_MP3_700KB.mp3',
-//       //   title: this.props.title || 'Audio title',
-//       //   artist: this.props.artist || 'artist',
-//       //   artwork: this.props.artwork || 'https://picsum.photos/200',
-//       // });
-//     } catch (error) {
-//       console.log('this.props.url, ----->:', this.props.url);
-//       console.log('TrackPlayer.add error ----->:', error);
-//     }
-//   };
+  togglePlayPause = () => {
+    if (!this.sound) return;
 
-//   componentWillUnmount() {
-//     this.eventListener?.remove?.();
-//     if (this.positionUpdateInterval) {
-//       clearInterval(this.positionUpdateInterval);
-//     }
-//   }
+    if (this.state.isPlaying) {
+      this.sound.pause();
+      this.setState({ isPlaying: false });
+      if (this.intervalRef) clearInterval(this.intervalRef);
+    } else {
+      this.sound.play((success) => {
+        if (success) {
+          console.log("Playback finished");
+        }
+        this.setState({ isPlaying: false, position: 0 });
+        if (this.intervalRef) clearInterval(this.intervalRef);
+      });
 
-//   // private onPlaybackStateChanged = (state: State) => {
-//   //   switch (state) {
-//   //     case State.Playing:
-//   //       this.setState({isPlaying: true});
-//   //       break;
+      this.setState({ isPlaying: true });
+      this.intervalRef = setInterval(() => {
+        this.sound?.getCurrentTime((sec) => {
+          this.setState({ position: sec });
+        });
+      }, 500);
+    }
+  };
 
-//   //     case State.Paused:
-//   //       this.setState({isPlaying: false});
-//   //       break;
+  onSeek = (value: number) => {
+    if (this.sound) {
+      this.sound.setCurrentTime(value);
+      this.setState({ position: value });
+    }
+  };
 
-//   //     case State.Stopped:
-//   //     case State.Ended:
-//   //       if (this.positionUpdateInterval) {
-//   //         clearInterval(this.positionUpdateInterval);
-//   //       }
+  downloadFile = async () => {
+    try {
+      const { audioUrl } = this.props;
+      const fileName = audioUrl.split("/").pop();
+      const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
 
-//   //       this.setState(
-//   //         {
-//   //           isPlaying: false,
-//   //         },
-//   //         () => {
-//   //           setTimeout(async () => {
-//   //             this.setState({
-//   //               position: 0,
-//   //             });
-//   //             await TrackPlayer.pause();
-//   //           }, 2000);
-//   //         },
-//   //       );
+      const exists = await RNFS.exists(destPath);
+      if (exists) {
+        Toast.show({ type: "info", position: "bottom", text1: "Already downloaded", text2: destPath });
+        return;
+      }
 
-//   //       break;
+      await RNFS.downloadFile({
+        fromUrl: audioUrl,
+        toFile: destPath,
+      }).promise;
+      Toast.show({ type: "success", position: "bottom", text1: "Downloaded", text2: destPath });
+    } catch (err) {
+      Toast.show({ type: "error", position: "bottom", text1: "Download failed!" });
+    }
+  };
 
-//   //     default:
-//   //       this.setState({isPlaying: false});
-//   //   }
-//   // };
+  formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  };
 
-//   // private updatePosition = async () => {
-//   //   if (this.isFristTime || this.state.isPlaying) {
-//   //     TrackPlayer.getProgress().then(progress => {
-//   //       //  console.log('progress ------->:', progress);
-//   //       this.setState(
-//   //         {
-//   //           position: this.isFristTime ? 0 : progress.position,
-//   //           duration: progress.duration,
-//   //         },
-//   //         () => {
-//   //           this.isFristTime = false;
-//   //         },
-//   //       );
-//   //     });
-//   //   }
-//   // };
+  render() {
+    const { isPlaying, position, duration } = this.state;
 
-//   // private togglePlayback = async () => {
-//   //   const {isPlaying} = this.state;
-//   //   if (isPlaying) {
-//   //     // await TrackPlayer.pause();
-//   //   } else {
-//   //     if (this.positionUpdateInterval) {
-//   //       clearInterval(this.positionUpdateInterval);
-//   //     }
-//   //     if (this.state.position === 0) {
-//   //       // await TrackPlayer?.seekTo?.(0);
-//   //     }
-//   //     // await TrackPlayer.play();
-//   //     // this.positionUpdateInterval = setInterval(this.updatePosition, 1000);
-//   //   }
-//   // };
+    return (
+      <View style={{ flex: 1, padding: 4 }}>
+        <View style={styles.container}>
+          <TouchableOpacity onPress={this.togglePlayPause}>
+            <SvgIcon
+              name={isPlaying ? "Pause" : "Play"}
+              width={normalize(22)}
+              height={normalize(22)}
+            />
+          </TouchableOpacity>
 
-//   render() {
-//     const {position, duration} = this.state;
-//     return (
-//       <View
-//         style={{
-//           flex: 1,
-//           padding: 8,
-//         }}>
-//         <View style={styles.container}>
-//           <TouchableOpacity onPress={this.togglePlayback}>
-//             <SvgIcon
-//               name={this.state?.isPlaying ? 'Pause' : 'Play'}
-//               width={normalize(22)}
-//               height={normalize(22)}
-//             />
-//           </TouchableOpacity>
-//           <Text style={styles.timeText}>
-//             {this.formatTime(position)}/{this.formatTime(duration)}
-//           </Text>
+          <Text style={styles.timeText}>
+            {this.formatTime(position)}/{this.formatTime(duration)}
+          </Text>
 
-//           <Slider
-//             style={styles.slider}
-//             value={position || 0}
-//             minimumValue={0}
-//             slideOnTap={false}
-//             maximumValue={duration || 100}
-//             minimumTrackTintColor={Color.green}
-//             maximumTrackTintColor="#A7A9BE"
-//             thumbTintColor={'#000000'}
-//             onValueChange={val => {}}
-//           />
-//           {/* <TouchableOpacity
-//             onPress={() => {
-//               if (this.props?.onMenuClick) {
-//                 this.props?.onMenuClick?.();
-//               }
-//             }}>
-//             <SvgIcon
-//               name={'ThreeDots'}
-//               width={normalize(18)}
-//               height={normalize(18)}
-//             />
-//           </TouchableOpacity> */}
-//         </View>
-//       </View>
-//     );
-//   }
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={duration}
+            value={position}
+            onSlidingComplete={this.onSeek}
+          />
 
-//   private formatTime(seconds: number) {
-//     const minutes = Math.floor(seconds / 60);
-//     const secs = Math.floor(seconds % 60);
-//     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-//   }
-// }
+          <Popover
+            isVisible={this.state.showMenu}
+            onRequestClose={() => this.setState({ showMenu: false })}
+            backgroundStyle={{ backgroundColor: "rgba(0,0,0,0.1)" }}
+            from={
+              <TouchableOpacity onPress={() => this.setState({ showMenu: true })}>
+                <SvgIcon
+                  name={"ThreeDots"}
+                  width={normalize(18)}
+                  height={normalize(18)}
+                />
+              </TouchableOpacity>
+            }
+          >
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                this.setState({ showMenu: false }, () => this.downloadFile());
+              }}
+            >
+              <Text style={styles.menuItemText}>Download</Text>
+            </TouchableOpacity>
+          </Popover>
+        </View>
+      </View>
+    );
+  }
+}
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     backgroundColor: Color.white,
-//     padding: 5,
-//     paddingStart: 8,
-//     paddingEnd: 8,
-//     borderRadius: 15,
-//   },
-//   timeText: {
-//     marginVertical: 5,
-//     marginHorizontal: 5,
-//     fontSize: normalize(12),
-//     color: '#000',
-//   },
-//   slider: {
-//     flex: 1,
-//     height: 40,
-//     marginStart: 5,
-//     marginEnd: 10,
-//   },
-// });
-
-// export default AudioPlayer;
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    elevation: 2,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  slider: {
+    flex: 1,
+    marginHorizontal: 8,
+  },
+  timeText: {
+    marginVertical: 5,
+    marginHorizontal: 5,
+    fontSize: normalize(12),
+    color: "#000",
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "flex-end",
+  },
+  menuItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  menuItemText: {
+    fontSize: normalize(14),
+    color: "#000",
+  },
+});
