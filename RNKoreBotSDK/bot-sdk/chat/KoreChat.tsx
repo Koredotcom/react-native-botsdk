@@ -28,6 +28,7 @@ import InputToolbar from './components/InputToolbar';
 import MessageContainer from './components/MessageContainer';
 import NetInfo from '@react-native-community/netinfo';
 import {ThemeProvider} from '../theme/ThemeContext';
+import {getBubbleTheme} from '../theme/themeHelper';
 import {
   MIN_COMPOSER_HEIGHT,
   MAX_COMPOSER_HEIGHT,
@@ -101,6 +102,7 @@ try {
 
 import CustomAlertComponent from '../components/CustomAlertComponent';
 import TemplateBottomSheet from './components/TemplateBottomSheet';
+import ArticleTemplate from '../templates/ArticleTemplate';
 
 dayjs.extend(localizedFormat);
 
@@ -654,8 +656,6 @@ export default class KoreChat extends React.Component<
     });
   };
 
-
-
   private isQuickReplies = (data: any) => {
     if (
       data &&
@@ -675,7 +675,7 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
-    console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
+    // console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
     
     let modifiedMessages: any = null;
     const itemId = getItemId();
@@ -705,7 +705,6 @@ export default class KoreChat extends React.Component<
           itemId: itemId,
         },
       ];
-      console.log('📎 Attachment template created:', JSON.stringify(modifiedMessages, null, 2));
     } else {
       // For messages without attachments, process normally
       modifiedMessages = [
@@ -714,7 +713,6 @@ export default class KoreChat extends React.Component<
           itemId: itemId,
         },
       ];
-      console.log('📝 Regular message with itemId:', JSON.stringify(modifiedMessages, null, 2));
     }
 
     // Check for slider view bottom sheet (from upstream)
@@ -727,16 +725,16 @@ export default class KoreChat extends React.Component<
       }
     }
 
-    console.log('💬 Current messages count before append:', this.state.messages.length);
-    console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
+    // console.log('💬 Current messages count before append:', this.state.messages.length);
+    // console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
     
     this.setState(
       {
         messages: KoreChat.append(this.state.messages, modifiedMessages),
       },
       () => {
-        console.log('💬 Messages updated, new count:', this.state.messages.length);
-        console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
+        // console.log('💬 Messages updated, new count:', this.state.messages.length);
+        // console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
         console.log('🔊 Starting text-to-speech in 1 second');
         setTimeout(() => {
           this.textToSpeech(newMessages);
@@ -948,11 +946,11 @@ export default class KoreChat extends React.Component<
       messageId={message.messageId} 
       payload={message.message[0].component.payload.payload}
       templateType={message.message[0].component.payload.payload.template_type}
-      theme={theme}
       onListItemClick={this.onListItemClick}
       onSliderClosed={() =>{
         this.setState({showTemplateBottomSheet: false})
       }}
+      templateInjection={this.props.templateInjection}
       />
     ) 
   }
@@ -1362,6 +1360,18 @@ export default class KoreChat extends React.Component<
         }
 
         break;
+        
+      case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
+        this.setState(
+            {
+              currentTemplate: template_type,
+              currentTemplateData: item,
+              themeData: theme,
+              showSeeMoreModal: true,
+            },
+          );
+
+        break;
       case TEMPLATE_TYPES.LIST_TEMPLATE:
       case TEMPLATE_TYPES.CAROUSEL_TEMPLATE:
         this.computePostBack(item, template_type);
@@ -1682,23 +1692,30 @@ export default class KoreChat extends React.Component<
               alignSelf: 'center',
               marginBottom: 20,
             }} />
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333'}}>
-              Attach File
-            </Text>
-            {this.renderAssetPopupComponent()}
             <TouchableOpacity
-              style={{
-                marginTop: 20,
-                padding: 15,
-                backgroundColor: '#f0f0f0',
-                borderRadius: 10,
-                alignItems: 'center',
-              }}
-              onPress={() => {
-                this.setState({ showAttachmentModal: false });
-              }}>
-              <Text style={{fontSize: 16, color: '#666'}}>Close</Text>
-            </TouchableOpacity>
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1,
+                  }}
+                  onPress={() => {
+                    this.setState({ showAttachmentModal: false });
+                  }}
+                >
+                  <SvgIcon
+                    name={'HeaderClose'}
+                    width={normalize(20)}
+                    height={normalize(20)}
+                    color={'#697586'}
+                  />
+                </TouchableOpacity>
+            {this.renderAssetPopupComponent()}
           </View>
         </View>
       </Modal>
@@ -1769,7 +1786,6 @@ export default class KoreChat extends React.Component<
                     right: 10,
                     width: 30,
                     height: 30,
-                    backgroundColor: '#f0f0f0',
                     borderRadius: 15,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1811,6 +1827,7 @@ export default class KoreChat extends React.Component<
   }
 
   private renderSeeMorePopupComponent(): any {
+    const bubbleTheme = getBubbleTheme(this.state.themeData);
     switch (this.state.currentTemplate) {
       case TEMPLATE_TYPES.LIST_VIEW_TEMPLATE:
         const data = this.state.currentTemplateData;
@@ -1822,7 +1839,7 @@ export default class KoreChat extends React.Component<
             <View>
               {this.state?.currentTemplateHeading && (
                 <View style={styles.sub_container_title1}>
-                  <Text style={[styles.displayTextHeaderStyle]}>
+                  <Text style={[styles.displayTextHeaderStyle,{fontWeight: 600}]}>
                     {this.state?.currentTemplateHeading}
                   </Text>
                 </View>
@@ -1860,7 +1877,7 @@ export default class KoreChat extends React.Component<
                           styles.tab_title,
                           tab?.isChecked
                             ? {
-                                backgroundColor: Color.button_blue,
+                                backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,
                                 color: Color.white,
                               }
                             : {
@@ -1897,11 +1914,22 @@ export default class KoreChat extends React.Component<
                       );
                     },
                   }}
-                  theme={undefined}
+                  theme={this.state.themeData}
+                  onBottomSheetClose={{}}
                 />
               </View>
             </ScrollView>
           </View>
+        );
+        break;
+      case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
+        const payload = this.state.currentTemplateData;
+        return (
+          <ScrollView horizontal={false} style={[styles.scrollView, {marginBottom: normalize(10)}]}>
+              <View style={styles.sroll_sub}>
+                <ArticleTemplate payload={payload} theme={this.state.themeData} onListItemClick={this.props.onListItemClick} onBottomSheetClose={{}} />;
+            </View>
+          </ScrollView>
         );
     }
   }
@@ -1939,23 +1967,29 @@ export default class KoreChat extends React.Component<
               alignSelf: 'center',
               marginBottom: 20,
             }} />
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333'}}>
-              More Details
-            </Text>
-            {this.renderSeeMorePopupComponent()}
             <TouchableOpacity
               style={{
-                marginTop: 20,
-                padding: 15,
-                backgroundColor: '#f0f0f0',
-                borderRadius: 10,
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                width: 30,
+                height: 30,
+                borderRadius: 15,
                 alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1,
               }}
               onPress={() => {
                 this.setState({ showSeeMoreModal: false });
               }}>
-              <Text style={{fontSize: 16, color: '#666'}}>Close</Text>
+              <SvgIcon
+                    name={'HeaderClose'}
+                    width={normalize(20)}
+                    height={normalize(20)}
+                    color={'#697586'}
+                  />
             </TouchableOpacity>
+            {this.renderSeeMorePopupComponent()}
           </View>
         </View>
       </Modal>
@@ -2556,8 +2590,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sroll_sub: {
-    justifyContent: 'center',
-    alignItems: 'center',
     flex: 1,
   },
   scrollView: {
@@ -2566,7 +2598,7 @@ const styles = StyleSheet.create({
     marginBottom: normalize(50),
   },
   line: {
-    width: windowWidth,
+    width: windowWidth * 0.90,
     height: StyleSheet.hairlineWidth,
     backgroundColor: Color.black,
     marginBottom: 10,

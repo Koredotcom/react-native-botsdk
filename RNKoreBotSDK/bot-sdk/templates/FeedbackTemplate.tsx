@@ -55,6 +55,8 @@ export default class FeedbackTemplate extends BaseView<
     };
     if (this.props.onBottomSheetClose) {
       width = windowWidth * 0.90;
+    }else{
+      width = windowWidth * 0.80;
     }
   }
 
