@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "@react-native-community/datetimepicker": "^8.4.2",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-native-picker/picker": "^2.11.1",
     "@react-native-voice/voice": "^3.2.4",
@@ -25,6 +24,7 @@
     "react-native-gesture-handler": "^2.26.0",
     "react-native-image-picker": "^8.2.1",
     "react-native-orientation-locker": "^1.7.0",
+    "react-native-parsed-text": "^0.0.22",
     "react-native-permissions": "^5.4.1",
     "react-native-popover-view": "^6.1.0",
     "react-native-reanimated": "3.18.0",
@@ -34,7 +34,7 @@
     "react-native-svg": "^15.12.0",
     "react-native-tts": "^4.1.1",
     "react-native-video": "^6.15.0",
-    "rn-kore-bot-sdk-v77": "^0.0.6"
+    "rn-kore-bot-sdk-v77-test": "^0.0.15"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
