@@ -21,7 +21,7 @@ interface ListProps extends BaseViewProps {}
 interface ListState extends BaseViewState {}
 const windowWidth = Dimensions.get('window').width;
 
-const width = (windowWidth / 4) * 3.1;
+let width = windowWidth*0.75;
 
 export const LIST_TYPES = {
   web_url: 'web_url',
@@ -43,7 +43,7 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
     let Image_Http_URL = {uri: item?.image_url};
     let buttons = item?.buttons ? [...item?.buttons] : []; //, ...item?.buttons, ...item?.buttons];
     return (
-      <View key={index + '_' + index} style={[styles.main_view_1, {borderColor: btheme?.BUBBLE_LEFT_BG_COLOR}]}>
+      <View key={index + '_' + index} style={[styles.main_view_1, {width: width, borderColor: btheme?.BUBBLE_LEFT_BG_COLOR}]}>
         <TouchableOpacity
           style={styles.sub_container}
           onPress={
@@ -190,6 +190,11 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
   };
 
   render() {
+    if (this.props.onBottomSheetClose){
+      width = windowWidth * 0.90;
+    } else {
+      width = windowWidth * 0.80;
+    }
     const size =
       this.props.payload?.moreCount || this.props.payload.elements?.length || 0;
     return this.props.payload ? (
@@ -225,9 +230,8 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
-  item_value_con: { marginTop: normalize(5)}, //{justifyContent: 'center', marginEnd: normalize(5)},
+  item_value_con: { alignSelf: 'center', marginEnd: normalize(5)},
   image_view: {
-    // marginTop: 10,
     height: normalize(45),
     width: normalize(45),
     justifyContent: 'center',
@@ -240,7 +244,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
     color: TEMPLATE_STYLE_VALUES.VIEW_MORE_TEXT_COLOR,
-    // alignSelf: 'flex-start',
     alignSelf: 'flex-end',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },

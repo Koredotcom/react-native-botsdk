@@ -28,6 +28,7 @@ import { TEMPLATE_TYPES } from '../constants/Constant';
 import RadioGroup, { RadioButton } from '../components/CustomRadioButton';
 import { botStyles } from '../theme/styles';
 import RenderImage from '../utils/RenderImage';
+import {getBubbleTheme} from '../theme/themeHelper';
 
 import 'dayjs/locale/en'; // Load English locale for formatting
 import advancedFormat from 'dayjs/plugin/advancedFormat';
@@ -404,14 +405,15 @@ export default class AdvancedListTemplate extends BaseView<
           </View>
         </Wrapper>
         {this.renderTableListData(item)}
-        {this.renderOtherOptions(item)}
-
         {item?.defaultIsCollapsed ? (
           <CollapsableContainer expanded={!item?.isCollapsed}>
-            <View style={{}}>{this.renderButtons(item)}</View>
+            <View style={{}}>{this.renderOtherOptions(item)} {this.renderButtons(item)}</View>
           </CollapsableContainer>
         ) : (
-          this.renderButtons(item)
+          <>
+            {this.renderOtherOptions(item)}
+            {this.renderButtons(item)}
+          </>
         )}
       </View>
     );
@@ -866,13 +868,13 @@ export default class AdvancedListTemplate extends BaseView<
       let filterList = this.state.radioOtherOptions.filter(
         (obj: any) => obj?.isChecked,
       );
-
+      const buttonTheme = getBubbleTheme(this.props.theme);
       return (
         <View style={{ backgroundColor: 'transparent' }}>
           <RadioGroup
             radioButtons={radioButtons}
-            color="#3c51f0"         // All radio buttons red when selected
-            borderColor="#CCCCCC"
+            color={buttonTheme.BUBBLE_RIGHT_BG_COLOR}      // All radio buttons red when selected
+            borderColor={buttonTheme.BUBBLE_LEFT_BG_COLOR}
             containerStyle={{
               alignItems: 'flex-start',
               marginStart: 10,
@@ -1002,6 +1004,7 @@ export default class AdvancedListTemplate extends BaseView<
   };
 
   private renderOtherOptionItem = ({ item, index }: any) => {
+    const buttontheme = getBubbleTheme(this.props.theme);
     let filterList = this.state.otherOptions.filter(
       (obj: any) => obj?.id === item?.id,
     );
@@ -1042,9 +1045,9 @@ export default class AdvancedListTemplate extends BaseView<
                   this.setSeletedSlot(obj, isSelect);
                 }}
                 // Enhanced color customization - can be overridden by item properties
-                selectedColor={item.selectedColor || '#3c51f0'} // Blue when checked
-                unselectedColor={item.unselectedColor || '#CCCCCC'} // Gray when unchecked
-                selectedBackgroundColor={item.selectedBackgroundColor || 'transparent'} // Background when checked
+                selectedColor={buttontheme.BUBBLE_RIGHT_BG_COLOR || '#3c51f0'} // Blue when checked
+                unselectedColor={buttontheme.BUBBLE_LEFT_BG_COLOR || '#CCCCCC'} // Gray when unchecked
+                selectedBackgroundColor={'transparent'} // Background when checked
                 size={item.size || 24} // Checkbox size
                 borderWidth={item.borderWidth || 2} // Border thickness
               />
@@ -1077,6 +1080,7 @@ export default class AdvancedListTemplate extends BaseView<
     );
   };
   private renderButtons = (item: any) => {
+     const buttonTheme = getBubbleTheme(this.props.theme)
     if (item && item?.buttons && item?.buttons?.length > 0) {
       let displayLimit = item?.buttonsLayout?.displayLimit?.count || 4;
       let listItems = [];
@@ -1146,6 +1150,8 @@ export default class AdvancedListTemplate extends BaseView<
                   buttonAligment === 'fullwidth' && styles.full_width2,
 
                   buttonAligment === 'left' && {},
+                  {backgroundColor: item?.view == "options" ? index % 2 == 0 ? buttonTheme.BUBBLE_RIGHT_BG_COLOR : Color.transparent : '#E5E5FD'},
+                  {borderColor: item?.view == "options" ? index % 2 == 0 ? buttonTheme.BUBBLE_RIGHT_BG_COLOR : buttonTheme.BUBBLE_LEFT_BG_COLOR : '#DEDDFC'}
                 ]}>
                 <View style={styles.btn_main_con}>
                   {button?.icon && (
@@ -1167,7 +1173,7 @@ export default class AdvancedListTemplate extends BaseView<
                         : koraStyles.sbutton_text,
 
                       {
-                        color: '#3A35F6',
+                        color: item?.view == "options" ? index % 2 == 0 ? buttonTheme.BUBBLE_RIGHT_TEXT_COLOR : buttonTheme.BUBBLE_LEFT_TEXT_COLOR : '#3A35F6',
                         fontFamily:
                           this.props?.theme?.v3?.body?.font?.family || 'Inter',
                       },
