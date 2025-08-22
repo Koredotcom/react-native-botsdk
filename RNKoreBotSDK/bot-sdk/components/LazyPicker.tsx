@@ -134,6 +134,10 @@ export class LazyPicker extends Component<LazyPickerProps, LazyPickerState> {
 
     // Show the actual Picker
     if (PickerComponent) {
+      // Update the static Item reference to point to the loaded PickerItem
+      if (this.state.PickerItem) {
+        (LazyPicker as any).Item = this.state.PickerItem;
+      }
       return <PickerComponent {...pickerProps}>{children}</PickerComponent>;
     }
 
@@ -147,11 +151,24 @@ export class LazyPicker extends Component<LazyPickerProps, LazyPickerState> {
 }
 
 /**
- * Lazy Picker Item component
+ * Lazy Picker Item component that works with the loaded Picker
  */
 export class LazyPickerItem extends Component<PickerItemProps> {
+  static contextType = React.createContext(null);
+  
   render() {
-    // This will be handled by the parent LazyPicker component
+    const { label, value, ...itemProps } = this.props;
+    
+    // Try to get the actual PickerItem from context or static reference
+    const ActualPickerItem = (LazyPicker as any).Item || 
+                            this.context?.PickerItem ||
+                            null;
+    
+    if (ActualPickerItem && ActualPickerItem !== LazyPickerItem) {
+      return <ActualPickerItem label={label} value={value} {...itemProps} />;
+    }
+    
+    // Fallback - this will be handled by FallbackPicker
     return null;
   }
 }
