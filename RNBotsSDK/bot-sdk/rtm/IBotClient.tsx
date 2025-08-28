@@ -1,5 +1,5 @@
-import {EventEmitter} from 'events';
-import {BotConfigModel} from '../model/BotConfigModel';
+import { EventEmitter } from 'events';
+import { BotConfigModel } from '../model/BotConfigModel';
 
 export interface IBotClient {
   sendMessage(message: any, payload?: any, attachments?: any): any;
@@ -13,7 +13,6 @@ export interface IBotClient {
   setSessionActive(isActive: boolean): any;
   setAppState(appState: string): any;
   checkSocketAndReconnect(): any;
-  getBotHistory(): any;
   getBotUserIdentity(): any;
   getConnectionState(): any;
   getBotName(): string | undefined;
@@ -22,4 +21,5 @@ export interface IBotClient {
   getAccessToken(): string;
   getAuthorization(): string | undefined;
   getAppState(): string | undefined;
+  sendEvent(eventName: any, isZenDeskEvent?: any): void;
 }
