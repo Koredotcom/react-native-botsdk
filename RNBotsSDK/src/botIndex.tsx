@@ -3,6 +3,7 @@ import { SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
 import { RTM_EVENT } from '../bot-sdk/constants/Constant';
 import { KoreBotClient } from '../bot-sdk/rtm/KoreBotClient';
 import { botConfig } from './BotConfig';
+import ApiService from '../bot-sdk/api/ApiService';
 
 const BotConnection: React.FC = () => {
   const [connectionStatus, setConnectionStatus] = useState<string>('Disconnected');
@@ -12,7 +13,7 @@ const BotConnection: React.FC = () => {
     setConnectionStatus(status);
     setConnectionColor(color);
   }, []);
-
+  const botClient = KoreBotClient.getInstance();
   const init = useCallback(() => {
     if (!botConfig) {
       console.log('this.props.botConfig ------>:', botConfig);
@@ -20,7 +21,7 @@ const BotConnection: React.FC = () => {
     console.log('-----> Connect clicked <------');
     updateConnectionStatus('Connecting...', '#ffc107'); // Yellow
 
-    const botClient = KoreBotClient.getInstance();
+
 
     botClient.on(RTM_EVENT.CONNECTING, () => {
       console.log('RTM_EVENT.CONNECTING   ---->:', RTM_EVENT.CONNECTING);
@@ -33,10 +34,11 @@ const BotConnection: React.FC = () => {
         botClient.sendMessage('Help');
       }, 5000);
       console.log('RTM_EVENT.ON_OPEN   ---->:', RTM_EVENT.ON_OPEN);
-      botClient.subscribePushNotifications("12345");
+      const apiService = new ApiService(botConfig.botUrl, botClient);
+      apiService.subscribePushNotifications("12345");
       updateConnectionStatus('Connected', '#28a745'); // Green
       const intervalUnsub = setTimeout(() => {
-        botClient.unsubscribePushNotifications("12345");
+        apiService.unsubscribePushNotifications("12345");
       }, 5000);
     });
 
@@ -80,11 +82,13 @@ const BotConnection: React.FC = () => {
   const handleDisconnect = useCallback(() => {
     console.log('-----> Disconnect clicked <------');
     updateConnectionStatus('Disconnecting...', '#ffc107');
+    botClient.sendEvent('close_agent_chat', false);
     KoreBotClient.getInstance().disconnect();
     setTimeout(() => {
       updateConnectionStatus('Disconnected', '#dc3545');
     }, 500);
   }, [updateConnectionStatus]);
+
 
   // Cleanup effect for component unmount
   useEffect(() => {
@@ -170,9 +174,27 @@ const BotConnection: React.FC = () => {
               {'Disconnect'}
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => botClient.sendEvent('typing')}
+
+            style={{
+              backgroundColor: '#dc3545',
+              padding: 10,
+              marginTop: 30,
+              minHeight: 40,
+              minWidth: 100,
+              borderRadius: 5,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>
+              {'Send Event'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 

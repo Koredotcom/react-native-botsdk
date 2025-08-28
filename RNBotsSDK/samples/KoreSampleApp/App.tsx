@@ -12,7 +12,8 @@ import KoreBotClient, {
   RTM_EVENT,
   ConnectionState,
   Logger,
-  LogLevel
+  LogLevel,
+  ApiService
 } from 'rn-kore-bot-socket-lib-v77';
 
 const BotChatComponent = () => {
@@ -33,6 +34,28 @@ const BotChatComponent = () => {
     };
   }, []);
 
+  const botConfig = {
+      // Your bot configuration
+      botName: 'Kishore Agent App3',
+      botId: 'st-ce7353da-3d68-550c-80cb-be3e1f5e0568',
+      clientId: 'cs-d33b7d2e-b3b7-59c8-ba2a-1fda73d3cb6f',
+      clientSecret: 'gXIIxSIaQbV1bv7Umr/mSbFRuNi9/sqXb7herZgdtNE=',
+      botUrl: 'https://platform.kore.ai',
+      jwtServerUrl: 'https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/',
+      identity: 'PLEASE_ENTER_UNIQUE_IDENTITY', // uuid.v4() + '',
+      isWebHook: false,
+      value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
+      isHeaderVisible: true,
+      isFooterVisible: true,
+    };
+
+  const getHistory= () =>{
+      const apiService = new ApiService(botConfig.botUrl, botClient.current);
+      apiService.getBotHistory(0, 10, (response: any) => {
+        console.log('botHistory '+JSON.stringify(response));
+      });
+  }
+
   const setupBotClient = () => {
     botClient.current = KoreBotClient.getInstance();
 
@@ -43,6 +66,7 @@ const BotChatComponent = () => {
 
     botClient.current.on(RTM_EVENT.ON_OPEN, () => {
       updateStatus('Connected', '#28a745');
+      getHistory();
     });
 
     botClient.current.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
@@ -66,25 +90,13 @@ const BotChatComponent = () => {
   };
 
   const connect = () => {
-    const botConfig = {
-      // Your bot configuration
-      botName: 'MyAssistant',
-      botId: 'botId',
-      clientId: 'clientId',
-      clientSecret: 'clientSecret',
-      botUrl: 'botUrl',
-      identity: 'identity',
-      jwtServerUrl: 'jwtServerUrl',
-      isWebHook: false,
-      value_aud: 'value_aud',
-      isHeaderVisible: true,
-      isFooterVisible: true
-    };
+    setupBotClient();
     botClient.current.initializeBotClient(botConfig);
   };
 
   const disconnect = () => {
     updateStatus('Disconnecting...', '#ffc107');
+    botClient.current.sendEvent('close_agent_chat');
     botClient.current.disconnect();
     setTimeout(() => {
       updateStatus('Disconnected', '#dc3545');
