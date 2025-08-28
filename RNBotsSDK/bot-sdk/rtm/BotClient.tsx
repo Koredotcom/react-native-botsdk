@@ -11,6 +11,7 @@ import {
 import { Platform } from 'react-native';
 import { BotConfigModel } from '../model/BotConfigModel';
 import Logger from '../utils/Logger';
+import ApiService from '../api/ApiService';
 
 const RECONNECT_ATTEMPT_LIMIT = 5;
 
@@ -151,74 +152,28 @@ export class BotClient extends EventEmitter implements IBotClient {
     await this.getJwtToken(this.botConfig, isFirstTime);
   }
 
-  private async getJwtToken(config: BotConfigModel, isFirstTime: boolean = true): Promise<boolean> {
-    const body = {
-      clientId: config.clientId,
-      clientSecret: config.clientSecret,
-      identity: config.identity,
-      aud: config.value_aud,
-      isAnonymous: false,
-    };
-
-    this.botUrl = this.getJwtServerUrl();
-    let jwtAuthorizationUrl = this.botUrl + 'users/sts';
-
-    const startTime = Date.now();
-    Logger.logApiRequest(jwtAuthorizationUrl, 'POST', {
-      clientId: body.clientId,
-      identity: body.identity,
-      aud: body.aud,
-      isAnonymous: body.isAnonymous
-    });
-
-    try {
-      const response = await this.fetchWithRetries(jwtAuthorizationUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(body),
-      }, 1, 'POST');
-
-      const duration = Date.now() - startTime;
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        const error: any = new Error(`HTTP ${response.status}`);
-        error.response = {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        };
-        throw error;
-      }
-
-      Logger.logApiSuccess(jwtAuthorizationUrl, 'POST', {
-        hasJwtToken: !!responseData.jwt,
-        tokenLength: responseData.jwt?.length
-      }, duration);
-
-      this.jwtToken = responseData.jwt;
-      this.botInfo = new BotInfoModel(config.botName, config.botId, {
-        identity: '',
-        userName: '',
-      });
-      this.initialize(this.botInfo, this.botCustomData);
-      await this.connectWithJwToken(this.jwtToken, !isFirstTime);
-      return true;
-    } catch (e: any) {
-      const duration = Date.now() - startTime;
-      Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
-      Logger.logConnectionError('JWT Token Generation Failed', e);
-
-      this.emit(RTM_EVENT.ERROR, {
-        message:
-          'Connection to the bot failed. Please ensure your configuration is valid and try again.',
-        isBack: false,
-      });
-      return false;
-    }
+  private async getJwtToken(config: BotConfigModel, isFirstTime: boolean = true) {
+    if (!this.botConfig) return;
+    const apiService = new ApiService(this.botConfig?.botName + "", this);
+    await apiService.getJwtToken(
+      this.botConfig!!,
+      isFirstTime,
+      async (jwtToken: any) => {
+        this.jwtToken = jwtToken;
+        this.botInfo = new BotInfoModel(config.botName, config.botId, {
+          identity: '',
+          userName: '',
+        });
+        this.initialize(this.botInfo, this.botCustomData);
+        await this.connectWithJwToken(this.jwtToken, !isFirstTime);
+      },
+      (error: any) => {
+        this.emit(RTM_EVENT.ERROR, {
+          message:
+            'Connection to the bot failed. Please ensure your configuration is valid and try again.',
+          isBack: false,
+        });
+      })
   }
 
   private initialize(botInfo: any, customData: any) {
@@ -240,7 +195,7 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.isNetWorkAvailable = isNetWorkAvailable;
   }
 
-  private async connectWithJwToken(jwtToken: String, isReconnectionAttempt: boolean): Promise<boolean> {
+  private async connectWithJwToken(jwtToken: String, isReconnectionAttempt: boolean) {
     if (this.isConnecting) {
       Logger.warn('JWT Token Connection already in progress', {
         isConnecting: this.isConnecting
@@ -250,149 +205,50 @@ export class BotClient extends EventEmitter implements IBotClient {
 
     this.jwtToken = jwtToken;
 
-    Logger.logConnectionEvent('JWT Token Authorization Started', {
+    const apiService = new ApiService(this.botConfig?.botUrl + "", this);
+    await apiService.getJwtGrant(
+      jwtToken,
       isReconnectionAttempt,
-      tokenLength: jwtToken.length
-    });
-    this.emit(RTM_EVENT.CONNECTING);
+      (status: any) => {
+        this.emit(RTM_EVENT.CONNECTING);
+      },
+      async (response: any) => {
+        this.userInfo = response.userInfo;
+        this.authorization = response.authorization;
 
-    this.botUrl = this.getBotUrl();
-    let jwtAuthorizationUrl = this.botUrl + '/api/oAuth/token/jwtgrant';
+        Logger.logConnectionEvent('JWT Token Authorization Success', {
+          userId: this.userInfo?.userId,
+          tokenType: this.authorization?.token_type
+        });
 
-    const startTime = Date.now();
-    let payload = { assertion: jwtToken, botInfo: this.botInfo };
-
-    Logger.logApiRequest(jwtAuthorizationUrl, 'POST', {
-      botId: this.botInfo?.taskBotId,
-      botName: this.botInfo?.botName
-    });
-
-    try {
-      const response = await this.fetchWithRetries(jwtAuthorizationUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      }, 1, 'POST');
-
-      const duration = Date.now() - startTime;
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        const error: any = new Error(`HTTP ${response.status}`);
-        error.response = {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        };
-        throw error;
-      }
-
-      Logger.logApiSuccess(jwtAuthorizationUrl, 'POST', {
-        hasUserInfo: !!responseData.userInfo,
-        hasAuthorization: !!responseData.authorization,
-        userId: responseData.userInfo?.userId,
-        tokenType: responseData.authorization?.token_type
-      }, duration);
-
-      this.userInfo = responseData.userInfo;
-      this.authorization = responseData.authorization;
-
-      Logger.logConnectionEvent('JWT Token Authorization Success', {
-        userId: this.userInfo?.userId,
-        tokenType: this.authorization?.token_type
-      });
-
-      this.emit(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED);
-      if (this.appState === APP_STATE.ACTIVE) {
-        await this.initSocketConnection(isReconnectionAttempt);
-      }
-      return true;
-    } catch (e: any) {
-      const duration = Date.now() - startTime;
-      Logger.logApiError(jwtAuthorizationUrl, 'POST', e, duration);
-      Logger.logConnectionError('JWT Token Authorization Failed', e);
-
-      this.emit(RTM_EVENT.ERROR, {
-        message:
-          'Connection to the bot failed. Please ensure your configuration is valid and try again.',
-        isBack: false,
-      });
-      return false;
-    }
+        this.emit(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED);
+        if (this.appState === APP_STATE.ACTIVE) {
+          await this.initSocketConnection(isReconnectionAttempt);
+        }
+      },
+      (error: any) => { })
   }
 
   private async getRtmUrl(isReconnectionAttempt: boolean): Promise<void> {
-    let rtmUrl = this.botUrl + '/api/rtm/start';
-    let payload = { botInfo: this.botInfo };
-    let token = this.authorization.accessToken;
-    // if (this.isChangeToken) {
-    //   token = token + '_123';
-    // }
-
-    const startTime = Date.now();
-    Logger.logApiRequest(rtmUrl, 'POST', {
-      botId: this.botInfo?.taskBotId,
-      botName: this.botInfo?.botName,
-      isReconnectionAttempt
-    });
-
-    try {
-      const response = await this.fetchWithRetries(rtmUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          Authorization: this.authorization.token_type + ' ' + token,
-        },
-        body: JSON.stringify(payload),
-      }, 1, 'POST');
-
-      const duration = Date.now() - startTime;
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        const error: any = new Error(`HTTP ${response.status}`);
-        error.response = {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        };
-        throw error;
-      }
-
-      Logger.logApiSuccess(rtmUrl, 'POST', {
-        hasUrl: !!responseData.url,
-        url: responseData.url?.substring(0, 50) + '...'
-      }, duration);
-
-      Logger.logConnectionEvent('RTM URL Retrieved Successfully', {
-        isReconnectionAttempt,
-        hasWebSocketUrl: !!responseData.url
-      });
-
-      this.connect(responseData, isReconnectionAttempt);
-    } catch (e: any) {
-      const duration = Date.now() - startTime;
-      Logger.logApiError(rtmUrl, 'POST', e, duration);
-
+    const apiService = new ApiService(this.botConfig?.botUrl + "", this);
+    await apiService.getRtmUrl(isReconnectionAttempt, (response) => {
+      this.connect(response, isReconnectionAttempt)
+    }, (error) => {
       this.isChangeToken = false;
-      if (e?.response?.status === 401) {
-        Logger.logConnectionError('RTM Start - Unauthorized (401)', e);
+      if (error?.response?.status === 401) {
+        Logger.logConnectionError('RTM Start - Unauthorized (401)', error);
         this.refreshTokenAndReconnect(!isReconnectionAttempt);
       } else if (isReconnectionAttempt) {
-        Logger.logConnectionError('RTM Start - Reconnection Failed', e);
+        Logger.logConnectionError('RTM Start - Reconnection Failed', error);
         this.reconnect(isReconnectionAttempt, !this.isConnectAtleastOnce);
       } else {
-        Logger.logConnectionError('RTM Start - Connection Failed', e);
+        Logger.logConnectionError('RTM Start - Connection Failed', error);
         this.emit(RTM_EVENT.ERROR, {
-          message: 'Error:' + e,
+          message: 'Error:' + error,
           isBack: true,
         });
       }
-    }
+    });
   }
 
   private connect(data: { url: string }, isReconnectionAttempt: boolean) {
@@ -558,196 +414,6 @@ export class BotClient extends EventEmitter implements IBotClient {
       default: {
         break;
       }
-    }
-  }
-
-  async getBotHistory(): Promise<void> {
-    if (
-      !this.isConnecting ||
-      !this.botInfo.taskBotId ||
-      !this.authorization ||
-      !this.authorization.token_type ||
-      !this.authorization.accessToken
-    ) {
-      Logger.warn('Bot History - Missing required parameters', {
-        isConnecting: this.isConnecting,
-        hasBotId: !!this.botInfo?.taskBotId,
-        hasAuthorization: !!this.authorization,
-        hasTokenType: !!this.authorization?.token_type,
-        hasAccessToken: !!this.authorization?.accessToken
-      });
-      return;
-    }
-
-    let rtmUrl = this.botUrl + '/api' + URL_VERSION + '/botmessages/rtm';
-    const startTime = Date.now();
-
-    Logger.logApiRequest(rtmUrl, 'GET', {
-      botId: this.botInfo.taskBotId,
-      limit: 40,
-      offset: 0,
-      forward: true
-    });
-
-    const urlWithParams = new URL(rtmUrl);
-    urlWithParams.searchParams.append('botId', this.botInfo.taskBotId);
-    urlWithParams.searchParams.append('limit', '40');
-    urlWithParams.searchParams.append('offset', '0');
-    urlWithParams.searchParams.append('forward', 'true');
-
-    try {
-      const response = await this.fetchWithRetries(urlWithParams.toString(), {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          Authorization:
-            this.authorization.token_type +
-            ' ' +
-            this.authorization.accessToken,
-        },
-      }, 1, 'GET');
-
-      const duration = Date.now() - startTime;
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        const error: any = new Error(`HTTP ${response.status}`);
-        error.response = {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        };
-        throw error;
-      }
-
-      Logger.logApiSuccess(rtmUrl, 'GET', {
-        messageCount: responseData?.length || 0,
-        hasData: !!responseData
-      }, duration);
-
-      // Create axios-like response object for compatibility
-      const axiosResponse = {
-        data: responseData,
-        status: response.status,
-        statusText: response.statusText,
-        headers: {},
-      };
-
-      this.emit(RTM_EVENT.GET_HISTORY, axiosResponse, this.botInfo);
-    } catch (e: any) {
-      const duration = Date.now() - startTime;
-      Logger.logApiError(rtmUrl, 'GET', e, duration);
-    }
-  }
-
-  public async subscribePushNotifications(deviceId?: string): Promise<boolean> {
-    if (!deviceId) {
-      Logger.logConnectionError('Push notification subscription Failed', "deviceId is not VALID!");
-      return false;
-    }
-
-    Logger.debug('Subscribe notications', "is in-progress");
-
-    this.botUrl = this.getBotUrl();
-    let url = `/api/users/${this.getUserId()}/sdknotifications/subscribe`;
-    let subscribeUrl = this.botUrl + url;
-
-    const startTime = Date.now();
-    let payload = { osType: Platform.OS, deviceId: deviceId };
-
-    Logger.logApiRequest(subscribeUrl, 'POST', {});
-
-    const headers = { Authorization: `bearer ${this.getAccessToken()}` };
-
-    try {
-      const response = await this.fetchWithRetries(subscribeUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...headers,
-        },
-        body: JSON.stringify(payload),
-      }, 1, 'POST');
-
-      const duration = Date.now() - startTime;
-
-      if (!response.ok) {
-        const responseData = await response.json().catch(() => ({}));
-        const error: any = new Error(`HTTP ${response.status}`);
-        error.response = {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        };
-        throw error;
-      }
-
-      Logger.logApiSuccess(subscribeUrl, 'POST', {}, duration);
-      Logger.logConnectionEvent('Push notification subscription Success', {});
-      return true;
-    } catch (e: any) {
-      const duration = Date.now() - startTime;
-      Logger.logApiError(subscribeUrl, 'POST', e, duration);
-      Logger.logConnectionError('Push notification subscription Failed', e);
-      return false;
-    }
-  }
-
-  public async unsubscribePushNotifications(deviceId?: string): Promise<boolean> {
-    if (!deviceId) {
-      Logger.logConnectionError('Push notification unsubscription Failed', "deviceId is not VALID!");
-      return false;
-    }
-
-    Logger.debug('Unsubscribe notications', "is in-progress");
-
-    this.botUrl = this.getBotUrl();
-    let url = `/api/users/${this.getUserId()}/sdknotifications/unsubscribe`;
-    let subscribeUrl = this.botUrl + url;
-
-    const startTime = Date.now();
-    let payload = { osType: Platform.OS, deviceId: deviceId };
-
-    Logger.logApiRequest(subscribeUrl, 'POST', {});
-
-    const headers = {
-      Authorization: `bearer ${this.getAccessToken()}`,
-      "Content-type": "application/json",
-      "X-HTTP-Method-Override": "DELETE"
-    };
-
-    try {
-      const response = await this.fetchWithRetries(subscribeUrl, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          ...headers,
-        },
-        body: JSON.stringify(payload),
-      }, 1, 'POST');
-
-      const duration = Date.now() - startTime;
-
-      if (!response.ok) {
-        const responseData = await response.json().catch(() => ({}));
-        const error: any = new Error(`HTTP ${response.status}`);
-        error.response = {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        };
-        throw error;
-      }
-
-      Logger.logApiSuccess(subscribeUrl, 'POST', {}, duration);
-      Logger.logConnectionEvent('Push notification unsubscription Success', {});
-      return true;
-    } catch (e: any) {
-      const duration = Date.now() - startTime;
-      Logger.logApiError(subscribeUrl, 'POST', e, duration);
-      Logger.logConnectionError('Push notification unsubscription Failed', e);
-      return false;
     }
   }
 
@@ -930,81 +596,6 @@ export class BotClient extends EventEmitter implements IBotClient {
     }
   }
 
-  async getSettings(): Promise<boolean> {
-    if (
-      !this.botInfo.searchIndexId ||
-      !this.botInfo.taskBotId ||
-      !this.authorization ||
-      !this.authorization.token_type ||
-      !this.authorization.accessToken ||
-      !this.jwtToken
-    ) {
-      Logger.warn('Get Settings - Missing required parameters', {
-        hasSearchIndexId: !!this.botInfo?.searchIndexId,
-        hasTaskBotId: !!this.botInfo?.taskBotId,
-        hasAuthorization: !!this.authorization,
-        hasTokenType: !!this.authorization?.token_type,
-        hasAccessToken: !!this.authorization?.accessToken,
-        hasJwtToken: !!this.jwtToken
-      });
-      return false;
-    }
-
-    let urlString =
-      this.botUrl +
-      'searchassistapi/searchsdk/stream/' +
-      this.botInfo.taskBotId +
-      '/' +
-      this.botInfo.searchIndexId +
-      '/getresultviewsettings';
-
-    const startTime = Date.now();
-    Logger.logApiRequest(urlString, 'GET', {
-      taskBotId: this.botInfo.taskBotId,
-      searchIndexId: this.botInfo.searchIndexId
-    });
-
-    try {
-      const response = await this.fetchWithRetries(urlString, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          Authorization:
-            this.authorization?.token_type +
-            ' ' +
-            this.authorization?.accessToken,
-          auth: this.jwtToken.toString(),
-        },
-      }, 1, 'GET');
-
-      const duration = Date.now() - startTime;
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        const error: any = new Error(`HTTP ${response.status}`);
-        error.response = {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        };
-        throw error;
-      }
-
-      Logger.logApiSuccess(urlString, 'GET', {
-        hasSettings: !!responseData?.settings,
-        settingsCount: responseData?.settings?.length || 0
-      }, duration);
-
-      if (responseData?.settings) {
-        this.resultViewSettings = responseData?.settings;
-      }
-      return true;
-    } catch (e: any) {
-      const duration = Date.now() - startTime;
-      Logger.logApiError(urlString, 'GET', e, duration);
-      return false;
-    }
-  }
   private startSendingPing() {
     let ws = this.webSocket;
     if (this.pingTimer) {
@@ -1151,5 +742,33 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.send(messageToBot);
 
     return msgData;
+  }
+
+  sendEvent(eventName: any, isZenDeskEvent?: any) {
+    var clientMessageId = new Date().getTime();
+    Logger.info('Sending Event to bot', {
+      clientMessageId,
+      eventName: eventName,
+      isZenDeskEvent: isZenDeskEvent,
+      platform: Platform.OS
+    });
+
+    var eventToBot = {
+      clientMessageId: clientMessageId,
+      event: eventName,
+      message: {
+        body: isZenDeskEvent == true ? eventName : '',
+        customData: {
+          botToken: this.getBotAccessToken(),
+          kmToken: this.getAccessToken(),
+          kmUId: this.getUserId(),
+        },
+      },
+      resourceid: isZenDeskEvent == true ? '/bot.clientEvent' : '/bot.message',
+      botInfo: this.getBotInfo(),
+      id: clientMessageId,
+      client: Platform.OS,
+    };
+    this.send(eventToBot);
   }
 }
