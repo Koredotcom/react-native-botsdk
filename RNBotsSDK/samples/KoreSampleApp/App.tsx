@@ -36,17 +36,17 @@ const BotChatComponent = () => {
 
   const botConfig = {
       // Your bot configuration
-      botName: 'Kishore Agent App3',
-      botId: 'st-ce7353da-3d68-550c-80cb-be3e1f5e0568',
-      clientId: 'cs-d33b7d2e-b3b7-59c8-ba2a-1fda73d3cb6f',
-      clientSecret: 'gXIIxSIaQbV1bv7Umr/mSbFRuNi9/sqXb7herZgdtNE=',
-      botUrl: 'https://platform.kore.ai',
-      jwtServerUrl: 'https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/',
-      identity: 'PLEASE_ENTER_UNIQUE_IDENTITY', // uuid.v4() + '',
+      botName: 'MyAssistant',
+      botId: 'botId',
+      clientId: 'clientId',
+      clientSecret: 'clientSecret',
+      botUrl: 'botUrl',
+      identity: 'identity',
+      jwtServerUrl: 'jwtServerUrl',
       isWebHook: false,
-      value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
+      value_aud: 'value_aud',
       isHeaderVisible: true,
-      isFooterVisible: true,
+      isFooterVisible: true
     };
 
   const getHistory= () =>{
