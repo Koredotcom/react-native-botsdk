@@ -3,7 +3,7 @@ import {Text, View, TouchableOpacity, Platform} from 'react-native';
 import dayjs from 'dayjs';
 import normalize from './normalizeText';
 import Month from './Month';
-import {Picker} from '@react-native-picker/picker';
+import { LazyPicker, LazyPickerItem } from '../lazy-loading';
 import {SvgIcon} from '../../utils/SvgIcon';
 import Color from '../../theme/Color';
 import {isAndroid} from '../../utils/PlatformCheck';
@@ -253,7 +253,7 @@ export default class DateRange extends Component {
                           width: 150,
                           marginStart: -10,
                         }}>
-                        <Picker
+                        <LazyPicker
                           mode="dropdown"
                           prompt={this.state.selectedYear + ''}
                           selectedValue={parseInt(
@@ -284,7 +284,7 @@ export default class DateRange extends Component {
                           onValueChange={this.changeYear}>
                           {rangeArray.map((value, index) => {
                             return (
-                              <Picker.Item
+                              <LazyPickerItem
                                 key={index}
                                 label={String(value)}
                                 value={value}
@@ -295,7 +295,7 @@ export default class DateRange extends Component {
                               />
                             );
                           })}
-                        </Picker>
+                        </LazyPicker>
                       </View>
                     </View>
                   )}
@@ -399,7 +399,7 @@ export default class DateRange extends Component {
                 backgroundColor: this.props.calendarBgColor,
               },
             ]}>
-            <Picker
+            <LazyPicker
               selectedValue={this.state.selectedYear}
               mode={'dropdown'}
               onValueChange={itemValue => {
@@ -408,14 +408,14 @@ export default class DateRange extends Component {
               }}>
               {rangeArray.map((value, index) => {
                 return (
-                  <Picker.Item
+                  <LazyPickerItem
                     key={index}
                     label={String(value)}
                     value={value}
                   />
                 );
               })}
-            </Picker>
+            </LazyPicker>
             {this.renderButton()}
           </View>
         )}

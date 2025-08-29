@@ -28,6 +28,7 @@ import InputToolbar from './components/InputToolbar';
 import MessageContainer from './components/MessageContainer';
 import NetInfo from '@react-native-community/netinfo';
 import {ThemeProvider} from '../theme/ThemeContext';
+import {getBubbleTheme} from '../theme/themeHelper';
 import {
   MIN_COMPOSER_HEIGHT,
   MAX_COMPOSER_HEIGHT,
@@ -74,32 +75,24 @@ import {
   documentPickIOSPermission,
   documentPickPermission,
 } from '../utils/PermissionsUtils';
-import DocumentPicker, {types} from 'react-native-document-picker';
-// import Toast from 'react-native-simple-toast';
 import FileUploadQueue from '../FileUploader/FileUploadQueue';
 
 import * as Progress from 'react-native-progress';
 
-import {launchCamera} from 'react-native-image-picker';
 import {SvgIcon} from '../utils/SvgIcon';
 import FileIcon from '../utils/FileIcon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ListViewTemplate from '../templates/ListViewTemplate';
+import Toast from 'react-native-toast-message';
 import CustomTemplate, {
   CustomViewProps,
   CustomViewState,
 } from '../templates/CustomTemplate';
 import Welcome from '../components/WelcomeScreen';
-
-// Conditional import for TTS
-let Tts: any = null;
-try {
-  Tts = require('react-native-tts').default;
-} catch (error) {
-  console.warn('react-native-tts not available, text-to-speech features will be disabled');
-}
-
+import { LazyTTS, TTSModule, TTSOptions } from '../components/LazyTTS';
 import CustomAlertComponent from '../components/CustomAlertComponent';
+import TemplateBottomSheet from './components/TemplateBottomSheet';
+import ArticleTemplate from '../templates/ArticleTemplate';
 
 dayjs.extend(localizedFormat);
 
@@ -181,6 +174,9 @@ interface KoraChatState {
   isTTSenable?: boolean;
   isReconnecting?: boolean;
   showBackButtonDialog?: boolean;
+  showTemplateBottomSheet: boolean;
+  messageBottomSheet?: any;
+  ttsModule?: TTSModule | null;
 }
 
 export default class KoreChat extends React.Component<
@@ -190,6 +186,7 @@ export default class KoreChat extends React.Component<
   _messageContainerRef: RefObject<any> = React.createRef();
   textInput: any = null;
   alertRef = React.createRef<CustomAlertComponent>();
+  ttsRef = React.createRef<LazyTTS>();
 
   _isFirstLayout = true;
   _locale = 'en';
@@ -308,8 +305,103 @@ export default class KoreChat extends React.Component<
       currentTemplateHeading: undefined,
       isReconnecting: false,
       showBackButtonDialog: false,
+      showTemplateBottomSheet: false,
+      messageBottomSheet: null,
+      ttsModule: null
     };
   }
+
+  // Handle TTS module loading
+  private onTTSModuleLoaded = (ttsModule: TTSModule | null) => {
+    this.setState({ ttsModule });
+  };
+
+  // Lazy loading method for image picker
+  private lazyLaunchCamera = async (options: any, callback: (response: any) => void) => {
+    try {
+      // Use dynamic import for true lazy loading
+      const { launchCamera } = await import('react-native-image-picker');
+      launchCamera(options, callback);
+    } catch (error) {
+      console.warn('Failed to load ImagePicker:', error);
+      const errorResponse = {
+        errorMessage: 'Image picker not available',
+        errorCode: 'module_not_available',
+        didCancel: false
+      };
+      callback(errorResponse);
+    }
+  };
+
+  // Lazy loading method for document picker
+  private lazyDocumentPicker = async () => {
+    try {
+      // Use dynamic import for true lazy loading
+      const DocumentPickerModule = await import('react-native-document-picker');
+      return DocumentPickerModule.default || DocumentPickerModule;
+    } catch (error) {
+      console.warn('Failed to load DocumentPicker:', error);
+      return null;
+    }
+  };
+
+  // Lazy loading method for document picker types
+  private getDocumentPickerTypes = async () => {
+    try {
+      const DocumentPickerModule = await import('react-native-document-picker');
+      const DocumentPicker = DocumentPickerModule.default || DocumentPickerModule;
+      return DocumentPicker?.types || {};
+    } catch (error) {
+      console.warn('Failed to load DocumentPicker types:', error);
+      // Return fallback types
+      return {
+        images: 'public.image',
+        doc: 'com.microsoft.word.doc',
+        docx: 'org.openxmlformats.wordprocessingml.document',
+        plainText: 'public.plain-text',
+        pdf: 'com.adobe.pdf',
+        xls: 'com.microsoft.excel.xls',
+        xlsx: 'org.openxmlformats.spreadsheetml.sheet',
+        audio: 'public.audio',
+        video: 'public.movie',
+      };
+    }
+  };
+
+  // Handle document type selection with lazy loading
+  private handleDocumentTypeSelection = async (typeCategory: string) => {
+    try {
+      const types = await this.getDocumentPickerTypes();
+      
+      let typeArray: string[] = [];
+      switch (typeCategory) {
+        case 'images':
+          typeArray = [types.images];
+          break;
+        case 'documents':
+          typeArray = [
+            types.doc,
+            types.docx,
+            types.plainText,
+            types.pdf,
+            types.xls,
+            types.xlsx,
+            types.audio,
+          ];
+          break;
+        case 'video':
+          typeArray = [types.video];
+          break;
+        default:
+          console.warn('Unknown document type category:', typeCategory);
+          return;
+      }
+      
+      this.onAttachItemClick(typeArray);
+    } catch (error) {
+      console.error('Error handling document type selection:', error);
+    }
+  };
 
   private init = () => {
     if (!this.props.botConfig) {
@@ -611,13 +703,15 @@ export default class KoreChat extends React.Component<
 
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
-        // if (data) {
-        //   console.log('data ------->:', JSON.stringify(data));
-        // }
+        if (data) {
+          console.log('🤖 Bot Response Data ------->:', JSON.stringify(data, null, 2));
+        }
         if (data.type === 'ack') {
+          console.log('📨 Received ACK message, setting loading state');
           this.setIsBotResponseLoading(true);
           return;
         }
+        console.log('✅ Processing bot message, stopping loading state');
         setTimeout(() => {
           this.setIsBotResponseLoading(false);
         }, 150);
@@ -647,8 +741,6 @@ export default class KoreChat extends React.Component<
     });
   };
 
-
-
   private isQuickReplies = (data: any) => {
     if (
       data &&
@@ -668,16 +760,18 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
+    // console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
+    
     let modifiedMessages: any = null;
     const itemId = getItemId();
-    modifiedMessages = [
-      {
-        ...newMessages,
-        itemId: itemId,
-      },
-    ];
 
-    if (newMessages?.message?.[0]?.component?.payload?.attachments) {
+    // Check if this message has actual attachment data (not just the string "attachments")
+    const hasRealAttachments = newMessages?.message?.[0]?.component?.payload?.attachments && 
+                              newMessages?.message?.[0]?.component?.payload?.attachments !== "attachments" &&
+                              newMessages?.message?.[0]?.component?.payload?.attachments !== "";
+
+    if (hasRealAttachments) {
+      console.log('📎 Processing attachment template');
       let attachmentTemplate = {
         type: 'user_message',
         message: [
@@ -696,41 +790,84 @@ export default class KoreChat extends React.Component<
           itemId: itemId,
         },
       ];
+    } else {
+      // For messages without attachments, process normally
+      modifiedMessages = [
+        {
+          ...newMessages,
+          itemId: itemId,
+        },
+      ];
     }
 
+    // Check for slider view bottom sheet (from upstream)
+    // Only check if we have a single message (not attachment + text combo)
+    if (modifiedMessages.length === 1 && !newMessages?.message?.[0]?.component?.payload?.attachments){
+      let message = modifiedMessages[0];
+      if (message.type === 'bot_response' && this.isSliderView(message)) {
+        this.setState({showTemplateBottomSheet: true, messageBottomSheet: message})
+        return;
+      }
+    }
+
+    // console.log('💬 Current messages count before append:', this.state.messages.length);
+    // console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
+    
     this.setState(
       {
         messages: KoreChat.append(this.state.messages, modifiedMessages),
       },
       () => {
+        // console.log('💬 Messages updated, new count:', this.state.messages.length);
+        // console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
+        console.log('🔊 Starting text-to-speech in 1 second');
         setTimeout(() => {
           this.textToSpeech(newMessages);
         }, 1000);
       },
     );
   };
-  private stopTTS = () => {
-    if (!Tts || !Tts.stop) {
+  private stopTTS = async () => {
+    // Load TTS module if not already loaded
+    if (!this.state.ttsModule && this.ttsRef.current) {
+      await this.ttsRef.current.loadTTS();
+    }
+    
+    if (!this.state.ttsModule || !this.state.ttsModule.stop) {
       return;
     }
     try {
-      Tts.stop()
-        .then((_value: any) => {
-          //console.log('TTS stoped');
-        })
-        .catch((error: any) => {
-          console.log('TTS stoped error -->:', error);
-        });
-    } catch (error1) {
-      console.log('TTS stoped error1 -->:', error1);
+      await this.state.ttsModule.stop();
+      //console.log('TTS stopped');
+    } catch (error) {
+      console.warn('TTS stop error:', error);
     }
   };
 
-  private textToSpeech = (botResponse: any) => {
+  isSliderView=(message: any) => {
+    return message.message &&
+      message.message[0] &&
+      message.message[0].component &&
+      message.message[0].component.type === 'template' &&
+      message.message[0].component.payload &&
+      message.message[0].component.payload.payload &&
+      message.message[0].component.payload.payload.template_type && 
+      message.message[0].component.payload.payload.sliderView && (
+      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.OTP_TEMPLATE ||
+      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.FEEDBACK_TEMPLATE ||
+      message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.RESET_PIN_TEMPLATE);
+  }
+
+  private textToSpeech = async (botResponse: any) => {
     if (!this.state.isTTSenable) {
       this.stopTTS();
 
       return;
+    }
+    
+    // Load TTS module if not already loaded
+    if (!this.state.ttsModule && this.ttsRef.current) {
+      await this.ttsRef.current.loadTTS();
     }
     if (botResponse.type === 'bot_response') {
       let message: any;
@@ -755,22 +892,22 @@ export default class KoreChat extends React.Component<
         }
       }
 
-      if (message && Tts && Tts.stop && Tts.speak) {
-        Tts.stop(true)
-          .then((_onWordBoundary: boolean) => {
-            Tts.speak(message, {
-              iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
-              rate: 0.5,
-              androidParams: {
-                KEY_PARAM_PAN: -1,
-                KEY_PARAM_VOLUME: 0.5,
-                KEY_PARAM_STREAM: 'STREAM_MUSIC',
-              },
-            });
-          })
-          .catch((error: any) => {
-            console.log('textToSpeech error ------>:', error);
-          });
+      if (message && this.state.ttsModule && this.state.ttsModule.stop && this.state.ttsModule.speak) {
+        try {
+          await this.state.ttsModule.stop(true);
+          const ttsOptions = {
+            iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
+            rate: 0.5,
+            androidParams: {
+              KEY_PARAM_PAN: -1,
+              KEY_PARAM_VOLUME: 0.5,
+              KEY_PARAM_STREAM: 'STREAM_MUSIC',
+            },
+          };
+          this.state.ttsModule.speak(message, ttsOptions);
+        } catch (error) {
+          console.warn('textToSpeech error:', error);
+        }
       }
     }
   };
@@ -879,10 +1016,35 @@ export default class KoreChat extends React.Component<
           isTyping={this.props.isTyping}
           onDragList={this.props.onDragList}
         />
+        {(this.state.messageBottomSheet && this.state.showTemplateBottomSheet) && (
+          this.renderTemplateBottomSheet()
+        )}
         {this.renderChatFooter()}
       </View>
     );
   };
+
+  renderTemplateBottomSheet = () => {
+    let message = this.state.messageBottomSheet;
+    let isShow = this.state.showTemplateBottomSheet;
+
+    if (!message) return <></>;
+    let theme = this.context as IThemeType;
+    return(
+      <TemplateBottomSheet 
+      isShow= {isShow && message} 
+      messageId={message.messageId} 
+      payload={message.message[0].component.payload.payload}
+      templateType={message.message[0].component.payload.payload.template_type}
+      onListItemClick={this.onListItemClick}
+      onSliderClosed={() =>{
+        this.setState({showTemplateBottomSheet: false})
+      }}
+      templateInjection={this.props.templateInjection}
+      />
+    ) 
+  }
+
   onSendPlainText = (message?: any) => {
     this.onSendText({text: message});
   };
@@ -938,17 +1100,9 @@ export default class KoreChat extends React.Component<
           data_type: payload.data_type,
         });
 
-        // console.log('message ------->:', message);
-        if (message && message?.text?.trim?.()?.length !== 0) {
-          setTimeout(() => {
-            this.onSend({
-              message,
-              data: data,
-              shouldResetInputToolbar,
-              data_type,
-            });
-          }, 500);
-        }
+        // Don't send the text message separately when attachments are present
+        // The attachment payload already includes the text
+        console.log('📎 Attachment message sent, skipping separate text message');
       } else {
         this.onSend({
           message,
@@ -1073,9 +1227,9 @@ export default class KoreChat extends React.Component<
     shouldResetInputToolbar = true,
     data_type = '',
   }): void => {
-    // console.log('message --->:', message);
-    // console.log('data --->:', data);
-    // console.log('data_type --->:', data_type);
+    console.log('🚀 onSend called with message:', message);
+    console.log('🚀 onSend called with data:', data);
+    console.log('🚀 onSend called with data_type:', data_type);
 
     this.clearQuickReplies();
     if (shouldResetInputToolbar === true) {
@@ -1090,6 +1244,9 @@ export default class KoreChat extends React.Component<
         data,
         data_type,
       );
+      console.log('📤 User sent message data:', JSON.stringify(messageData, null, 2));
+      console.log('📤 User sent message type:', messageData?.type);
+      
       setTimeout(() => {
         this.scrollToBottom(true);
       }, 100);
@@ -1247,6 +1404,7 @@ export default class KoreChat extends React.Component<
       case TEMPLATE_TYPES.FORM_TEMPLATE:
       case TEMPLATE_TYPES.CLOCK_TEMPLATE:
       case TEMPLATE_TYPES.OTP_TEMPLATE:
+      case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
       case TEMPLATE_TYPES.LISTWIDGET_TEMPLATE:
       case TEMPLATE_TYPES.IMAGE_MESSAGE:
         if (!isFromViewMore) {
@@ -1290,6 +1448,18 @@ export default class KoreChat extends React.Component<
             },
           );
         }
+
+        break;
+        
+      case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
+        this.setState(
+            {
+              currentTemplate: template_type,
+              currentTemplateData: item,
+              themeData: theme,
+              showSeeMoreModal: true,
+            },
+          );
 
         break;
       case TEMPLATE_TYPES.LIST_TEMPLATE:
@@ -1612,23 +1782,30 @@ export default class KoreChat extends React.Component<
               alignSelf: 'center',
               marginBottom: 20,
             }} />
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333'}}>
-              Attach File
-            </Text>
-            {this.renderAssetPopupComponent()}
             <TouchableOpacity
-              style={{
-                marginTop: 20,
-                padding: 15,
-                backgroundColor: '#f0f0f0',
-                borderRadius: 10,
-                alignItems: 'center',
-              }}
-              onPress={() => {
-                this.setState({ showAttachmentModal: false });
-              }}>
-              <Text style={{fontSize: 16, color: '#666'}}>Close</Text>
-            </TouchableOpacity>
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1,
+                  }}
+                  onPress={() => {
+                    this.setState({ showAttachmentModal: false });
+                  }}
+                >
+                  <SvgIcon
+                    name={'HeaderClose'}
+                    width={normalize(20)}
+                    height={normalize(20)}
+                    color={'#697586'}
+                  />
+                </TouchableOpacity>
+            {this.renderAssetPopupComponent()}
           </View>
         </View>
       </Modal>
@@ -1699,7 +1876,6 @@ export default class KoreChat extends React.Component<
                     right: 10,
                     width: 30,
                     height: 30,
-                    backgroundColor: '#f0f0f0',
                     borderRadius: 15,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1741,6 +1917,7 @@ export default class KoreChat extends React.Component<
   }
 
   private renderSeeMorePopupComponent(): any {
+    const bubbleTheme = getBubbleTheme(this.state.themeData);
     switch (this.state.currentTemplate) {
       case TEMPLATE_TYPES.LIST_VIEW_TEMPLATE:
         const data = this.state.currentTemplateData;
@@ -1752,7 +1929,7 @@ export default class KoreChat extends React.Component<
             <View>
               {this.state?.currentTemplateHeading && (
                 <View style={styles.sub_container_title1}>
-                  <Text style={[styles.displayTextHeaderStyle]}>
+                  <Text style={[styles.displayTextHeaderStyle,{fontWeight: 600}]}>
                     {this.state?.currentTemplateHeading}
                   </Text>
                 </View>
@@ -1790,7 +1967,7 @@ export default class KoreChat extends React.Component<
                           styles.tab_title,
                           tab?.isChecked
                             ? {
-                                backgroundColor: Color.button_blue,
+                                backgroundColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,
                                 color: Color.white,
                               }
                             : {
@@ -1827,11 +2004,22 @@ export default class KoreChat extends React.Component<
                       );
                     },
                   }}
-                  theme={undefined}
+                  theme={this.state.themeData}
+                  onBottomSheetClose={{}}
                 />
               </View>
             </ScrollView>
           </View>
+        );
+        break;
+      case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
+        const payload = this.state.currentTemplateData;
+        return (
+          <ScrollView horizontal={false} style={[styles.scrollView, {marginBottom: normalize(10)}]}>
+              <View style={styles.sroll_sub}>
+                <ArticleTemplate payload={payload} theme={this.state.themeData} onListItemClick={this.props.onListItemClick} onBottomSheetClose={{}} />;
+            </View>
+          </ScrollView>
         );
     }
   }
@@ -1869,23 +2057,29 @@ export default class KoreChat extends React.Component<
               alignSelf: 'center',
               marginBottom: 20,
             }} />
-            <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333'}}>
-              More Details
-            </Text>
-            {this.renderSeeMorePopupComponent()}
             <TouchableOpacity
               style={{
-                marginTop: 20,
-                padding: 15,
-                backgroundColor: '#f0f0f0',
-                borderRadius: 10,
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                width: 30,
+                height: 30,
+                borderRadius: 15,
                 alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1,
               }}
               onPress={() => {
                 this.setState({ showSeeMoreModal: false });
               }}>
-              <Text style={{fontSize: 16, color: '#666'}}>Close</Text>
+              <SvgIcon
+                    name={'HeaderClose'}
+                    width={normalize(20)}
+                    height={normalize(20)}
+                    color={'#697586'}
+                  />
             </TouchableOpacity>
+            {this.renderSeeMorePopupComponent()}
           </View>
         </View>
       </Modal>
@@ -1956,7 +2150,7 @@ export default class KoreChat extends React.Component<
                       console.log('Camera permission granted - launching camera...');
                       
                       try {
-                      launchCamera(
+                      this.lazyLaunchCamera(
                         {
                           saveToPhotos: true,
                           mediaType: 'mixed',
@@ -2018,21 +2212,13 @@ export default class KoreChat extends React.Component<
                     }
                     break;
                   case 2:
-                    this.onAttachItemClick([types.images]);
+                    this.handleDocumentTypeSelection('images');
                     break;
                   case 3:
-                    this.onAttachItemClick([
-                      types.doc,
-                      types.docx,
-                      types.plainText,
-                      types.pdf,
-                      types.xls,
-                      types.xlsx,
-                      types.audio,
-                    ]);
+                    this.handleDocumentTypeSelection('documents');
                     break;
                     case 4:
-                      this.onAttachItemClick([types.video]);
+                      this.handleDocumentTypeSelection('video');
                       break;
                   }
                 }, 150); // 150ms delay to ensure modal closes
@@ -2063,6 +2249,12 @@ export default class KoreChat extends React.Component<
 
   private pickDocument = async (types: any) => {
     try {
+      const DocumentPicker = await this.lazyDocumentPicker();
+      if (!DocumentPicker) {
+        console.warn('DocumentPicker not available');
+        return;
+      }
+      
       const result = await DocumentPicker.pick({
         allowMultiSelection: MAX_SOURCE_LIMIT > 1,
         type: types,
@@ -2179,13 +2371,12 @@ export default class KoreChat extends React.Component<
 
   private showCustomToast = (msg: any) => {
     // Toast.showWithGravity(msg, Toast.LONG, Toast.BOTTOM);
-    // Toast.show({
-    //   type: 'error',
-    //   text1: msg,
-    //   text2: 'Please try again later.',
-    //   position: 'bottom',
-    //   bottomOffset: 100,
-    // });
+    Toast.show({
+      type: 'error',
+      text1: msg,
+      position: 'bottom',
+      bottomOffset: 100,
+    });
   };
 
   private onHeaderActionsClick = (item: any) => {
@@ -2447,6 +2638,12 @@ export default class KoreChat extends React.Component<
               {this.renderWelcomeScreenModel()}
               {/* {this.renderBackButtonDialog()} */}
               <CustomAlertComponent ref={this.alertRef} />
+              <LazyTTS
+                ref={this.ttsRef}
+                autoLoad={false}
+                onModuleLoaded={this.onTTSModuleLoaded}
+                hideUI={true}
+              />
             </View>
           </Wrapper>
         </ThemeProvider>
@@ -2456,6 +2653,12 @@ export default class KoreChat extends React.Component<
       <View style={styles.container} onLayout={this.onInitialLayoutViewLayout}>
         {this.renderLoading()}
         <CustomAlertComponent ref={this.alertRef} />
+        <LazyTTS
+          ref={this.ttsRef}
+          autoLoad={false}
+          onModuleLoaded={this.onTTSModuleLoaded}
+          hideUI={true}
+        />
       </View>
     );
   }
@@ -2486,8 +2689,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sroll_sub: {
-    justifyContent: 'center',
-    alignItems: 'center',
     flex: 1,
   },
   scrollView: {
@@ -2496,7 +2697,7 @@ const styles = StyleSheet.create({
     marginBottom: normalize(50),
   },
   line: {
-    width: windowWidth,
+    width: windowWidth * 0.90,
     height: StyleSheet.hairlineWidth,
     backgroundColor: Color.black,
     marginBottom: 10,

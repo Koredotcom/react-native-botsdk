@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import BotText from './BotText';
-import {Picker} from '@react-native-picker/picker';
+import { LazyPicker, LazyPickerItem } from '../components/lazy-loading';
 import Color from '../theme/Color';
 import {normalize} from '../utils/helpers';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
@@ -140,7 +140,7 @@ export default class DropdownTemplate extends BaseView<
                   if (!item) {
                     return;
                   }
-                  this.props.payload.onListItemClick(
+                  this.props.onListItemClick(
                     this.props.payload.template_type,
                     {
                       title: item?.title,
@@ -175,10 +175,9 @@ export default class DropdownTemplate extends BaseView<
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
         style={[styles.calendar, {}]}>
-        <Picker
+        <LazyPicker
           selectedValue={this.state.selectedValue}
           mode={mode}
-          placeholder={this.props.payload?.placeholder}
           itemStyle={{
             fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
             color: isIOS ? Color.black : Color.white,
@@ -193,7 +192,7 @@ export default class DropdownTemplate extends BaseView<
               // console.log('selected item_3  --------> :', item);
               this.setState({selectedValue: itemValue, item: item});
 
-              // this.props.payload.onListItemClick(
+              // this.props.onListItemClick(
               //   this.props.payload.template_type,
               //   {
               //     title: item?.title,
@@ -209,7 +208,7 @@ export default class DropdownTemplate extends BaseView<
               let item = elements[itemIndex];
               //  console.log('selected item_2  --------> :', item);
               this.setState({selectedValue: itemValue, item: item});
-              // this.props.payload.onListItemClick(
+              // this.props.onListItemClick(
               //   this.props.payload.template_type,
               //   {
               //     title: item?.title,
@@ -220,7 +219,7 @@ export default class DropdownTemplate extends BaseView<
             }
           }}>
           {!this.state.selectedValue && (
-            <Picker.Item
+            <LazyPickerItem
               key={'placeholder'}
               label={this.props.payload?.placeholder}
               value={this.props.payload?.placeholder}
@@ -234,7 +233,7 @@ export default class DropdownTemplate extends BaseView<
           )}
           {elements?.map((item: any, index: any) => {
             return (
-              <Picker.Item
+              <LazyPickerItem
                 key={index}
                 label={item?.title}
                 value={item?.value}
@@ -247,7 +246,7 @@ export default class DropdownTemplate extends BaseView<
               />
             );
           })}
-        </Picker>
+        </LazyPicker>
       </View>
     );
   }

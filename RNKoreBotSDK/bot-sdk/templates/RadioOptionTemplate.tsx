@@ -115,7 +115,8 @@ export default class RadioOptionTemplate extends BaseView<
                 style={{
                   color: Color.black,
                   fontSize: normalize(14),
-                  fontWeight: 'bold',
+                  fontWeight: '500',
+                  marginLeft: 5,
                 }}>
                 {this.props.payload?.heading?.trim()}
                 {/* isFilterApply={true}
@@ -128,8 +129,8 @@ export default class RadioOptionTemplate extends BaseView<
               onPress={() => {
                 const item = this.state.selectedItem?.postback;
 
-                if (item && this.props.payload.onListItemClick) {
-                  this.props.payload.onListItemClick(
+                if (item && this.props.onListItemClick) {
+                  this.props.onListItemClick(
                     this.props.payload.template_type,
                     {
                       title: item?.title,

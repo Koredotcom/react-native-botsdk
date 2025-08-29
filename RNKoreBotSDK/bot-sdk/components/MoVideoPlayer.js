@@ -118,6 +118,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
   const [isShowVideoPlaylist, setIsShowVideoPlaylist] = useState(false);
   const [isVideoFullScreen, setIsVideoFullScreen] = useState(false);
   const [isErrorInLoadVideo, setIsVErrorInLoadVideo] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isVideoEnd, setIsVideoEnd] = useState(false);
   const [isVideoCovered, setIsVideoCovered] = useState(false);
   const [videoDuration, setVideoDuration] = useState(0);
@@ -220,7 +221,6 @@ const MoVideoPlayer = forwardRef((props, ref) => {
 
   useEffect(() => {
     const appStateSubscriber = AppState.addEventListener('change', state => {
-      console.log('APP STATE CHANGE IS ', state);
       if (playInBackground && isPaused == false) {
         setIsPaused(false);
       } else {
@@ -251,6 +251,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           zIndex: 100000,
+          elevation: 10,
         }}>
         <Text
           numberOfLines={1}
@@ -387,6 +388,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           zIndex: 100000,
+          elevation: 10,
         }}>
         <TouchableOpacity
           onPress={() => {
@@ -1207,8 +1209,8 @@ const MoVideoPlayer = forwardRef((props, ref) => {
           height={isViewDisable ? normalize(30) : normalize(20)}
         /> */}
         {!isViewDisable && (
-          <Text style={{color: 'white', fontSize: 12, marginTop: 0}}>
-            Error when load video
+          <Text style={{color: 'white', fontSize: 12, marginTop: 6, textAlign: 'center', paddingHorizontal: 10}}>
+            {errorMessage ? String(errorMessage) : 'Error when load video'}
           </Text>
         )}
       </View>
@@ -1411,51 +1413,47 @@ const MoVideoPlayer = forwardRef((props, ref) => {
     </TouchableWithoutFeedback>
   );
 
+  // Determine source and media type for conditional props
+  let resolvedSource = playlistSelectedVideo ? {uri: playlistSelectedVideo?.url} : source;
+  // Ensure we pass a plain string URI without stray spaces
+  if (resolvedSource && resolvedSource.uri && typeof resolvedSource.uri === 'string') {
+    resolvedSource = {...resolvedSource, uri: resolvedSource.uri.trim()};
+  }
+  const uriString = resolvedSource && resolvedSource.uri ? String(resolvedSource.uri) : '';
+  const lower = uriString.toLowerCase();
+  const isHls = /\.m3u8(\?|$)/.test(lower);
+  const isDash = /\.mpd(\?|$)/.test(lower);
+  const isAdaptiveStream = isHls || isDash;
+  const resolvedSourceWithType = isHls
+    ? {...resolvedSource, type: 'm3u8', overrideFileExtensionAndroid: 'm3u8'}
+    : isDash
+    ? {...resolvedSource, type: 'mpd', overrideFileExtensionAndroid: 'mpd'}
+    : resolvedSource;
+
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        console.log('TOUCH');
-
-        let value = !isPaused;
-
-        if (isPaused) {
-          setIsPaused(value);
-        }
-
-        if (!isVideoEnd && value) {
-          setAutoHideOptions(true, false, timeOutHandler, isViewDisable);
-        } else {
-          setAutoHideOptions(true, value, timeOutHandler, isViewDisable);
-        }
-      }}>
       <View style={videoStyle}>
+        {uriString ? (
         <Video
-          keyExtractor={uuid.v4() + ''}
           style={{flex: 1}}
           posterResizeMode="cover"
           resizeMode="cover"
-          bufferConfig={{
-            minBufferMs: 1000 * 60,
-            bufferForPlaybackMs: 1000 * 60,
-            bufferForPlaybackAfterRebufferMs: 1000 * 60,
-          }}
+          useTextureView={true}
           ref={videoRef}
-          source={
-            playlistSelectedVideo ? {uri: playlistSelectedVideo.url} : source
-          }
+          source={resolvedSourceWithType}
           paused={isPaused}
           muted={isMuted}
           rate={videoRate}
-          selectedVideoTrack={{
-            type: 'resolution',
-            value: videoQuality,
-          }}
           volume={videoSound}
           playInBackground={playInBackground}
+          onLoadStart={() => {
+            setIsVErrorInLoadVideo(false);
+            setErrorMessage('');
+          }}
           onLoad={videoData => {
             setVideoDuration(videoData.duration);
             setCurrentVideoDuration(duration);
             setIsVErrorInLoadVideo(false);
+            setErrorMessage('');
           }}
           onProgress={videoData => {
             setCurrentVideoDuration(videoData.currentTime);
@@ -1470,16 +1468,40 @@ const MoVideoPlayer = forwardRef((props, ref) => {
             setIsVideoSeeked(false)
             setIsVErrorInLoadVideo(false)
           }}*/
-          onError={videoData => setIsVErrorInLoadVideo(true)}
+          onError={videoData => {
+            setIsVErrorInLoadVideo(true);
+          }}
           onEnd={() => {
-            console.log('on end');
             setIsVideoEnd(true);
             setIsPaused(true);
             if (playList.length > 0) {
               setIsShowVideoPlaylist(true);
             }
           }}
-        />
+        />) : (
+          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'white'}}>No video source</Text>
+          </View>
+        )}
+        {/* Touch catcher to reveal controls when hidden; does not block controls when visible */}
+        <View
+          pointerEvents={isVideoFocused ? 'none' : 'auto'}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 99999,
+            elevation: 20,
+          }}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              setAutoHideOptions(true, isPaused, timeOutHandler, isViewDisable);
+            }}>
+            <View style={{flex: 1}} />
+          </TouchableWithoutFeedback>
+        </View>
         {currentVideoDuration == 0 && poster && videoPosterView()}
         {isVideoFocused && showHeader && videoHeaders()}
         {isVideoFocused &&
@@ -1497,11 +1519,9 @@ const MoVideoPlayer = forwardRef((props, ref) => {
         {/* {isShowVideoQualitiesSettings && videoQualitiesSettingView()} */}
         {isVideoSeeked && videoSeekedLoader()}
         {isErrorInLoadVideo && videoErrorView()}
-        {isViewDisable && videoErrorView()}
         {/* {playList.length > 0 && isShowVideoPlaylist && videoPlaylistView()} */}
         {isVideoCovered && videoCoverView()}
       </View>
-    </TouchableWithoutFeedback>
   );
 });
 

@@ -8,8 +8,8 @@ import {
   StyleProp,
 } from 'react-native';
 
-import ParsedText from 'react-native-parsed-text';
-import Communications from 'react-native-communications';
+import { LazyParsedText } from '../components/LazyParsedText';
+import { FallbackCommunicationsAPI } from '../components/LazyCommunications';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {
   TEMPLATE_STYLE_VALUES,
@@ -188,8 +188,32 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
     // );
   };
 
-  onEmailPress = (email: string) =>
-    Communications.email([email], null, null, null, null);
+  onEmailPress = async (email: string) => {
+    try {
+      // Try to dynamically load react-native-communications
+      const communications = await this.loadCommunications();
+      if (communications) {
+        communications.email([email], null, null, null, null);
+      } else {
+        // Fallback to basic Linking API
+        FallbackCommunicationsAPI.email([email], null, null, null, null);
+      }
+    } catch (error) {
+      console.warn('Failed to load communications, using fallback:', error);
+      // Fallback to basic Linking API
+      FallbackCommunicationsAPI.email([email], null, null, null, null);
+    }
+  };
+
+  private async loadCommunications() {
+    try {
+      const CommunicationsModule = await import('react-native-communications');
+      return CommunicationsModule.default || CommunicationsModule;
+    } catch (error) {
+      console.warn('react-native-communications not available:', error);
+      return null;
+    }
+  }
 
   parseTextWithIcons = (text: string) => {
     const entityRegex = /&#(\d+);/g;
@@ -241,7 +265,8 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
       }
     }
 
-    //console.log('this.props.payload message--->:', message);
+    console.log('📄 MessageText - Processing payload:', JSON.stringify(payload, null, 2));
+    console.log('📄 MessageText - Extracted message:', message);
 
     let text: string | undefined = message;
     // console.log('========================');
@@ -282,7 +307,7 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
                 },
               ]
         }>
-        <ParsedText
+        <LazyParsedText
           style={[
             styles[position!]?.text,
             this.props.textStyle && this.props.textStyle[position!],
@@ -307,7 +332,7 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
           parse={isPassword ? [] : [...parseList, ...getParseList()]}
           childrenProps={{...this.props.textProps}}>
           {this.parseTextWithIcons(text?.trim?.())?.trim()}
-        </ParsedText>
+        </LazyParsedText>
       </View>
     ) : (
       <View />

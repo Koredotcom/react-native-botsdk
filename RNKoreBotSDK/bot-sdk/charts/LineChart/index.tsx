@@ -6,13 +6,13 @@ import { generatePath, scaleValue, getMaxValue, getMinValue, getWindowWidth, con
 
 const LineChart: React.FC<LineChartProps> = ({
   width = getWindowWidth() - 120,
-  height = 220,
+  height = 210,
   dataSet = [],
   thickness = 3,
   isAnimated = true,
   hideDataPoints = false,
   dataPointsRadius = 4,
-  initialSpacing = 25,
+  initialSpacing = 50,
   noOfSections = 4,
   xAxisLabelTexts = [],
   xAxisLabelTextStyle = {},
@@ -23,7 +23,7 @@ const LineChart: React.FC<LineChartProps> = ({
   }
 
   const chartWidth = width - initialSpacing * 2;
-  const chartHeight = height - 60; // Leave space for labels
+  const chartHeight = height - 80; // Leave space for labels (Y-axis top + X-axis bottom)
   
   // Get min/max values across all datasets
   const allValues = dataSet.flatMap(dataset => dataset.data.map(point => point.value));
@@ -35,10 +35,10 @@ const LineChart: React.FC<LineChartProps> = ({
 
   return (
     <View style={[styles.container, { width, height }]}>
-      <Svg width={width} height={height - 40}>
+      <Svg width={width} height={height}>
         {/* Grid lines */}
         {Array.from({ length: noOfSections + 1 }, (_, i) => {
-          const y = 20 + (i * chartHeight) / noOfSections;
+          const y = 40 + (i * chartHeight) / noOfSections;
           return (
             <Line
               key={`grid-${i}`}
@@ -54,14 +54,14 @@ const LineChart: React.FC<LineChartProps> = ({
 
         {/* Y-axis labels */}
         {Array.from({ length: noOfSections + 1 }, (_, i) => {
-          const y = 20 + (i * chartHeight) / noOfSections;
+          const y = 40 + (i * chartHeight) / noOfSections;
           const value = maxValue - (i * (maxValue - minValue)) / noOfSections;
-          const textProps = convertTextStyleToSvg(yAxisTextStyle, 5, y + 4);
+          const textProps = convertTextStyleToSvg(yAxisTextStyle, initialSpacing - 5, y + 4);
           return (
             <SvgText
               key={`y-label-${i}`}
               {...textProps}
-              textAnchor={textProps.textAnchor || "start"}
+              textAnchor={textProps.textAnchor || "end"}
             >
               {Math.round(value)}
             </SvgText>
@@ -72,10 +72,10 @@ const LineChart: React.FC<LineChartProps> = ({
         {dataSet.map((dataset, datasetIndex) => {
           const points = dataset.data.map((point, index) => ({
             x: initialSpacing + index * stepX,
-            y: 20 + scaleValue(point.value, minValue, maxValue, chartHeight, 0)
+            y: 40 + scaleValue(point.value, minValue, maxValue, chartHeight, 0)
           }));
 
-          const pathData = generatePath(points, true);
+          const pathData = generatePath(points, false);
 
           return (
             <React.Fragment key={`dataset-${datasetIndex}`}>
@@ -85,8 +85,8 @@ const LineChart: React.FC<LineChartProps> = ({
                 stroke={dataset.color}
                 strokeWidth={thickness}
                 fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="butt"
+                strokeLinejoin="miter"
               />
 
               {/* Data points */}
@@ -107,8 +107,8 @@ const LineChart: React.FC<LineChartProps> = ({
 
         {/* X-axis labels */}
         {xAxisLabelTexts.map((label, index) => {
-          const x = initialSpacing + index * stepX;
-          const y = height - 15;
+          const x = initialSpacing + index * stepX + 25;
+          const y = height - 25;
           const textProps = convertTextStyleToSvg(xAxisLabelTextStyle, x, y);
           return (
             <SvgText

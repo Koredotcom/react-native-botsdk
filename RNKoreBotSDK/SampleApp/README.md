@@ -1,13 +1,16 @@
 <div align="center">
 
-# 🤖 React Native Kore Bot SDK
+# 🤖 React Native Kore Bot SDK - Sample App
 
 [![NPM Version](https://img.shields.io/npm/v/rn-kore-bot-sdk-v77.svg?style=flat-square)](https://www.npmjs.com/package/rn-kore-bot-sdk-v77)
 [![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android-lightgrey.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/language-TypeScript-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
 
-*A comprehensive and feature-rich React Native library for seamless Kore.ai chatbot integration*
+*Complete sample implementation demonstrating Kore.ai chatbot integration with selective feature loading*
+
+## 🎯 **What's This?**
+This sample app showcases how to integrate the Kore Bot SDK with **selective dependency installation**, allowing you to choose only the features you need and save significant bundle size.
 
 </div>
 
@@ -92,64 +95,102 @@ export default App;
 
 ---
 
-## 📦 Installation
+## 📦 Sample App Installation
 
-### Step 1: Install the Main Package
+### Step 1: Clone & Install Base
 
 ```bash
-npm install rn-kore-bot-sdk-v77
-# or
-yarn add rn-kore-bot-sdk-v77
+git clone <repository-url>
+cd SampleApp
+npm install
 ```
 
-### Step 2: Install Required Dependencies
+### Step 2: Choose Your Features
 
-<details>
-<summary><strong>📱 Core Dependencies (Click to expand)</strong></summary>
+This sample app demonstrates **3 different installation approaches**:
 
-```bash
-npm install \
-  "@react-native-community/checkbox@^0.5.20" \
-  "@react-native-picker/picker@^2.11.1" \
-  "@react-native-voice/voice@^3.2.4" \
-  "@react-native-community/datetimepicker@^8.4.2" \
-  "@react-native-community/netinfo@^11.4.1" \
-  "react-native-device-info@^14.0.4" \
-  "react-native-document-picker@^9.3.1" \
-  "react-native-fast-image@^8.6.3" \
-  "react-native-fs@^2.20.0" \
-  "react-native-gesture-handler@^2.26.0" \
-  "react-native-gifted-charts@^1.4.63" \
-  "react-native-image-picker@^8.2.1" \
-  "react-native-modal@^14.0.0-rc.1" \
-  "react-native-modal-datetime-picker@^18.0.0" \
-  "react-native-reanimated@^3.18.0" \
-  "react-native-reanimated-carousel@^4.0.2" \
-  "react-native-svg@^15.12.0" \
-  "react-native-tts@^4.1.1" \
-  "react-native-uuid@^2.0.3" \
-  "react-native-video@^6.15.0"
-```
+## 🎯 **Installation Options**
 
-</details>
-
-<details>
-<summary><strong>📋 Sample App Dependencies (Optional)</strong></summary>
+### Option A: 🚀 **Minimal Chat** (~380KB saved)
+*Perfect for basic chat functionality*
 
 ```bash
+# Only install required dependencies
 npm install \
   "@react-native-async-storage/async-storage@^2.2.0" \
-  "@react-native-clipboard/clipboard@^1.16.2" \
-  "@react-navigation/elements@^2.5.2" \
+  "@react-native-community/netinfo@^11.4.1" \
+  "@react-navigation/native@^7.1.14" \
   "@react-navigation/stack@^7.4.2" \
-  "react-native-bootsplash@^6.3.9" \
-  "react-native-orientation-locker@^1.7.0" \
-  "react-native-permissions@^5.4.1" \
-  "react-native-safe-area-context@^5.5.2" \
-  "react-native-screens@^4.11.1"
+  "react-native-gesture-handler@^2.27.2" \
+  "react-native-safe-area-context@^5.4.1" \
+  "react-native-screens@^4.13.1"
 ```
 
-</details>
+**Features Available:**
+- ✅ Basic chat interface  
+- ✅ Text messaging
+- ✅ Simple templates
+- ❌ Voice features (buttons hidden)
+- ❌ Audio playback (silent mode)
+- ❌ Video content (static thumbnails)
+
+### Option B: 🎤 **Chat + Voice** (~300KB saved)
+*Adds voice recognition and TTS*
+
+```bash
+# Install minimal + voice features
+npm install \
+  "@react-native-voice/voice@^3.2.4" \
+  "react-native-tts@^4.1.1" \
+  "react-native-permissions@^5.4.1"
+```
+
+**Additional Features:**
+- ✅ Voice-to-text input
+- ✅ Text-to-speech playback
+- ✅ Microphone permissions handling
+
+### Option C: 📱 **Full Experience** (Complete features)
+*Install all optional dependencies*
+
+```bash
+# Complete feature set
+npm install \
+  "@react-native-picker/picker@^2.11.0" \
+  "@react-native-voice/voice@^3.2.4" \
+  "@react-native-community/datetimepicker@^8.4.4" \
+  "react-native-communications@^2.2.1" \
+  "react-native-document-picker@^9.3.1" \
+  "react-native-fast-image@^8.6.3" \
+  "react-native-image-picker@^8.2.1" \
+  "react-native-parsed-text@^0.0.22" \
+  "react-native-popover-view@^6.1.0" \
+  "react-native-reanimated-carousel@^4.0.3" \
+  "react-native-sound@^0.12.0" \
+  "react-native-tts@^4.1.1" \
+  "react-native-video@^6.16.1"
+```
+
+**All Features:**
+- ✅ Everything from Options A & B
+- ✅ Rich media support (images, videos, audio)
+- ✅ Advanced templates (carousels, pickers)
+- ✅ File attachments
+- ✅ Enhanced UI components
+
+## 📊 **Feature Comparison**
+
+| Feature | Minimal | Voice | Full |
+|---------|---------|-------|------|
+| **Bundle Size** | Base | Base + 80KB | Base + 380KB |
+| **Savings** | 380KB | 300KB | 0KB |
+| **Chat Interface** | ✅ | ✅ | ✅ |
+| **Voice Input** | ❌ | ✅ | ✅ |
+| **Audio Playback** | ❌ | ✅ | ✅ |
+| **Video Messages** | 📷 Thumbnail | 📷 Thumbnail | ▶️ Full Player |
+| **File Uploads** | ❌ | ❌ | ✅ |
+| **Rich Templates** | Basic | Basic | Advanced |
+| **Phone/Email Actions** | Basic | Basic | Native |
 
 ### Step 3: Platform Setup
 
@@ -400,23 +441,65 @@ The SDK includes voice recognition and text-to-speech capabilities:
 
 ---
 
-## 📱 Examples
+## 📱 Testing Different Configurations
 
-### 🎯 Sample Application
+### 🧪 **How to Test Each Configuration**
 
-Explore the complete implementation in the `/SampleApp` directory:
+1. **Start with Minimal Installation:**
+```bash
+# Install only required dependencies
+npm install # (just the minimal set)
+npx react-native run-ios
+```
+
+2. **Test Lazy Loading Behavior:**
+```bash
+# Try using features without dependencies installed
+# - Tap voice button → See "Voice not available" message
+# - Play audio → See silent mode
+# - Open video → See static thumbnail
+```
+
+3. **Add Features Incrementally:**
+```bash
+# Add voice features
+npm install @react-native-voice/voice react-native-tts
+npx react-native run-ios
+
+# Now voice buttons should appear and work
+```
+
+### 🔍 **Debugging Lazy Loading**
+
+**Check Console Logs:**
+```javascript
+// Look for these messages in your console:
+"LazySound: react-native-sound not installed, using fallback"
+"LazyVoice: Voice module loaded successfully"  
+"LazyVideo: Loading video player..."
+```
+
+**Visual Indicators:**
+- 🔄 Loading spinners when modules are loading
+- ⚠️ Warning messages for missing dependencies
+- ✅ Success indicators when features are ready
+
+### 📋 **Key Sample Files**
+
+- `src/config/BotConfig.tsx` - Configuration setup
+- `src/screens/Home/index.tsx` - Integration example  
+- `src/screens/TestFeatures.tsx` - Feature testing screen
+- `src/components/LazyComponents/` - Lazy loading examples
+
+### 🎯 **Sample Application**
+
+Run the complete sample:
 
 ```bash
 cd SampleApp
 npm install
 npx react-native run-ios    # or run-android
 ```
-
-### 📋 Key Example Files
-
-- `SampleApp/src/config/BotConfig.tsx` - Configuration setup
-- `SampleApp/src/screens/Home/index.tsx` - Integration example
-- `SampleApp/src/customTemplates/` - Custom template examples
 
 ---
 
@@ -468,6 +551,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
+
+## 🎯 **Quick Start Guide**
+
+1. **Choose your approach** from the 3 installation options above
+2. **Install dependencies** for your chosen features
+3. **Run the app**: `npx react-native run-ios`
+4. **Test lazy loading** by trying features without dependencies
+5. **Add more features** incrementally as needed
+
+## 💡 **Pro Tips**
+
+- **Start minimal** and add features as you need them
+- **Check console logs** to see lazy loading in action
+- **Test on device** for realistic bundle size impact
+- **Use fallback components** to handle missing dependencies gracefully
+
+---
 
 **Made with ❤️ by the Kore.ai Team**
 

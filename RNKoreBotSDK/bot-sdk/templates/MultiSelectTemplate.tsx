@@ -195,8 +195,8 @@ export default class MultiSelectTemplate extends BaseView<
                     }
                   });
 
-                  if (this.props.payload.onListItemClick) {
-                    this.props.payload.onListItemClick(
+                  if (this.props.onListItemClick) {
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       {
                         message: msgsStr,

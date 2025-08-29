@@ -13,7 +13,9 @@ import Color from '../theme/Color';
 import {normalize} from '../utils/helpers';
 import FastImage from 'react-native-fast-image';
 import {image_size} from '../theme/styles';
+import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
+const width = windowWidth * 0.80;
 
 interface TableListProps extends BaseViewProps {}
 interface TableListState extends BaseViewState {}
@@ -37,7 +39,7 @@ export default class TableListTemplate extends BaseView<
     if (!data) {
       return <></>;
     }
-
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <View style={styles.main}>
         <View style={styles.sub}>
@@ -70,8 +72,8 @@ export default class TableListTemplate extends BaseView<
               onPress={() => {
                 //  console.log('item?.default_action ===>:', item?.default_action);
 
-                if (this.props.payload.onListItemClick) {
-                  this.props.payload.onListItemClick(
+                if (this.props.onListItemClick) {
+                  this.props.onListItemClick(
                     this.props.payload.template_type,
                     item?.default_action,
                   );
@@ -114,8 +116,8 @@ export default class TableListTemplate extends BaseView<
                       //   item?.title?.url?.link,
                       // );
 
-                      if (this.props.payload.onListItemClick) {
-                        this.props.payload.onListItemClick(
+                      if (this.props.onListItemClick) {
+                        this.props.onListItemClick(
                           this.props.payload.template_type,
                           {
                             ...item?.title?.url,
@@ -146,8 +148,8 @@ export default class TableListTemplate extends BaseView<
                 </View>
                 <ValueWrapper
                   onPress={() => {
-                    if (this.props.payload.onListItemClick) {
-                      this.props.payload.onListItemClick(
+                    if (this.props.onListItemClick) {
+                      this.props.onListItemClick(
                         this.props.payload.template_type,
                         {
                           ...item?.value,
@@ -168,7 +170,7 @@ export default class TableListTemplate extends BaseView<
                     style={[
                       styles.value_text,
                       {
-                        color: item?.value?.layout?.color || Color.black,
+                        color: item?.title?.rowColor || Color.black,
                         textDecorationLine:
                           ValueWrapper === TouchableOpacity
                             ? 'underline'
@@ -181,7 +183,7 @@ export default class TableListTemplate extends BaseView<
               </View>
 
               {index !== data?.rowItems?.length - 1 && (
-                <View style={styles.line}></View>
+                <View style={[styles.line, {backgroundColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR}]}></View>
               )}
             </MainWrapper>
           );
@@ -191,26 +193,19 @@ export default class TableListTemplate extends BaseView<
   }
 
   render() {
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     const title = this.props?.payload?.title;
     const description = this.props?.payload?.description;
 
     return (
       <View
         style={[
-          {width: (windowWidth / 4) * 3.2, backgroundColor: Color.white},
+          {width: width, backgroundColor: Color.white},
         ]}>
-        <View style={{marginBottom: 10}}>
-          {title && (
-            <Text style={[styles.title, {marginBottom: 5}]}>{title}</Text>
-          )}
-          {description && (
-            <Text style={styles.sectionHeaderDesc}>{description}</Text>
-          )}
-        </View>
         <View
           style={[
             styles.main_con,
-            {width: (windowWidth / 4) * 3.2, backgroundColor: Color.white},
+            {width: width, backgroundColor: Color.white, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR, borderWidth: 1.0},
           ]}>
           {this.renderElements(this.props?.payload?.elements)}
         </View>
@@ -233,7 +228,7 @@ const styles = StyleSheet.create({
   },
   value_text: {
     fontSize: normalize(12),
-    fontWeight: '700',
+    fontWeight: '600',
   },
   value_main: {
     marginLeft: normalize(5),
@@ -266,7 +261,7 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
     fontSize: normalize(14),
     color: Color.black,
-    opacity: 0.6,
+    opacity: 1.0,
   },
   sectionHeader: {
     fontWeight: '700',

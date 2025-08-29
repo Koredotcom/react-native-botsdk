@@ -203,8 +203,8 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
                       ]}>
                       <TouchableOpacity
                         onPress={() => {
-                          if (this.props.payload.onListItemClick) {
-                            this.props.payload.onListItemClick(
+                          if (this.props.onListItemClick) {
+                            this.props.onListItemClick(
                               this.props.payload.template_type,
                               btn,
                             );

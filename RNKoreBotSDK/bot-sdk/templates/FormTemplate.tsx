@@ -79,7 +79,7 @@ export default class FormTemplate extends BaseView<FormProps, FormState> {
                       title = this.state?.inputText;
                     }
 
-                    this.props.payload.onListItemClick(
+                    this.props.onListItemClick(
                       this.props.payload.template_type,
                       {
                         title: title,
@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
   },
   lable: {
     paddingHorizontal: 10,
-    marginTop: 10,
-    color: '#404051',
+    marginTop: 0,
+    color: Color.black,
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
     fontWeight: 'normal',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
@@ -140,9 +140,9 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   heading: {
-    color: '#404051',
+    color: Color.black,
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
-    fontWeight: '800',
+    fontWeight: '500',
     padding: 10,
     letterSpacing: 0.2,
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,

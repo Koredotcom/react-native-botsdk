@@ -23,8 +23,6 @@ export default class AudioTemplate extends BaseView<AudioProps, AudioState> {
 
   render() {
     const url = this.props.payload?.audioUrl;
-    console.log('this.props.payload --->:', this.props.payload);
-    console.log('this.props.payload?.audioUrl url--->:', url);
 
     const isDisable = this.isViewDisable();
     return (
@@ -42,11 +40,7 @@ export default class AudioTemplate extends BaseView<AudioProps, AudioState> {
         {url && (
           <View style={styles.container}>
             <AudioPlayer
-              url={url}
-              onMenuClick={() => {
-                console.log('=================>>> OnMenu clicked ');
-              }}
-              isStopPlayer={isDisable}
+              audioUrl={url}
             />
           </View>
         )}
@@ -57,9 +51,7 @@ export default class AudioTemplate extends BaseView<AudioProps, AudioState> {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#efeffc',
-    borderRadius: 5,
     flexDirection: 'row',
-    width: (windowWidth / 4) * 3.15,
+    width: windowWidth * 0.80 ,
   },
 });

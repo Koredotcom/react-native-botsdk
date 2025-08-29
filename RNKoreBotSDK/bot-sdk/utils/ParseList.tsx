@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {Alert, Linking, StyleSheet, Text, View} from 'react-native';
-import Communications from 'react-native-communications';
+import { FallbackCommunicationsAPI } from '../components/LazyCommunications';
 const WWW_URL_PATTERN = /^www\./i;
 
 const emojiMap = {
@@ -308,8 +308,21 @@ export function getParseList(): [] {
     }
   };
 
-  const onPhonePress = (phone: string) => {
-    Communications.phonecall(phone, true);
+  const onPhonePress = async (phone: string) => {
+    try {
+      // Try to dynamically load react-native-communications
+      const communications = await loadCommunications();
+      if (communications) {
+        communications.phonecall(phone, true);
+      } else {
+        // Fallback to basic Linking API
+        FallbackCommunicationsAPI.phonecall(phone, true);
+      }
+    } catch (error) {
+      console.warn('Failed to load communications, using fallback:', error);
+      // Fallback to basic Linking API
+      FallbackCommunicationsAPI.phonecall(phone, true);
+    }
   };
 
   const sendEmail = (email: string, subject?: string, body?: string) => {
@@ -334,6 +347,16 @@ export function getParseList(): [] {
         console.error('Error opening email client:', err);
         Alert.alert('Error', `An error occurred: ${err.message}`);
       });
+  };
+
+  const loadCommunications = async () => {
+    try {
+      const CommunicationsModule = await import('react-native-communications');
+      return CommunicationsModule.default || CommunicationsModule;
+    } catch (error) {
+      console.warn('react-native-communications not available:', error);
+      return null;
+    }
   };
 
   const onEmailPress = (email: string) => {

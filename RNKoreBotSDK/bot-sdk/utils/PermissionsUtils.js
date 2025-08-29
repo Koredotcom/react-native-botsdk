@@ -149,13 +149,15 @@ export function documentPickIOSPermission(callback = isSuccess => {}) {
 }
 
 // Fallback function for iOS when react-native-permissions fails
-function tryIOSNativePermission(callback) {
+async function tryIOSNativePermission(callback) {
   console.log('Trying iOS native permission fallback');
   
   // For iOS, we can try using react-native-image-picker's built-in permission handling
   // Since it handles permissions automatically
   try {
-    const ImagePicker = require('react-native-image-picker');
+    // Use dynamic import for lazy loading
+    const ImagePicker = await import('react-native-image-picker');
+    
     if (ImagePicker && ImagePicker.requestMediaLibraryPermission) {
       ImagePicker.requestMediaLibraryPermission()
         .then(granted => {
@@ -249,11 +251,13 @@ export function cameraPermission(callback = isSuccess => {}) {
     });
 }
 
-function tryNativeCameraPermission(callback) {
+async function tryNativeCameraPermission(callback) {
   console.log('Trying native camera permission fallback');
   
   try {
-    const ImagePicker = require('react-native-image-picker');
+    // Use dynamic import for lazy loading
+    const ImagePicker = await import('react-native-image-picker');
+    
     if (ImagePicker && ImagePicker.requestCameraPermission) {
       ImagePicker.requestCameraPermission()
         .then(granted => {

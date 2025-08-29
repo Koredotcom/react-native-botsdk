@@ -101,8 +101,8 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
               <View style={styles.line} />
               <TouchableOpacity
                 onPress={() => {
-                  if (this.props.payload?.onListItemClick) {
-                    this.props.payload?.onListItemClick(
+                  if (this.props.onListItemClick) {
+                    this.props.onListItemClick(
                       this.props.payload?.template_type,
                       this.props.payload,
                       true,

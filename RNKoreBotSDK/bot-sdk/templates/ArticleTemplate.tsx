@@ -16,13 +16,13 @@ import { getBubbleTheme } from '../theme/themeHelper';
 import Base64Image from '../utils/Base64Image';
 import { LocalizationManager } from '../constants/Localization';
 
-interface ListProps extends BaseViewProps {}
-interface ListState extends BaseViewState {}
+interface ArticleProps extends BaseViewProps {}
+interface ArticleState extends BaseViewState {}
 const windowWidth = Dimensions.get('window').width;
 
-const width = windowWidth * 0.8 ;
+let width = windowWidth * 0.8 ;
 
-export default class ArticleTemplate extends BaseView<ListProps, ListState> {
+export default class ArticleTemplate extends BaseView<ArticleProps, ArticleState> {
     constructor(props: any) {
         super(props);
     }
@@ -32,6 +32,11 @@ export default class ArticleTemplate extends BaseView<ListProps, ListState> {
     };
 
     render() {
+        if (this.props.onBottomSheetClose){
+            width = windowWidth * 0.9;
+        } else {
+            width = windowWidth * 0.8;
+        }
         return this.props.payload ? (
         <View style={styles.main_container}>
             {this.renderElementsView(this.props.payload?.elements, this.props.payload?.displayLimit)}
@@ -44,17 +49,25 @@ export default class ArticleTemplate extends BaseView<ListProps, ListState> {
             return <></>;
         }
         const bubbleTheme = getBubbleTheme(this.props?.theme);
+        let limit = (!this.props.onBottomSheetClose && displayLimit > 0) ? displayLimit : list.length;
+        
         return (
             <View
                 style={[{width: width}]}>
-                {list?.slice(0, displayLimit > 0 ? displayLimit : list.size).map((item: any, index: any) => {
-                    return this.getSingleElementView(item, index, list.length);
+                {list?.slice(0, limit).map((item: any, index: any) => {
+                    return this.getSingleElementView(item, index, limit);
                 })}
-                { list.length > displayLimit ? (
+                { list.length > limit ? (
                     <TouchableOpacity 
                         style={{alignSelf:'flex-end'}}
                         onPress={() =>{
-                            console.log('Onpress', 'Not implemented yet... ');
+                            if (this.props.onListItemClick) {
+                                this.props.onListItemClick(
+                                    this.props.payload.template_type,
+                                    this.props.payload,
+                                    true,
+                                );
+                            }
                         }}>
                         <Text style={{fontSize: normalize(14), marginVertical: normalize(2), color: bubbleTheme.BUBBLE_RIGHT_BG_COLOR}}>{this.getLocalizedString('view_more')}</Text>
                     </TouchableOpacity>
@@ -88,7 +101,7 @@ export default class ArticleTemplate extends BaseView<ListProps, ListState> {
                         
                         <Text numberOfLines={1} style={{marginStart: 5, flexShrink: 1, fontWeight: 'bold', fontSize: normalize(14), }}>{item.title}</Text>
                     </View>
-                    <Text numberOfLines={3} style={{flexShrink: 1, fontSize: normalize(12), marginBottom: normalize(5)}}>{item.description}</Text>
+                    <Text numberOfLines={!this.props.onBottomSheetClose ? 3 : undefined} style={{flexShrink: 1, fontSize: normalize(12), marginBottom: normalize(5)}}>{item.description}</Text>
 
                     <View style={{flexDirection: 'row'}}>
                         <Text style={{flexShrink: 1, fontSize: normalize(12), marginBottom: normalize(5)}}>{item.createdOn+'\n'+item.updatedOn}</Text>
@@ -97,7 +110,6 @@ export default class ArticleTemplate extends BaseView<ListProps, ListState> {
                                     <TouchableOpacity 
                                         style={{ alignSelf:'center', flexDirection: 'row', paddingVertical: normalize(5)}}
                                         onPress={() => {
-                                            console.log('pressed.....', 'yes');
                                             Linking.openURL(item.button.url);
                                         }}
                                     >
@@ -120,7 +132,6 @@ const styles = StyleSheet.create({
     },
 
     item_container: {
-        width: width, 
         flexDirection: 'column',
         position: 'relative',
         borderWidth: 1,
