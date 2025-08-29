@@ -10,7 +10,6 @@ import {
   ScrollView,
 } from 'react-native';
 
-import uuid from '../../utils/uuid';
 import {BotConfigModel} from 'rn-kore-bot-socket-lib-v77';
 import {ROUTE_NAMES} from '../../navigation/RouteNames';
 import Color from '../../utils/Color';
@@ -77,7 +76,7 @@ class WelcomeScreen extends Component<any, State> {
       clientId: clientId,
       clientSecret: clientSecret,
       botUrl: botUrl,
-      identity: uuid.v4() + '',
+      identity: 'Please enter identity',
       isWebHook: false,
       value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
       jwtServerUrl: jwtServerUrl,

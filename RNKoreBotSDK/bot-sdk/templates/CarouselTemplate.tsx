@@ -12,10 +12,9 @@ import FastImage from 'react-native-fast-image';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
 
-import Carousel from 'react-native-reanimated-carousel';
+// Removed direct import - using lazy loading instead
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
-import {getButtonTheme} from '../theme/themeHelper';
 import {isAndroid, isIOS} from '../utils/PlatformCheck';
 import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
@@ -23,6 +22,8 @@ const windowWidth = Dimensions.get('window').width;
 interface CarouselProps extends BaseViewProps {}
 interface CarouselState extends BaseViewState {
   elements?: any;
+  CarouselComponent?: any;
+  isCarouselLoading?: boolean;
 }
 export default class CarouselTemplate extends BaseView<
   CarouselProps,
@@ -34,8 +35,38 @@ export default class CarouselTemplate extends BaseView<
     super(props);
     this.state = {
       elements: null,
+      CarouselComponent: null,
+      isCarouselLoading: false,
     };
   }
+
+  // Lazy loading method for carousel
+  private loadCarouselComponent = async () => {
+    if (this.state.CarouselComponent || this.state.isCarouselLoading) {
+      return this.state.CarouselComponent;
+    }
+
+    this.setState({ isCarouselLoading: true });
+
+    try {
+      const CarouselModule = await import('react-native-reanimated-carousel');
+      const CarouselComponent = CarouselModule.default || CarouselModule;
+      
+      this.setState({ 
+        CarouselComponent,
+        isCarouselLoading: false 
+      });
+      
+      return CarouselComponent;
+    } catch (error) {
+      console.warn('Failed to load Carousel component:', error);
+      this.setState({ 
+        CarouselComponent: null,
+        isCarouselLoading: false 
+      });
+      return null;
+    }
+  };
 
   componentDidMount() {
     const payload = this.props.payload;
@@ -48,6 +79,9 @@ export default class CarouselTemplate extends BaseView<
     this.setState({
       elements: payload.elements,
     });
+
+    // Load carousel component lazily
+    this.loadCarouselComponent();
   }
 
   private getSingleCarouselView = (
@@ -242,6 +276,17 @@ export default class CarouselTemplate extends BaseView<
       return <></>;
     }
 
+    const { CarouselComponent, isCarouselLoading } = this.state;
+
+    // Show loading indicator while carousel is loading
+    if (isCarouselLoading || !CarouselComponent) {
+      return (
+        <View style={{ padding: 20, alignItems: 'center' }}>
+          <Text style={{ color: Color.text_color }}>Loading carousel...</Text>
+        </View>
+      );
+    }
+
     const isStacked = this.props.payload?.carousel_type === 'stacked' || false;
 
     const width = this.getTemplateWidth();
@@ -249,7 +294,7 @@ export default class CarouselTemplate extends BaseView<
       const height1 = normalize(150) + normalize(42) * this.max_btn_count;
       return (
         <View style={{marginTop: 20}}>
-          <Carousel
+          <CarouselComponent
             loop={false}
             width={windowWidth * 0.85} // Reduce width to allow adjacent items to show
             height={height1}
@@ -274,7 +319,7 @@ export default class CarouselTemplate extends BaseView<
     }
     const height = normalize(320) + normalize(42) * this.max_btn_count;
     return (
-      <Carousel
+      <CarouselComponent
         loop={false}
         width={width * 0.85}
         height={height}
@@ -283,7 +328,7 @@ export default class CarouselTemplate extends BaseView<
         mode="undefined"
         style={{ alignSelf: 'flex-start', overflow: 'visible', justifyContent: 'flex-start' }}
         //scrollAnimationDuration={5000}
-        onSnapToItem={index => console.log('parallax current index:', index)}
+        onSnapToItem={(index: number) => console.log('parallax current index:', index)}
         renderItem={({item, index}: any) => (
           <View style={[{width: width*0.80}, styles.shadowContainer]}>
             {this.getSingleCarouselView(item, index)}

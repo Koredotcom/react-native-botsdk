@@ -28,23 +28,22 @@ This directory contains a complete implementation of lazy/dynamic loading for he
 ```typescript
 import { 
   LazyVideo,
-  LazyImagePicker,
-  LazyCarousel,
   LazyTTS,
-  LazyDocumentPicker,
   LazyDateTimePicker, 
   LazyPicker, 
   LazyVoice,
   // Fallbacks
   FallbackVideo,
-  FallbackImagePicker,
-  FallbackCarousel,
   FallbackTTS,
-  FallbackDocumentPicker,
   FallbackDateTimePicker,
   FallbackPicker,
   FallbackVoice
 } from './lazy-loading';
+
+// For Image Picker, Document Picker, and Carousel, use direct dynamic imports:
+// const { launchCamera } = await import('react-native-image-picker');
+// const DocumentPicker = await import('react-native-document-picker');
+// const Carousel = await import('react-native-reanimated-carousel');
 
 // Video Player
 <LazyVideo
@@ -53,24 +52,24 @@ import {
   fallbackComponent={FallbackVideo}
 />
 
-// Image Picker (Hook)
-const { launchCamera, launchImageLibrary } = useLazyImagePicker();
+// Image Picker (Direct Dynamic Import)
+const { launchCamera } = await import('react-native-image-picker');
 await launchCamera({ mediaType: 'photo' }, handleImageResponse);
 
-// Carousel
-<LazyCarousel
+// Carousel (Direct Dynamic Import)
+const CarouselComponent = await import('react-native-reanimated-carousel');
+<CarouselComponent
   data={carouselData}
   renderItem={renderCarouselItem}
-  fallbackComponent={FallbackCarousel}
 />
 
 // Text-to-Speech (Hook)
 const { speak, stop } = useLazyTTS();
 await speak("Hello world!");
 
-// Document Picker (Hook)
-const { pick } = useLazyDocumentPicker();
-const docs = await pick({ type: ['pdf', 'doc'] });
+// Document Picker (Direct Dynamic Import)
+const DocumentPicker = await import('react-native-document-picker');
+const docs = await DocumentPicker.pick({ type: ['pdf', 'doc'] });
 ```
 
 ## Files Overview
@@ -144,12 +143,12 @@ import { CustomDateTimePickerModal } from './lazy-loading';
 |-----------|-------------|---------------------|
 | **High Impact** | | |
 | Video Player | ~60KB | ✅ 60KB saved |
-| Image Picker | ~50KB | ✅ 50KB saved |
-| Carousel | ~55KB | ✅ 55KB saved |
+| Image Picker | ~50KB | ✅ 50KB saved (direct imports) |
+| Carousel | ~55KB | ✅ 55KB saved (direct imports) |
 | TTS | ~45KB | ✅ 45KB saved |
 | SVG | ~40KB | ✅ 40KB saved |
 | **Medium Impact** | | |
-| Document Picker | ~35KB | ✅ 35KB saved |
+| Document Picker | ~35KB | ✅ 35KB saved (direct imports) |
 | Fast Image | ~35KB | ✅ 35KB saved |
 | DateTimePicker | ~30KB | ✅ 30KB saved |
 | Picker | ~25KB | ✅ 25KB saved |

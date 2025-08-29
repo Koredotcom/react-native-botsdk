@@ -10,21 +10,23 @@ Lazy loading allows you to dynamically import heavy components only when they're
 
 ### **High Impact Components (50KB+ each)**
 - **react-native-video** (~60KB) - Video player component
-- **react-native-image-picker** (~50KB) - Image selection from camera/gallery
-- **react-native-reanimated-carousel** (~55KB) - Advanced carousel component
+- ~~**react-native-image-picker** (~50KB) - Now uses direct dynamic imports in components~~
+- ~~**react-native-reanimated-carousel** (~55KB) - Now uses direct dynamic imports in components~~
 - **react-native-tts** (~45KB) - Text-to-speech functionality
+- **react-native-sound** (~40KB) - Audio playback functionality
+- **react-native-parsed-text** (~15KB) - Text parsing for links, emails, and custom patterns
 
 ### **Medium Impact Components (20-50KB each)**
-- **react-native-document-picker** (~35KB) - Document selection
+- ~~**react-native-document-picker** (~35KB) - Now uses direct dynamic imports in components~~
 - **@react-native-community/datetimepicker** (~30KB) - Date and time picker
 - **@react-native-picker/picker** (~25KB) - Native picker component
 - **@react-native-voice/voice** (~40KB) - Speech recognition
 
-**Total Bundle Size Reduction: ~340KB**
+**Total Bundle Size Reduction: ~380KB** (Image Picker and Document Picker now use direct dynamic imports)
 
 ## Benefits
 
-- **Massive Bundle Size Reduction**: ~340KB saved on initial app load
+- **Massive Bundle Size Reduction**: ~380KB saved on initial app load
 - **Improved Performance**: Significantly faster app startup times
 - **Better User Experience**: Progressive loading with meaningful fallbacks
 - **Error Resilience**: Graceful handling when components fail to load
@@ -53,15 +55,21 @@ All lazy components follow the same pattern with class-based and hook-based APIs
 
 ```typescript
 import { 
-  LazyVideo, LazyImagePicker, LazyCarousel, LazyTTS, LazyDocumentPicker,
+  LazyVideo, LazyTTS, LazySound, LazyParsedText,
   LazyDateTimePicker, LazyPicker, LazyVoice,
   // Hooks
-  useLazyVideo, useLazyImagePicker, useLazyCarousel, useLazyTTS,
-  useLazyDocumentPicker, useLazyDateTimePicker, useLazyPicker, useLazyVoice,
+  useLazyVideo, useLazyTTS, useLazySound, useLazyParsedText,
+  useLazyDateTimePicker, useLazyPicker, useLazyVoice,
   // Fallbacks
-  FallbackVideo, FallbackImagePicker, FallbackCarousel, FallbackTTS,
-  FallbackDocumentPicker, FallbackDateTimePicker, FallbackPicker, FallbackVoice
+  FallbackVideo, FallbackTTS, FallbackSound, FallbackParsedText,
+  FallbackDateTimePicker, FallbackPicker, FallbackVoice
 } from './lazy-loading';
+
+// For Image Picker, Document Picker, and Carousel, use direct dynamic imports:
+// Example in a component:
+// const { launchCamera } = await import('react-native-image-picker');
+// const DocumentPicker = await import('react-native-document-picker');
+// const Carousel = await import('react-native-reanimated-carousel');
 ```
 
 ### 3. Component Usage Examples
@@ -76,26 +84,29 @@ import {
 />
 ```
 
-#### **Image Picker (Hook)**
+#### **Image Picker (Direct Dynamic Import)**
 ```typescript
-const { launchCamera, launchImageLibrary, isLoading } = useLazyImagePicker();
-
 const handleImagePicker = async () => {
-  const result = await launchCamera({ mediaType: 'photo' });
-  if (result.assets) {
-    // Handle selected images
+  try {
+    const { launchCamera } = await import('react-native-image-picker');
+    const result = await launchCamera({ mediaType: 'photo' });
+    if (result.assets) {
+      // Handle selected images
+    }
+  } catch (error) {
+    console.warn('Image picker not available:', error);
   }
 };
 ```
 
-#### **Carousel**
+#### **Carousel (Direct Dynamic Import)**
 ```typescript
-<LazyCarousel
+const CarouselComponent = await import('react-native-reanimated-carousel');
+<CarouselComponent
   data={carouselData}
   renderItem={({ item }) => <YourItemComponent item={item} />}
   width={screenWidth}
   height={200}
-  fallbackComponent={FallbackCarousel}
 />
 ```
 
@@ -110,13 +121,85 @@ const handleSpeak = async () => {
 };
 ```
 
-#### **Document Picker (Hook)**
+#### **Sound Player (Hook)**
 ```typescript
-const { pick, isLoading } = useLazyDocumentPicker();
+const { createSound, setCategory, isLoading, loadError } = useLazySound();
 
+const handlePlaySound = async () => {
+  try {
+    // Create a sound instance
+    const sound = await createSound('audio.mp3', '', (error) => {
+      if (error) {
+        console.log('Failed to load sound', error);
+      }
+    });
+
+    if (sound) {
+      // Play the sound
+      sound.play((success) => {
+        if (success) {
+          console.log('Successfully played sound');
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Sound not available:', error);
+  }
+};
+
+// Set audio category for iOS
+React.useEffect(() => {
+  setCategory('Playback', true);
+}, []);
+```
+
+#### **Sound Player (Component)**
+```typescript
+<LazySound
+  autoLoad={true}
+  onModuleLoaded={(soundModule) => {
+    if (soundModule) {
+      console.log('Sound module loaded successfully');
+      // Set up audio session
+      soundModule.setCategory('Playback', true);
+    }
+  }}
+  fallbackComponent={() => (
+    <Text>Audio playback not available</Text>
+  )}
+/>
+```
+
+#### **ParsedText (Lazy Loading)**
+```typescript
+import { LazyParsedText, useLazyParsedText } from './lazy-loading';
+
+// Direct usage - seamlessly replaces ParsedText
+<LazyParsedText
+  style={styles.text}
+  parse={[
+    { type: 'url', style: styles.url },
+    { type: 'phone', style: styles.phone },
+    { type: 'email', style: styles.email }
+  ]}
+  onPress={(url, matchIndex) => Linking.openURL(url)}
+>
+  Visit https://example.com or call 555-123-4567
+</LazyParsedText>
+
+// Hook usage
+const { ParsedTextComponent, loadParsedText, loadError } = useLazyParsedText();
+```
+
+#### **Document Picker (Direct Dynamic Import)**
+```typescript
 const handleDocumentPicker = async () => {
   try {
-    const docs = await pick({ type: ['pdf', 'doc', 'docx'] });
+    const DocumentPicker = await import('react-native-document-picker');
+    const docs = await DocumentPicker.pick({ 
+      allowMultiSelection: true,
+      type: ['pdf', 'doc', 'docx'] 
+    });
     // Handle selected documents
   } catch (error) {
     console.log('Document picker error:', error);
@@ -333,11 +416,71 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 | Image Picker | 50KB | On-demand | 50KB |
 | Carousel | 55KB | On-demand | 55KB |
 | TTS | 45KB | On-demand | 45KB |
+| Sound Player | 40KB | On-demand | 40KB |
 | Document Picker | 35KB | On-demand | 35KB |
 | DateTimePicker | 30KB | On-demand | 30KB |
 | Picker | 25KB | On-demand | 25KB |
 | Voice Recognition | 40KB | On-demand | 40KB |
-| **Total** | **340KB** | **0KB initial** | **340KB** |
+| **Total** | **380KB** | **0KB initial** | **380KB** |
+
+### Communications (Phone, SMS, Email)
+
+The `react-native-communications` package is lazy-loaded to prevent crashes when not installed:
+
+```typescript
+import { useLazyCommunications, FallbackCommunicationsAPI } from 'rn-kore-bot-sdk-v77-test';
+
+const ContactComponent = () => {
+  const { phonecall, email, text, isLoading, loadError } = useLazyCommunications();
+  
+  const handleCall = async () => {
+    try {
+      await phonecall('+1234567890', true); // true shows confirmation prompt
+    } catch (error) {
+      // Automatically falls back to Linking API
+      console.log('Using fallback phone functionality');
+    }
+  };
+  
+  const handleEmail = async () => {
+    try {
+      await email(['test@example.com'], null, null, 'Subject', 'Message body');
+    } catch (error) {
+      // Automatically falls back to Linking API
+      console.log('Using fallback email functionality');
+    }
+  };
+  
+  const handleText = async () => {
+    try {
+      await text('+1234567890', 'Hello from app!');
+    } catch (error) {
+      // Automatically falls back to Linking API
+      console.log('Using fallback SMS functionality');
+    }
+  };
+  
+  return (
+    <View>
+      <Button title="Call" onPress={handleCall} />
+      <Button title="Email" onPress={handleEmail} />
+      <Button title="Text" onPress={handleText} />
+    </View>
+  );
+};
+
+// Or use the fallback API directly (always available)
+FallbackCommunicationsAPI.phonecall('+1234567890', true);
+FallbackCommunicationsAPI.email(['test@example.com'], null, null, 'Subject', 'Body');
+FallbackCommunicationsAPI.text('+1234567890', 'Hello');
+FallbackCommunicationsAPI.web('https://example.com');
+```
+
+**Benefits:**
+- No crashes when `react-native-communications` is not installed
+- Automatic fallback to React Native's Linking API
+- Graceful degradation for apps that don't need all communication features
+- Smaller bundle size when communications features aren't used
 
 ### Preloading Strategy
 
@@ -351,6 +494,7 @@ useEffect(() => {
     // Preload most commonly used components
     LazyLoader.importModule(() => import('react-native-image-picker'), 'imagepicker');
     LazyLoader.importModule(() => import('@react-native-community/datetimepicker'), 'datetimepicker');
+    LazyLoader.importModule(() => import('react-native-communications'), 'communications');
     
     // Preload others based on user behavior
     if (userLikesVideos) {
@@ -398,12 +542,12 @@ import Tts from 'react-native-tts';
 ```typescript
 import { 
   LazyVideo, useLazyImagePicker, LazyDateTimePicker, LazyPicker,
-  useLazyVoice, useLazyDocumentPicker, LazyCarousel, useLazyTTS,
+  useLazyVoice, useLazyDocumentPicker, LazyCarousel, useLazyTTS, useLazySound,
   // Fallbacks for graceful degradation
-  FallbackVideo, FallbackImagePicker, FallbackDateTimePicker
+  FallbackVideo, FallbackImagePicker, FallbackDateTimePicker, FallbackSound
 } from './lazy-loading';
 
-// Components loaded only when needed, reducing initial bundle size by ~340KB
+// Components loaded only when needed, reducing initial bundle size by ~380KB
 ```
 
 ### Migration Examples
@@ -454,6 +598,32 @@ import { LazyPicker, FallbackPicker } from './lazy-loading';
 </LazyPicker>
 ```
 
+#### **Sound Migration**
+```typescript
+// Before
+import Sound from 'react-native-sound';
+const sound = new Sound('audio.mp3', '', (error) => {
+  if (error) return;
+  sound.play();
+});
+
+// After
+import { useLazySound, FallbackSoundAPI } from './lazy-loading';
+const { createSound, isLoading, loadError } = useLazySound();
+
+const playAudio = async () => {
+  try {
+    const sound = await createSound('audio.mp3', '', (error) => {
+      if (error) return;
+      sound.play();
+    });
+  } catch (error) {
+    // Fallback handled automatically
+    console.warn('Audio playback not available');
+  }
+};
+```
+
 ### Testing
 
 When testing components that use lazy loading:
@@ -475,6 +645,8 @@ jest.mock('./lazy-loading', () => ({
     <div data-testid="voice" {...props}>{children}</div>,
   LazyTTS: ({ children, ...props }) => 
     <div data-testid="tts" {...props}>{children}</div>,
+  LazySound: ({ children, ...props }) => 
+    <div data-testid="sound-player" {...props}>{children}</div>,
   LazyDocumentPicker: ({ children, ...props }) => 
     <div data-testid="document-picker" {...props}>{children}</div>,
   
@@ -483,6 +655,7 @@ jest.mock('./lazy-loading', () => ({
   useLazyImagePicker: () => ({ launchCamera: jest.fn(), launchImageLibrary: jest.fn(), isLoading: false }),
   useLazyVoice: () => ({ startRecognizing: jest.fn(), stopRecognizing: jest.fn(), isAvailable: true }),
   useLazyTTS: () => ({ speak: jest.fn(), stop: jest.fn(), isAvailable: true }),
+  useLazySound: () => ({ createSound: jest.fn(), setCategory: jest.fn(), isLoading: false, loadError: null }),
   useLazyDocumentPicker: () => ({ pick: jest.fn(), isLoading: false }),
   useLazyDateTimePicker: () => ({ DateTimePickerComponent: MockDateTimePicker, isLoading: false }),
   useLazyPicker: () => ({ PickerComponent: MockPicker, PickerItem: MockPickerItem, isLoading: false }),

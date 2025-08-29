@@ -16,7 +16,7 @@ import Color from '../theme/Color';
 import {SvgIcon} from '../utils/SvgIcon';
 import {getButtonTheme} from '../theme/themeHelper';
 import {ButtonTheme} from '../constants/Constant';
-import Popover from 'react-native-popover-view';
+import LazyPopover from '../components/LazyPopover';
 import ListWidgetButtonsView from '../components/ListWidgetButtonsView';
 const windowWidth = Dimensions.get('window').width;
 
@@ -90,7 +90,7 @@ export default class ListWidgetTemplate extends BaseView<
           };
         }
         return (
-          <Popover
+          <LazyPopover
             key={index + ' ' + index}
             ref={ref => (this.popoverRef = ref)}
             //isVisible={false}
@@ -124,7 +124,7 @@ export default class ListWidgetTemplate extends BaseView<
                 onListItemClick={this.props.onListItemClick}
               />
             </View>
-          </Popover>
+          </LazyPopover>
         );
 
       case ValueTypes.TEXT:

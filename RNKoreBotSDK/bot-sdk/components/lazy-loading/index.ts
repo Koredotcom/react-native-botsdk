@@ -38,19 +38,7 @@ export {
   FallbackVideo
 } from '../LazyVideo';
 
-// Lazy ImagePicker components
-export { 
-  LazyImagePicker,
-  useLazyImagePicker,
-  FallbackImagePicker
-} from '../LazyImagePicker';
-
-// Lazy Carousel components
-export { 
-  LazyCarousel,
-  useLazyCarousel,
-  FallbackCarousel
-} from '../LazyCarousel';
+// LazyCarousel removed - use direct dynamic imports in components
 
 // Lazy TTS components
 export { 
@@ -58,13 +46,6 @@ export {
   useLazyTTS,
   FallbackTTS
 } from '../LazyTTS';
-
-// Lazy DocumentPicker components
-export { 
-  LazyDocumentPicker,
-  useLazyDocumentPicker,
-  FallbackDocumentPicker
-} from '../LazyDocumentPicker';
 
 // Lazy SVG components
 export { 
@@ -81,13 +62,6 @@ export {
   FallbackSvgText
 } from '../LazySvg';
 
-// Lazy FastImage components
-export { 
-  LazyFastImage,
-  useLazyFastImage,
-  FallbackFastImage
-} from '../LazyFastImage';
-
 // Lazy Popover components
 export { 
   LazyPopover,
@@ -103,12 +77,27 @@ export {
   FallbackCommunicationsAPI
 } from '../LazyCommunications';
 
+// Lazy Sound components
+export { 
+  LazySound,
+  useLazySound,
+  FallbackSound,
+  FallbackSoundAPI
+} from '../LazySound';
+
 // Lazy Orientation components
 export { 
   LazyOrientation,
   useLazyOrientation,
   FallbackOrientation
 } from '../LazyOrientation';
+
+// Lazy ParsedText components
+export { 
+  LazyParsedText,
+  useLazyParsedText,
+  FallbackParsedText
+} from '../LazyParsedText';
 
 // Enhanced modal with lazy loading
 export { default as CustomDateTimePickerModal } from '../CustomDateTimePickerModal';
@@ -136,17 +125,9 @@ export type {
   VideoProps,
 } from '../LazyVideo';
 
-export type {
-  LazyImagePickerProps,
-  ImagePickerOptions,
-  ImagePickerResponse,
-  ImagePickerModule,
-} from '../LazyImagePicker';
+// LazyImagePicker types removed
 
-export type {
-  LazyCarouselProps,
-  CarouselProps,
-} from '../LazyCarousel';
+// LazyCarousel types removed
 
 export type {
   LazyTTSProps,
@@ -156,12 +137,7 @@ export type {
   Engine,
 } from '../LazyTTS';
 
-export type {
-  LazyDocumentPickerProps,
-  DocumentPickerOptions,
-  DocumentPickerResponse,
-  DocumentPickerModule,
-} from '../LazyDocumentPicker';
+// LazyDocumentPicker types removed
 
 export type {
   LazySvgProps,
@@ -193,3 +169,9 @@ export type {
   LazyOrientationProps,
   OrientationModule,
 } from '../LazyOrientation';
+
+export type {
+  LazyParsedTextProps,
+  ParsedTextProps,
+  ParsedTextModule,
+} from '../LazyParsedText';

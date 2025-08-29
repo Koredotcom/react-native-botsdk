@@ -29,3 +29,4 @@ Podfile.lock
 # Carthage
 Carthage/Build
 RNKoreBotSDK/package.json
+RNKoreBotSDK/LAZY_LOADING_GUIDE.md

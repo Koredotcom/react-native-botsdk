@@ -1,8 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-shadow */
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import Popover from 'react-native-popover-view';
+import {StyleSheet, Text, TouchableOpacity, View, Modal} from 'react-native';
 import RenderImage from '../utils/RenderImage';
 import {normalize} from '../utils/helpers';
 import {IThemeType} from '../theme/IThemeType';
@@ -76,48 +75,58 @@ export default class ListWidgetButtonsView extends React.Component<
   private renderMoreButton = (buttons: any, index: number) => {
     const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
-      <Popover
-        key={index + ' ' + index}
-        onRequestClose={() => {
-          this.setState({
-            showBtnPopover: false,
-          });
-        }}
-        isVisible={this.state.showBtnPopover}
-        from={
-          <TouchableOpacity
-            style={[styles.popover_main]}
+      <>
+        <TouchableOpacity
+          style={[styles.popover_main]}
+          onPress={() => {
+            this.setState({
+              showBtnPopover: true,
+            });
+          }}>
+          <Text
+            style={[
+              styles.more_text,
+              {
+                color: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,
+                fontFamily: this.props.theme?.v3?.body?.font?.family || 'Inter',
+              },
+            ]}>
+            {'...More'}
+          </Text>
+        </TouchableOpacity>
+        
+        <Modal
+          visible={this.state.showBtnPopover}
+          transparent
+          onRequestClose={() => {
+            this.setState({
+              showBtnPopover: false,
+            });
+          }}>
+          <TouchableOpacity 
+            style={styles.modalBackdrop}
             onPress={() => {
               this.setState({
-                showBtnPopover: true,
+                showBtnPopover: false,
               });
-            }}>
-            <Text
-              style={[
-                styles.more_text,
-                {
-                  color: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,
-                  fontFamily: this.props.theme?.v3?.body?.font?.family || 'Inter',
-                },
-              ]}>
-              {'...More'}
-            </Text>
+            }}
+            activeOpacity={1}>
+            <View style={styles.modalContent}>
+              {buttons.map((btn: any, index: number) => {
+                return (
+                  <View style={{}} key={index + '_' + index}>
+                    {this.renderButtonView(btn, () => {
+                      this.setState({
+                        showBtnPopover: false,
+                      });
+                    })}
+                  </View>
+                );
+              })}
+            </View>
           </TouchableOpacity>
-        }>
-        <View style={styles.btn_main}>
-          {buttons.map((btn: any, index: number) => {
-            return (
-              <View style={{}} key={index + '_' + index}>
-                {this.renderButtonView(btn, () => {
-                  this.setState({
-                    showBtnPopover: false,
-                  });
-                })}
-              </View>
-            );
-          })}
-        </View>
-      </Popover>
+        </Modal>
+      </>
     );
   };
 
@@ -242,5 +251,18 @@ const styles = StyleSheet.create({
     //alignSelf: 'center',
     height: normalize(55),
     width: normalize(55),
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 8,
+    padding: 10,
+    maxHeight: '70%',
   },
 });

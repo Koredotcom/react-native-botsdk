@@ -75,13 +75,10 @@ import {
   documentPickIOSPermission,
   documentPickPermission,
 } from '../utils/PermissionsUtils';
-import DocumentPicker, {types} from 'react-native-document-picker';
-// import Toast from 'react-native-simple-toast';
 import FileUploadQueue from '../FileUploader/FileUploadQueue';
 
 import * as Progress from 'react-native-progress';
 
-import {launchCamera} from 'react-native-image-picker';
 import {SvgIcon} from '../utils/SvgIcon';
 import FileIcon from '../utils/FileIcon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -92,15 +89,7 @@ import CustomTemplate, {
   CustomViewState,
 } from '../templates/CustomTemplate';
 import Welcome from '../components/WelcomeScreen';
-
-// Conditional import for TTS
-let Tts: any = null;
-try {
-  Tts = require('react-native-tts').default;
-} catch (error) {
-  console.warn('react-native-tts not available, text-to-speech features will be disabled');
-}
-
+import { LazyTTS, TTSModule, TTSOptions } from '../components/LazyTTS';
 import CustomAlertComponent from '../components/CustomAlertComponent';
 import TemplateBottomSheet from './components/TemplateBottomSheet';
 import ArticleTemplate from '../templates/ArticleTemplate';
@@ -186,7 +175,8 @@ interface KoraChatState {
   isReconnecting?: boolean;
   showBackButtonDialog?: boolean;
   showTemplateBottomSheet: boolean;
-  messageBottomSheet?: any
+  messageBottomSheet?: any;
+  ttsModule?: TTSModule | null;
 }
 
 export default class KoreChat extends React.Component<
@@ -196,6 +186,7 @@ export default class KoreChat extends React.Component<
   _messageContainerRef: RefObject<any> = React.createRef();
   textInput: any = null;
   alertRef = React.createRef<CustomAlertComponent>();
+  ttsRef = React.createRef<LazyTTS>();
 
   _isFirstLayout = true;
   _locale = 'en';
@@ -315,9 +306,102 @@ export default class KoreChat extends React.Component<
       isReconnecting: false,
       showBackButtonDialog: false,
       showTemplateBottomSheet: false,
-      messageBottomSheet: null
+      messageBottomSheet: null,
+      ttsModule: null
     };
   }
+
+  // Handle TTS module loading
+  private onTTSModuleLoaded = (ttsModule: TTSModule | null) => {
+    this.setState({ ttsModule });
+  };
+
+  // Lazy loading method for image picker
+  private lazyLaunchCamera = async (options: any, callback: (response: any) => void) => {
+    try {
+      // Use dynamic import for true lazy loading
+      const { launchCamera } = await import('react-native-image-picker');
+      launchCamera(options, callback);
+    } catch (error) {
+      console.warn('Failed to load ImagePicker:', error);
+      const errorResponse = {
+        errorMessage: 'Image picker not available',
+        errorCode: 'module_not_available',
+        didCancel: false
+      };
+      callback(errorResponse);
+    }
+  };
+
+  // Lazy loading method for document picker
+  private lazyDocumentPicker = async () => {
+    try {
+      // Use dynamic import for true lazy loading
+      const DocumentPickerModule = await import('react-native-document-picker');
+      return DocumentPickerModule.default || DocumentPickerModule;
+    } catch (error) {
+      console.warn('Failed to load DocumentPicker:', error);
+      return null;
+    }
+  };
+
+  // Lazy loading method for document picker types
+  private getDocumentPickerTypes = async () => {
+    try {
+      const DocumentPickerModule = await import('react-native-document-picker');
+      const DocumentPicker = DocumentPickerModule.default || DocumentPickerModule;
+      return DocumentPicker?.types || {};
+    } catch (error) {
+      console.warn('Failed to load DocumentPicker types:', error);
+      // Return fallback types
+      return {
+        images: 'public.image',
+        doc: 'com.microsoft.word.doc',
+        docx: 'org.openxmlformats.wordprocessingml.document',
+        plainText: 'public.plain-text',
+        pdf: 'com.adobe.pdf',
+        xls: 'com.microsoft.excel.xls',
+        xlsx: 'org.openxmlformats.spreadsheetml.sheet',
+        audio: 'public.audio',
+        video: 'public.movie',
+      };
+    }
+  };
+
+  // Handle document type selection with lazy loading
+  private handleDocumentTypeSelection = async (typeCategory: string) => {
+    try {
+      const types = await this.getDocumentPickerTypes();
+      
+      let typeArray: string[] = [];
+      switch (typeCategory) {
+        case 'images':
+          typeArray = [types.images];
+          break;
+        case 'documents':
+          typeArray = [
+            types.doc,
+            types.docx,
+            types.plainText,
+            types.pdf,
+            types.xls,
+            types.xlsx,
+            types.audio,
+          ];
+          break;
+        case 'video':
+          typeArray = [types.video];
+          break;
+        default:
+          console.warn('Unknown document type category:', typeCategory);
+          return;
+      }
+      
+      this.onAttachItemClick(typeArray);
+    } catch (error) {
+      console.error('Error handling document type selection:', error);
+    }
+  };
 
   private init = () => {
     if (!this.props.botConfig) {
@@ -743,20 +827,20 @@ export default class KoreChat extends React.Component<
       },
     );
   };
-  private stopTTS = () => {
-    if (!Tts || !Tts.stop) {
+  private stopTTS = async () => {
+    // Load TTS module if not already loaded
+    if (!this.state.ttsModule && this.ttsRef.current) {
+      await this.ttsRef.current.loadTTS();
+    }
+    
+    if (!this.state.ttsModule || !this.state.ttsModule.stop) {
       return;
     }
     try {
-      Tts.stop()
-        .then((_value: any) => {
-          //console.log('TTS stoped');
-        })
-        .catch((error: any) => {
-          console.log('TTS stoped error -->:', error);
-        });
-    } catch (error1) {
-      console.log('TTS stoped error1 -->:', error1);
+      await this.state.ttsModule.stop();
+      //console.log('TTS stopped');
+    } catch (error) {
+      console.warn('TTS stop error:', error);
     }
   };
 
@@ -774,11 +858,16 @@ export default class KoreChat extends React.Component<
       message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.RESET_PIN_TEMPLATE);
   }
 
-  private textToSpeech = (botResponse: any) => {
+  private textToSpeech = async (botResponse: any) => {
     if (!this.state.isTTSenable) {
       this.stopTTS();
 
       return;
+    }
+    
+    // Load TTS module if not already loaded
+    if (!this.state.ttsModule && this.ttsRef.current) {
+      await this.ttsRef.current.loadTTS();
     }
     if (botResponse.type === 'bot_response') {
       let message: any;
@@ -803,22 +892,22 @@ export default class KoreChat extends React.Component<
         }
       }
 
-      if (message && Tts && Tts.stop && Tts.speak) {
-        Tts.stop(true)
-          .then((_onWordBoundary: boolean) => {
-            Tts.speak(message, {
-              iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
-              rate: 0.5,
-              androidParams: {
-                KEY_PARAM_PAN: -1,
-                KEY_PARAM_VOLUME: 0.5,
-                KEY_PARAM_STREAM: 'STREAM_MUSIC',
-              },
-            });
-          })
-          .catch((error: any) => {
-            console.log('textToSpeech error ------>:', error);
-          });
+      if (message && this.state.ttsModule && this.state.ttsModule.stop && this.state.ttsModule.speak) {
+        try {
+          await this.state.ttsModule.stop(true);
+          const ttsOptions = {
+            iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
+            rate: 0.5,
+            androidParams: {
+              KEY_PARAM_PAN: -1,
+              KEY_PARAM_VOLUME: 0.5,
+              KEY_PARAM_STREAM: 'STREAM_MUSIC',
+            },
+          };
+          this.state.ttsModule.speak(message, ttsOptions);
+        } catch (error) {
+          console.warn('textToSpeech error:', error);
+        }
       }
     }
   };
@@ -2061,7 +2150,7 @@ export default class KoreChat extends React.Component<
                       console.log('Camera permission granted - launching camera...');
                       
                       try {
-                      launchCamera(
+                      this.lazyLaunchCamera(
                         {
                           saveToPhotos: true,
                           mediaType: 'mixed',
@@ -2123,21 +2212,13 @@ export default class KoreChat extends React.Component<
                     }
                     break;
                   case 2:
-                    this.onAttachItemClick([types.images]);
+                    this.handleDocumentTypeSelection('images');
                     break;
                   case 3:
-                    this.onAttachItemClick([
-                      types.doc,
-                      types.docx,
-                      types.plainText,
-                      types.pdf,
-                      types.xls,
-                      types.xlsx,
-                      types.audio,
-                    ]);
+                    this.handleDocumentTypeSelection('documents');
                     break;
                     case 4:
-                      this.onAttachItemClick([types.video]);
+                      this.handleDocumentTypeSelection('video');
                       break;
                   }
                 }, 150); // 150ms delay to ensure modal closes
@@ -2168,6 +2249,12 @@ export default class KoreChat extends React.Component<
 
   private pickDocument = async (types: any) => {
     try {
+      const DocumentPicker = await this.lazyDocumentPicker();
+      if (!DocumentPicker) {
+        console.warn('DocumentPicker not available');
+        return;
+      }
+      
       const result = await DocumentPicker.pick({
         allowMultiSelection: MAX_SOURCE_LIMIT > 1,
         type: types,
@@ -2284,13 +2371,12 @@ export default class KoreChat extends React.Component<
 
   private showCustomToast = (msg: any) => {
     // Toast.showWithGravity(msg, Toast.LONG, Toast.BOTTOM);
-    // Toast.show({
-    //   type: 'error',
-    //   text1: msg,
-    //   text2: 'Please try again later.',
-    //   position: 'bottom',
-    //   bottomOffset: 100,
-    // });
+    Toast.show({
+      type: 'error',
+      text1: msg,
+      position: 'bottom',
+      bottomOffset: 100,
+    });
   };
 
   private onHeaderActionsClick = (item: any) => {
@@ -2552,9 +2638,14 @@ export default class KoreChat extends React.Component<
               {this.renderWelcomeScreenModel()}
               {/* {this.renderBackButtonDialog()} */}
               <CustomAlertComponent ref={this.alertRef} />
+              <LazyTTS
+                ref={this.ttsRef}
+                autoLoad={false}
+                onModuleLoaded={this.onTTSModuleLoaded}
+                hideUI={true}
+              />
             </View>
           </Wrapper>
-          <Toast />
         </ThemeProvider>
       );
     }
@@ -2562,7 +2653,12 @@ export default class KoreChat extends React.Component<
       <View style={styles.container} onLayout={this.onInitialLayoutViewLayout}>
         {this.renderLoading()}
         <CustomAlertComponent ref={this.alertRef} />
-        <Toast />
+        <LazyTTS
+          ref={this.ttsRef}
+          autoLoad={false}
+          onModuleLoaded={this.onTTSModuleLoaded}
+          hideUI={true}
+        />
       </View>
     );
   }

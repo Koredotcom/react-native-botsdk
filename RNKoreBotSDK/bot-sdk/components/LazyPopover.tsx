@@ -12,7 +12,7 @@ export interface PopoverProps {
   arrowStyle?: any;
   popoverStyle?: any;
   backgroundStyle?: any;
-  from?: React.RefObject<any> | { x: number; y: number; width: number; height: number };
+  from?: React.RefObject<any> | { x: number; y: number; width: number; height: number } | React.ReactNode;
   children?: React.ReactNode;
   mode?: 'rn-modal' | 'js-modal' | 'tooltip';
   animationConfig?: any;
@@ -77,7 +77,7 @@ export class LazyPopover extends Component<LazyPopoverProps, LazyPopoverState> {
 
       if (this.mounted) {
         // Handle different export patterns
-        const Popover = PopoverModule?.default || PopoverModule?.Popover || PopoverModule || null;
+        const Popover = (PopoverModule as any)?.default || (PopoverModule as any)?.Popover || PopoverModule || null;
 
         if (!Popover) {
           throw new Error('Popover component not found in module');
@@ -184,7 +184,7 @@ export const useLazyPopover = () => {
         'popover'
       );
 
-      const Popover = PopoverModule?.default || PopoverModule?.Popover || PopoverModule || null;
+      const Popover = (PopoverModule as any)?.default || (PopoverModule as any)?.Popover || PopoverModule || null;
 
       if (!Popover) {
         throw new Error('Popover component not found in module');
