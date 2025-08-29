@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {SafeAreaView, View} from 'react-native';
 import styles from './styles';
-import KoreChat from 'rn-kore-bot-sdk-v77-test';
+import KoreChat from 'rn-kore-bot-sdk-v77';
 
 import WAKeyboardAvoidingView from '../../components/WAKeyboardAvoidingView';
 import {
   TEMPLATE_TYPES,
-} from 'rn-kore-bot-sdk-v77-test';
+} from 'rn-kore-bot-sdk-v77';
 import CustomButton from '../../customTemplates/CustomButton';
 
 interface homeState {

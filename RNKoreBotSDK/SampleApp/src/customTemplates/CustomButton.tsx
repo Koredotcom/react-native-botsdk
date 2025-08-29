@@ -4,7 +4,7 @@ import {
   CustomTemplate,
   CustomViewProps,
   CustomViewState,
-} from 'rn-kore-bot-sdk-v77-test';
+} from 'rn-kore-bot-sdk-v77';
 
 interface btnProps extends CustomViewProps {}
 interface btnState extends CustomViewState {}
