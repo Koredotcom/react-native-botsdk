@@ -23,4 +23,8 @@ export {default as InputToolbar} from '../bot-sdk/chat/components/InputToolbar';
 
 export { UUID } from '../bot-sdk/utils/uuid';
 
+// Lazy loading components
+export {default as LazyCommunications, useLazyCommunications, FallbackCommunications, FallbackCommunicationsAPI} from '../bot-sdk/components/LazyCommunications';
+export {default as LazySound, useLazySound, FallbackSound, FallbackSoundAPI} from '../bot-sdk/components/LazySound';
+
 export default KoreChat;

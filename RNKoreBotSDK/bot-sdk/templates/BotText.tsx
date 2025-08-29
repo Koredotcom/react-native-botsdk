@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Linking, StyleSheet, View} from 'react-native';
-import Communications from 'react-native-communications';
+import { FallbackCommunicationsAPI } from '../components/LazyCommunications';
 
 import {TEMPLATE_STYLE_VALUES, leftBubbleStyles} from '../theme/styles';
 
@@ -8,7 +8,7 @@ import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {ThemeContext} from '../theme/ThemeContext';
 import {botStyles} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
-import ParsedText from 'react-native-parsed-text';
+import { LazyParsedText } from '../components/LazyParsedText';
 import {getParseList} from '../utils/ParseList';
 
 const WWW_URL_PATTERN = /^www\./i;
@@ -110,8 +110,33 @@ export default class BotText extends BaseView<BotTextProps, BotTextState> {
     return !this.props?.isLastMsz;
   };
 
-  private onEmailPress = (email: string) =>
-    Communications.email([email], null, null, null, null);
+  private onEmailPress = async (email: string) => {
+    try {
+      // Try to dynamically load react-native-communications
+      const { useLazyCommunications } = await import('../components/LazyCommunications');
+      const communications = await this.loadCommunications();
+      if (communications) {
+        communications.email([email], null, null, null, null);
+      } else {
+        // Fallback to basic Linking API
+        FallbackCommunicationsAPI.email([email], null, null, null, null);
+      }
+    } catch (error) {
+      console.warn('Failed to load communications, using fallback:', error);
+      // Fallback to basic Linking API
+      FallbackCommunicationsAPI.email([email], null, null, null, null);
+    }
+  };
+
+  private async loadCommunications() {
+    try {
+      const CommunicationsModule = await import('react-native-communications');
+      return CommunicationsModule.default || CommunicationsModule;
+    } catch (error) {
+      console.warn('react-native-communications not available:', error);
+      return null;
+    }
+  }
   render() {
     let text = this.props?.text;
     const bubbleTheme = getBubbleTheme(this.props?.theme);
@@ -129,7 +154,7 @@ export default class BotText extends BaseView<BotTextProps, BotTextState> {
               this.props?.theme?.v3?.body?.bubble_style || 'balloon'
             ].bubble_style,
           ]}>
-          <ParsedText
+          <LazyParsedText
             style={[
               styles.text,
               {
@@ -146,7 +171,7 @@ export default class BotText extends BaseView<BotTextProps, BotTextState> {
             {this.props.isFilterApply
               ? text.toString().replace(/\s\s+/g, '\n').trim()
               : text.trim()}
-          </ParsedText>
+          </LazyParsedText>
         </View>
       </View>
     ) : (

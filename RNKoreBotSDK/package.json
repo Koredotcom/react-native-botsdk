@@ -1,10 +1,9 @@
 {
     "name": "rn-kore-bot-sdk-v77-test",
-    "version": "0.0.15",
+    "version": "0.0.24",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
-    "types": "./dist/index.d.ts",
     "keywords": [
         "react-native",
         "chatbot",
