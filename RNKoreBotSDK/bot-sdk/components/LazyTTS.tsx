@@ -2,26 +2,26 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { LazyLoader, DefaultLoader, ErrorFallback } from '../utils/LazyLoader';
 
-// Type definitions for the lazy-loaded TTS
+// Type definitions for the lazy-loaded TTS - using flexible types to match react-native-tts
 export interface TTSModule {
-  speak: (text: string, options?: TTSOptions) => Promise<void>;
-  stop: () => Promise<void>;
-  pause: () => Promise<void>;
-  resume: () => Promise<void>;
-  getInitStatus: () => Promise<string>;
-  setDefaultLanguage: (language: string) => Promise<void>;
-  setDefaultVoice: (voiceId: string) => Promise<void>;
-  setDefaultRate: (rate: number, skipTransform?: boolean) => Promise<void>;
-  setDefaultPitch: (pitch: number) => Promise<void>;
-  setDucking: (enabled: boolean) => Promise<void>;
-  setIgnoreSilentSwitch: (enabled: string) => Promise<void>;
-  addEventListener: (type: string, handler: Function) => void;
-  removeEventListener: (type: string, handler: Function) => void;
-  removeAllListeners: (type: string) => void;
-  requestInstallEngine: () => Promise<void>;
-  requestInstallData: () => Promise<void>;
-  voices: () => Promise<Voice[]>;
-  engines: () => Promise<Engine[]>;
+  speak: (utterance: string, options?: any) => any;
+  stop: (onWordBoundary?: boolean) => Promise<any>;
+  pause: () => Promise<any>;
+  resume: () => Promise<any>;
+  getInitStatus: () => Promise<any>;
+  setDefaultLanguage: (language: string) => Promise<any>;
+  setDefaultVoice: (voiceId: string) => Promise<any>;
+  setDefaultRate: (rate: number, skipTransform?: boolean) => Promise<any>;
+  setDefaultPitch: (pitch: number) => Promise<any>;
+  setDucking: (enabled: boolean) => Promise<any>;
+  setIgnoreSilentSwitch: (enabled: any) => Promise<any>;
+  addEventListener: (type: any, handler: any) => void;
+  removeEventListener: (type: any, handler: any) => void;
+  removeAllListeners: (type: any) => void;
+  requestInstallEngine: () => Promise<any>;
+  requestInstallData: () => Promise<any>;
+  voices: () => Promise<any[]>;
+  engines: () => Promise<any[]>;
 }
 
 export interface TTSOptions {
@@ -31,6 +31,11 @@ export interface TTSOptions {
   forceStop?: boolean;
   language?: string;
   quality?: string;
+  androidParams?: {
+    KEY_PARAM_PAN?: number;
+    KEY_PARAM_VOLUME?: number;
+    KEY_PARAM_STREAM?: string;
+  };
 }
 
 export interface Voice {
@@ -65,6 +70,7 @@ export interface LazyTTSProps {
   errorComponent?: React.ComponentType<{ error: string }>;
   onModuleLoaded?: (ttsModule: TTSModule | null) => void;
   onAvailabilityChecked?: (isAvailable: boolean) => void;
+  hideUI?: boolean; // When true, component renders nothing visually
 }
 
 /**
@@ -86,8 +92,11 @@ export class LazyTTS extends Component<LazyTTSProps, LazyTTSState> {
   }
 
   componentDidMount() {
-    if (this.props.autoLoad !== false) {
-      this.loadTTS();
+    if (this.props.autoLoad === true) {
+      // Add a small delay to prevent immediate loading issues
+      setTimeout(() => {
+        this.loadTTS();
+      }, 100);
     }
   }
 
@@ -104,14 +113,13 @@ export class LazyTTS extends Component<LazyTTSProps, LazyTTSState> {
 
     try {
       // Dynamic import with fallback for different module structures
-      const TTSModule = await LazyLoader.importModule(
+      const TTS = await LazyLoader.importModule(
         () => import('react-native-tts'),
         'tts'
       );
 
       if (this.mounted) {
-        // Handle different export patterns
-        const TTS = TTSModule?.default || TTSModule || null;
+        // TTS module is already the default export from LazyLoader
 
         if (!TTS || !TTS.speak) {
           throw new Error('TTS module or required methods not found');
@@ -124,6 +132,13 @@ export class LazyTTS extends Component<LazyTTSProps, LazyTTSState> {
           isAvailable = true;
         } catch (error) {
           console.warn('TTS availability check failed:', error);
+          // Check if it's a NativeEventEmitter error
+          if (error && typeof error === 'object' && 'message' in error) {
+            const errorMessage = (error as Error).message;
+            if (errorMessage.includes('NativeEventEmitter') || errorMessage.includes('non-null argument')) {
+              console.warn('TTS module native binding issue - module not properly linked');
+            }
+          }
           isAvailable = false;
         }
 
@@ -149,7 +164,13 @@ export class LazyTTS extends Component<LazyTTSProps, LazyTTSState> {
       console.warn('Failed to load TTS:', error);
       
       if (this.mounted) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        let errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        
+        // Check for NativeEventEmitter specific errors
+        if (errorMessage.includes('NativeEventEmitter') || errorMessage.includes('non-null argument')) {
+          errorMessage = 'TTS module native binding issue - module not properly linked';
+        }
+        
         this.setState({
           TTSModule: null,
           isLoading: false,
@@ -171,7 +192,7 @@ export class LazyTTS extends Component<LazyTTSProps, LazyTTSState> {
     return null;
   }
 
-  public async speak(text: string, options?: TTSOptions) {
+  public async speak(text: string, options?: any) {
     const tts = await this.loadTTS();
     if (!tts || !this.state.isAvailable) {
       throw new Error('TTS not available');
@@ -205,9 +226,15 @@ export class LazyTTS extends Component<LazyTTSProps, LazyTTSState> {
       fallbackComponent: FallbackComponent,
       loadingComponent: LoadingComponent,
       errorComponent: ErrorComponent,
+      hideUI = false,
     } = this.props;
     
     const { TTSModule, isLoading, loadError, isAvailable, hasTestedAvailability } = this.state;
+
+    // If hideUI is true, render nothing visually but still load the module
+    if (hideUI) {
+      return null;
+    }
 
     // Show loading state
     if (isLoading) {
@@ -284,12 +311,10 @@ export const useLazyTTS = () => {
     setState(prev => ({ ...prev, isLoading: true, loadError: null }));
 
     try {
-      const TTSModule = await LazyLoader.importModule(
+      const TTS = await LazyLoader.importModule(
         () => import('react-native-tts'),
         'tts'
       );
-
-      const TTS = TTSModule?.default || TTSModule || null;
 
       if (!TTS || !TTS.speak) {
         throw new Error('TTS module or required methods not found');
@@ -302,6 +327,13 @@ export const useLazyTTS = () => {
         isAvailable = true;
       } catch (error) {
         console.warn('TTS availability check failed:', error);
+        // Check if it's a NativeEventEmitter error
+        if (error && typeof error === 'object' && 'message' in error) {
+          const errorMessage = (error as Error).message;
+          if (errorMessage.includes('NativeEventEmitter') || errorMessage.includes('non-null argument')) {
+            console.warn('TTS module native binding issue - module not properly linked');
+          }
+        }
         isAvailable = false;
       }
 
@@ -316,10 +348,18 @@ export const useLazyTTS = () => {
       return TTS;
     } catch (error) {
       console.warn('Failed to load TTS:', error);
+      
+      let errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Check for NativeEventEmitter specific errors
+      if (errorMessage.includes('NativeEventEmitter') || errorMessage.includes('non-null argument')) {
+        errorMessage = 'TTS module native binding issue - module not properly linked';
+      }
+      
       setState({
         TTSModule: null,
         isLoading: false,
-        loadError: error instanceof Error ? error.message : 'Unknown error',
+        loadError: errorMessage,
         isAvailable: false,
         hasTestedAvailability: true,
       });
@@ -327,7 +367,7 @@ export const useLazyTTS = () => {
     }
   }, [state.TTSModule, state.isLoading]);
 
-  const speak = React.useCallback(async (text: string, options?: TTSOptions) => {
+  const speak = React.useCallback(async (text: string, options?: any) => {
     const tts = await loadTTS();
     if (!tts || !state.isAvailable) {
       throw new Error('TTS not available');

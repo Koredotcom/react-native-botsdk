@@ -20,7 +20,7 @@ import 'dayjs/locale/en'; // Load English locale for formatting
 
 import CheckBox from '../components/CustomCheckBox';
 
-import Popover from 'react-native-popover-view';
+import LazyPopover from '../components/LazyPopover';
 import { SvgIcon } from '../utils/SvgIcon';
 import { CollapsableContainer } from '../components/CollapsableContainer';
 import Color from '../theme/Color';
@@ -758,7 +758,7 @@ export default class AdvancedListTemplate extends BaseView<
           );
         case 'dropdown':
           return (
-            <Popover
+            <LazyPopover
               key={index + ' ' + index}
               ref={ref => (this.popoverRef = ref)}
               //isVisible={false}
@@ -820,7 +820,7 @@ export default class AdvancedListTemplate extends BaseView<
                   );
                 })}
               </View>
-            </Popover>
+            </LazyPopover>
           );
       }
 
@@ -894,7 +894,6 @@ export default class AdvancedListTemplate extends BaseView<
               };
               this.setSeletedSlot(obj, isSelect, true);
             }}
-            selectedId={filterList?.[0] ? filterList?.[0]?.id : undefined}
           />
         </View>
       );
@@ -1084,7 +1083,7 @@ export default class AdvancedListTemplate extends BaseView<
     if (item && item?.buttons && item?.buttons?.length > 0) {
       let displayLimit = item?.buttonsLayout?.displayLimit?.count || 4;
       let listItems = [];
-
+      console.log('displayLimit', displayLimit);
       let splitIndex =
         (item?.buttons?.length >= displayLimit
           ? displayLimit
@@ -1107,7 +1106,7 @@ export default class AdvancedListTemplate extends BaseView<
                 onPress={() => {
                   if (this.props.onListItemClick) {
                     let other = {};
-                    let allSelections = [];
+                    let allSelections: any[] = [];
                     
                     // Include checkbox selections
                     if (this.state.otherOptions?.length > 0) {
@@ -1189,7 +1188,7 @@ export default class AdvancedListTemplate extends BaseView<
           })}
 
           {item?.buttons?.length > displayLimit && (
-            <Popover
+            <LazyPopover
               ref={ref => (this.popoverBtnRef = ref)}
               //isVisible={false}
               isVisible={this.state.showBtnPopover}
@@ -1234,7 +1233,7 @@ export default class AdvancedListTemplate extends BaseView<
                       onPress={() => {
                         if (this.props.onListItemClick) {
                           let other = {};
-                          let allSelections = [];
+                          let allSelections: any[] = [];
                           
                           // Include checkbox selections
                           if (this.state.otherOptions?.length > 0) {
@@ -1318,7 +1317,7 @@ export default class AdvancedListTemplate extends BaseView<
                   );
                 })}
               </View>
-            </Popover>
+            </LazyPopover>
           )}
         </View>
       );

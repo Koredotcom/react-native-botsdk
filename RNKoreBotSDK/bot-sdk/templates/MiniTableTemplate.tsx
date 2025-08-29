@@ -5,17 +5,61 @@ import BotText from './BotText';
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {normalize} from '../utils/helpers';
-import Carousel from 'react-native-reanimated-carousel';
+// Removed direct import - using lazy loading instead
 import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface MiniTableProps extends BaseViewProps {}
-interface MiniTableState extends BaseViewState {}
+interface MiniTableState extends BaseViewState {
+  CarouselComponent?: any;
+  isCarouselLoading?: boolean;
+}
 
 export default class MiniTableTemplate extends BaseView<
   MiniTableProps,
   MiniTableState
 > {
+  constructor(props: MiniTableProps) {
+    super(props);
+    this.state = {
+      CarouselComponent: null,
+      isCarouselLoading: false,
+    };
+  }
+
+  // Lazy loading method for carousel
+  private loadCarouselComponent = async () => {
+    if (this.state.CarouselComponent || this.state.isCarouselLoading) {
+      return this.state.CarouselComponent;
+    }
+
+    this.setState({ isCarouselLoading: true });
+
+    try {
+      const CarouselModule = await import('react-native-reanimated-carousel');
+      const CarouselComponent = CarouselModule.default || CarouselModule;
+      
+      this.setState({ 
+        CarouselComponent,
+        isCarouselLoading: false 
+      });
+      
+      return CarouselComponent;
+    } catch (error) {
+      console.warn('Failed to load Carousel component:', error);
+      this.setState({ 
+        CarouselComponent: null,
+        isCarouselLoading: false 
+      });
+      return null;
+    }
+  };
+
+  componentDidMount() {
+    // Load carousel component lazily
+    this.loadCarouselComponent();
+  }
+
   private renderVerticalTable = (payload: any) => {
     if (!payload) {
       return <></>;
@@ -41,11 +85,22 @@ export default class MiniTableTemplate extends BaseView<
       return <></>;
     }
 
+    const { CarouselComponent, isCarouselLoading } = this.state;
+
+    // Show loading indicator while carousel is loading
+    if (isCarouselLoading || !CarouselComponent) {
+      return (
+        <View style={{ padding: 20, alignItems: 'center' }}>
+          <Text style={{ color: Color.text_color }}>Loading table...</Text>
+        </View>
+      );
+    }
+
     const height = this.getColumnCount(payload) * normalize(45);
     const width = this.getTemplateWidth();
     const viewportWidth = windowWidth*0.80;  // full width to show the next card peeking (1/4)
     return (
-      <Carousel
+      <CarouselComponent
         vertical={false}
         loop={false}
         width={width}
