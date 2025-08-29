@@ -29,7 +29,7 @@ export default function Base64Image({ base64String, width = 100, height = 100, s
   );
 }
 
-function decodeBase64(base64) {
+function decodeBase64(base64: string) {
   return decodeURIComponent(
     atob(base64)
       .split('')

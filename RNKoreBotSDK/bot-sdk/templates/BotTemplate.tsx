@@ -34,6 +34,7 @@ import Attachements from './Attachemnts';
 import ArticleTemplate from './ArticleTemplate';
 import AnswerTemplate from './AnswerTemplate';
 import OTPTemplate from './OTPTemplate';
+import ResetPinTemplate from './ResetPinTemplate';
 
 export interface BotTemplateProps {
   templateType: string;
@@ -108,70 +109,72 @@ export default class BotTemplate extends React.Component<
       case TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE:
         return this.renderMessageText(payload, theme, templateType);
       case TEMPLATE_TYPES.BUTTON:
-        return <Button payload={payload} theme={theme} />;
+        return <Button payload={payload} theme={theme} onListItemClick={this.props.onListItemClick}/>;
       case TEMPLATE_TYPES.CARD_TEMPLATE:
-        return <CardTemplate payload={payload} theme={theme} />;
+        return <CardTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.LIST_TEMPLATE:
-        return <ListTemplate payload={payload} theme={theme} />;
+        return <ListTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.IMAGE_MESSAGE:
-        return <ImageTemplate payload={payload} theme={theme} />;
+        return <ImageTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.TABLE_TEMPLATE:
-        return <TableTemplate payload={payload} theme={theme} />;
+        return <TableTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.QUICK_REPLIES:
         return this.renderBotText(payload, templateType, theme);
       case TEMPLATE_TYPES.ERROR_TEMPLATE:
-        return <ErrorTemplate payload={payload} theme={theme} />;
+        return <ErrorTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.CAROUSEL_TEMPLATE:
-        return <CarouselTemplate payload={payload} theme={theme} />;
+        return <CarouselTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.ADVANCED_LIST_TEMPLATE:
-        return <AdvancedListTemplate payload={payload} theme={theme} />;
+        return <AdvancedListTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.MINI_TABLE_TEMPLATE:
-        return <MiniTableTemplate payload={payload} theme={theme} />;
+        return <MiniTableTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.BAR_CHART_TEMPLATE:
         if (payload?.stacked) {
-          return <StackBarChartTemplate payload={payload} theme={theme} />;
+          return <StackBarChartTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
         }
-        return <BarChartTemplate payload={payload} theme={theme} />;
+        return <BarChartTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.PIE_CHART_TEMPLATE:
-        return <PieChartView payload={payload} theme={theme} />;
+        return <PieChartView payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.LINE_CHART_TEMPLATE:
-        return <LineChartTemplate payload={payload} theme={theme} />;
+        return <LineChartTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.DATE_TEMPLATE:
-        return <DateTemplate payload={payload} theme={theme} />;
+        return <DateTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.DATE_RANGE_TEMPLATE:
-        return <DateTemplate payload={payload} theme={theme} />;
+        return <DateTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.TABLE_LIST_TEMPLATE:
-        return <TableListTemplate payload={payload} theme={theme} />;
+        return <TableListTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.ADVANCED_MULTI_SELECT_TEMPLATE:
-        return <AdvanceMultiSelectTemplate payload={payload} theme={theme} />;
+        return <AdvanceMultiSelectTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.MULTI_SELECT_TEMPLATE:
-        return <MultiSelectTemplate payload={payload} theme={theme} />;
+        return <MultiSelectTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.RADIO_OPTION_TEMPLATE:
-        return <RadioOptionTemplate payload={payload} theme={theme} />;
+        return <RadioOptionTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.LIST_VIEW_TEMPLATE:
-        return <ListViewTemplate payload={payload} theme={theme} />;
+        return <ListViewTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.DROPDOWN_TEMPLATE:
-        return <DropdownTemplate payload={payload} theme={theme} />;
+        return <DropdownTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.FEEDBACK_TEMPLATE:
-        return <FeedbackTemplate payload={payload} theme={theme} />;
+        return <FeedbackTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.FORM_TEMPLATE:
-        return <FormTemplate payload={payload} theme={theme} />;
+        return <FormTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.CLOCK_TEMPLATE:
-        return <ClockTemplate payload={payload} theme={theme} />;
+        return <ClockTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.LISTWIDGET_TEMPLATE:
-        return <ListWidgetTemplate payload={payload} theme={theme} />;
+        return <ListWidgetTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.AUDIO_MESSAGE:
-        return <AudioTemplate payload={payload} theme={theme} />;
+        return <AudioTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.VIDEO_MESSAGE:
-        return <VideoTemplate payload={payload} theme={theme} />;
+        return <VideoTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.USER_ATTACHEMENT_TEMPLATE:
-        return <Attachements payload={payload} theme={theme} />;
+        return <Attachements payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
-        return <ArticleTemplate payload={payload} theme={theme} />;
+        return <ArticleTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.ANSWER_TEMPLATE:
-        return <AnswerTemplate payload={payload} theme={theme} />;
+        return <AnswerTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.OTP_TEMPLATE:
-          return <OTPTemplate payload={payload} theme={theme} />;
+          return <OTPTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
+      case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
+            return <ResetPinTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
     }
     return (
       <Text style={{padding: 10}}>

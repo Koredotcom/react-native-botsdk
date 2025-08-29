@@ -83,9 +83,10 @@ export default class Attachements extends BaseView<
   AttachementsState
 > {
   static contextType = ThemeContext;
-  static propTypes: {
-    payload: any;
-    onListItemClick?: any;
+  static propTypes = {
+    payload: {},
+    onListItemClick: undefined,
+    onBottomSheetClose: undefined,
   };
   
   private nativeModules: any = null;
@@ -224,8 +225,36 @@ export default class Attachements extends BaseView<
 
     const bubbleTheme = getBubbleTheme(this.props?.theme);
 
-    if (payload?.payload?.attachments) {
-      attachments = payload?.payload?.attachments?.map(
+    console.log('📎 Attachments - Processing payload:', JSON.stringify(payload, null, 2));
+
+    // Check multiple possible attachment locations
+    // The actual attachment data might be in different places depending on the message structure
+    let attachmentsList = null;
+
+    // Check if payload has attachments array
+    if (payload?.payload?.attachments && Array.isArray(payload.payload.attachments)) {
+      attachmentsList = payload.payload.attachments;
+    } 
+    // Check if payload itself has attachments
+    else if (payload?.attachments && Array.isArray(payload.attachments)) {
+      attachmentsList = payload.attachments;
+    }
+    // Check if the payload itself is an array of attachments
+    else if (Array.isArray(payload)) {
+      attachmentsList = payload;
+    }
+    // Check if this is a message with attachment data (from the data parameter)
+    else if (payload?.payload?.attachments === "attachments") {
+      // This indicates attachments were sent but the actual data might be elsewhere
+      // For now, we'll show the text content
+      console.log('📎 Attachments - Found attachment indicator but no actual attachment data');
+      return null;
+    }
+
+    console.log('📎 Attachments - Found attachments list:', JSON.stringify(attachmentsList, null, 2));
+
+    if (attachmentsList && Array.isArray(attachmentsList) && attachmentsList.length > 0) {
+      attachments = attachmentsList.map(
         (media: any, index: number) => {
           let fileType: string = this.getFileType(media?.fileName);
           return (
@@ -250,20 +279,58 @@ export default class Attachements extends BaseView<
                       color: bubbleTheme.BUBBLE_RIGHT_TEXT_COLOR,
                     },
                   ]}>
-                  {media?.fileName}
+                  {media?.fileName || 'Unknown file'}
                 </Text>
               </View>
             </View>
           );
         },
       );
+    } else {
+      console.warn('⚠️  Attachments - No valid attachments array found');
+      return null;
     }
 
     return attachments;
   };
 
+  private renderMessageText = () => {
+    const text = this.props.payload?.payload?.text || this.props.payload?.text;
+    
+    if (text && typeof text === 'string' && text.trim()) {
+      // Remove the file name part from the text (everything after the emoji)
+      const cleanText = text.split('\n')[0].trim();
+      
+      if (cleanText && cleanText !== '') {
+        return (
+          <View style={styles.textContainer}>
+            <Text style={styles.messageText}>{cleanText}</Text>
+          </View>
+        );
+      }
+    }
+    return null;
+  };
+
   render() {
-    return <View>{this.renderAttachment(this.props.payload)}</View>;
+    try {
+      const textView = this.renderMessageText();
+      const attachmentView = this.renderAttachment(this.props.payload);
+      
+      return (
+        <View>
+          {textView}
+          {attachmentView}
+        </View>
+      );
+    } catch (error) {
+      console.error('❌ Attachments render error:', error);
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Unable to load attachments</Text>
+        </View>
+      );
+    }
   }
 }
 
@@ -343,5 +410,28 @@ const styles = StyleSheet.create({
   },
   btn_views_1: {
     flexDirection: 'column',
+  },
+  errorContainer: {
+    padding: 16,
+    backgroundColor: '#ffebee',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#c62828',
+    textAlign: 'center',
+  },
+  textContainer: {
+    padding: 12,
+    marginBottom: 8,
+  },
+  messageText: {
+    fontSize: normalize(16),
+    color: Color.text_color,
+    fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
+    lineHeight: normalize(20),
   },
 });

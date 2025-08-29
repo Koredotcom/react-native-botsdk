@@ -5,10 +5,7 @@ import {normalize} from '../../../utils/helpers';
 import {SvgIcon} from '../../../utils/SvgIcon';
 import {ThemeContext} from '../../../theme/ThemeContext';
 import {ThemeType} from '../../../theme/ThemeType';
-import Popover, {
-  PopoverMode,
-  PopoverPlacement,
-} from 'react-native-popover-view';
+import LazyPopover from '../../../components/LazyPopover';
 import {
   HeaderIconsId,
   MIN_HEADER_HEIGHT,
@@ -185,9 +182,9 @@ export default abstract class BaseHeader<
     const height: number = MIN_HEADER_HEIGHT || 45;
     return (
       <View style={[styles.dropdown_main, {height: normalize(height)}]}>
-        <Popover
-          mode={PopoverMode.RN_MODAL}
-          placement={PopoverPlacement.BOTTOM}
+        <LazyPopover
+          mode={'rn-modal'}
+          placement={'bottom'}
           isVisible={this.state?.showPopover || false}
           onRequestClose={() => {
             this.setState({
@@ -240,7 +237,7 @@ export default abstract class BaseHeader<
             {buttons?.close?.show &&
               this.renderMenuItem(HeaderIconsId.CLOSE, 'Close', 'HeaderClose')}
           </View>
-        </Popover>
+        </LazyPopover>
       </View>
     );
   };
