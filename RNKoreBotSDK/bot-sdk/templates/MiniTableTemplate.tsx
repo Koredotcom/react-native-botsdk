@@ -5,17 +5,61 @@ import BotText from './BotText';
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {normalize} from '../utils/helpers';
-import Carousel from 'react-native-reanimated-carousel';
+// Removed direct import - using lazy loading instead
 import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
 
 interface MiniTableProps extends BaseViewProps {}
-interface MiniTableState extends BaseViewState {}
+interface MiniTableState extends BaseViewState {
+  CarouselComponent?: any;
+  isCarouselLoading?: boolean;
+}
 
 export default class MiniTableTemplate extends BaseView<
   MiniTableProps,
   MiniTableState
 > {
+  constructor(props: MiniTableProps) {
+    super(props);
+    this.state = {
+      CarouselComponent: null,
+      isCarouselLoading: false,
+    };
+  }
+
+  // Lazy loading method for carousel
+  private loadCarouselComponent = async () => {
+    if (this.state.CarouselComponent || this.state.isCarouselLoading) {
+      return this.state.CarouselComponent;
+    }
+
+    this.setState({ isCarouselLoading: true });
+
+    try {
+      const CarouselModule = await import('react-native-reanimated-carousel');
+      const CarouselComponent = CarouselModule.default || CarouselModule;
+      
+      this.setState({ 
+        CarouselComponent,
+        isCarouselLoading: false 
+      });
+      
+      return CarouselComponent;
+    } catch (error) {
+      console.warn('Failed to load Carousel component:', error);
+      this.setState({ 
+        CarouselComponent: null,
+        isCarouselLoading: false 
+      });
+      return null;
+    }
+  };
+
+  componentDidMount() {
+    // Load carousel component lazily
+    this.loadCarouselComponent();
+  }
+
   private renderVerticalTable = (payload: any) => {
     if (!payload) {
       return <></>;
@@ -33,7 +77,7 @@ export default class MiniTableTemplate extends BaseView<
     // const value = this.props?.theme?.v3?.body?.icon?.show
     //   ? normalize(60)
     //   : normalize(40);
-    return (windowWidth / 4) * 3;
+    return  windowWidth*0.70; //(windowWidth / 4) * 3;
   };
 
   private renderHorizontalTable = (payload: any) => {
@@ -41,21 +85,34 @@ export default class MiniTableTemplate extends BaseView<
       return <></>;
     }
 
+    const { CarouselComponent, isCarouselLoading } = this.state;
+
+    // Show loading indicator while carousel is loading
+    if (isCarouselLoading || !CarouselComponent) {
+      return (
+        <View style={{ padding: 20, alignItems: 'center' }}>
+          <Text style={{ color: Color.text_color }}>Loading table...</Text>
+        </View>
+      );
+    }
+
     const height = this.getColumnCount(payload) * normalize(45);
     const width = this.getTemplateWidth();
+    const viewportWidth = windowWidth*0.80;  // full width to show the next card peeking (1/4)
     return (
-      <Carousel
+      <CarouselComponent
         vertical={false}
         loop={false}
         width={width}
         height={height}
         data={payload.elements}
-        mode="undefined"
-        modeConfig={{
-          // parallaxAdjacentItemScale: 0.5,
-          //parallaxScrollingOffset: 100,
-          parallaxAdjacentItemScale: 0.45,
-        }}
+        style={{ width: viewportWidth }}
+        // mode="undefined" //kk
+        // modeConfig={{
+        //   // parallaxAdjacentItemScale: 0.5,
+        //   //parallaxScrollingOffset: 100,
+        //   parallaxAdjacentItemScale: 0.45,
+        // }}
         renderItem={({item, index}: any) => (
           <View style={[styles.shadowContainer]}>
             {this.renderTablesViewMore(item, false, index)}
@@ -105,11 +162,11 @@ export default class MiniTableTemplate extends BaseView<
       return null;
     }
     let flexArry: any = [];
-
+    const bubbleTheme = getBubbleTheme(this.props?.theme);
     return (
       <View key={index + ''} style={[[styles.mainContainer, styles.main_con2]]}>
         <View style={[styles.sub_con]}>
-          <View style={[styles.subContainer_more]}>
+          <View style={[styles.subContainer_more,{borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR}]}>
             <View
               style={[
                 styles.subContainer2_more,
@@ -128,7 +185,7 @@ export default class MiniTableTemplate extends BaseView<
                       styles.titles,
                       {
                         flex: coloum?.[0]?.length,
-                        color: '#2E3A92',
+                        color: Color.black,
                         paddingEnd: 5,
                         paddingStart: 5
                       },
@@ -145,7 +202,7 @@ export default class MiniTableTemplate extends BaseView<
                 );
               })}
             </View>
-            <View style={styles.thick_line}></View>
+            <View style={[styles.thick_line,{backgroundColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR}]}></View>
             <View style={styles.view_more_main}>
               {this.getTableRowViewsMore(element, flexArry, isVertical)}
             </View>
@@ -193,7 +250,7 @@ export default class MiniTableTemplate extends BaseView<
                     style={[
                       styles.row_text,
                       {
-                        color: Color.text_color,
+                        color: Color.black,
                         // this.props.theme?.v3?.general?.colors?.primary_text,
                         fontFamily: this.props?.theme?.v3?.body?.font?.family,
                       },
@@ -208,7 +265,7 @@ export default class MiniTableTemplate extends BaseView<
               );
             })}
           </View>
-          {i !== elements?.length - 1 && <View style={styles.line}></View>}
+          {i !== elements?.length - 1 && <View style={[styles.line,{backgroundColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR}]}></View>}
         </View>
       );
 
@@ -299,10 +356,10 @@ const styles = StyleSheet.create({
   },
 
   row_text: {
-    textAlign: 'center',
+    textAlign: 'left',
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
     color: TEMPLATE_STYLE_VALUES.TEXT_COLOR,
-    fontWeight: '500',
+    fontWeight: 'regular',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
   line: {
@@ -320,8 +377,8 @@ const styles = StyleSheet.create({
     fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
     color: TEMPLATE_STYLE_VALUES.TEXT_COLOR,
     justifyContent: 'center',
-    textAlign: 'center',
-    fontWeight: 'bold',
+    textAlign: 'left',
+    fontWeight: 'regular',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
 });

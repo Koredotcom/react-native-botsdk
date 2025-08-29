@@ -236,8 +236,8 @@ const styles = StyleSheet.create({
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
   },
   sub_container: {
-    marginBottom: 10,
-    marginTop: 5,
+    marginBottom: 0,
+    marginTop: 2,
   },
   centerLabel: {
     fontSize: 16,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     //flex: 1,
     // backgroundColor: 'red',
     // width: '100%',
-    height: normalize(320),
+    height: normalize(300),
     marginBottom: 5,
     // justifyContent: 'center',
     // alignItems: 'center',

@@ -46,8 +46,8 @@ export default class DateTemplate extends BaseView<
     if (!dateObj) {
       return;
     }
-    if (this.props.payload.onListItemClick) {
-      this.props.payload.onListItemClick(
+    if (this.props.onListItemClick) {
+      this.props.onListItemClick(
         this.props.payload.template_type,
         dateObj,
       );
