@@ -15,6 +15,7 @@
     "@react-navigation/elements": "^2.5.2",
     "@react-navigation/stack": "^7.4.2",
     "react-native-bootsplash": "^6.3.9",
+    "react-native-document-picker": "^9.3.1",
     "react-native-fast-image": "^8.6.3",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.26.0",
@@ -22,7 +23,8 @@
     "react-native-reanimated": "3.18.0",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.11.1",
-    "rn-kore-bot-sdk-v77-test": "^0.0.24"
+    "react-native-svg": "^15.12.1",
+    "rn-kore-bot-sdk-v77": "^0.0.7"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
