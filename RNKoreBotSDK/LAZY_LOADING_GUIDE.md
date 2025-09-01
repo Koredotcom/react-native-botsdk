@@ -428,7 +428,7 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 The `react-native-communications` package is lazy-loaded to prevent crashes when not installed:
 
 ```typescript
-import { useLazyCommunications, FallbackCommunicationsAPI } from 'rn-kore-bot-sdk-v77-test';
+import { useLazyCommunications, FallbackCommunicationsAPI } from '';
 
 const ContactComponent = () => {
   const { phonecall, email, text, isLoading, loadError } = useLazyCommunications();
