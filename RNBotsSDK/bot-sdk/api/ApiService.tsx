@@ -35,7 +35,7 @@ export default class ApiService {
     }
   }
 
-  async getBotHistory(offset: number, limit: number, onResponse: (response?: any) => void): Promise<void> {
+  async getBotHistory(offset: number, limit: number, botName: string, botId: string, onResponse: (response?: any) => void): Promise<void> {
     let rtmUrl = this.baseUrl + '/api' + URL_VERSION + '/botmessages/rtm';
     const startTime = Date.now();
 
@@ -82,18 +82,99 @@ export default class ApiService {
 
       // Create axios-like response object for compatibility
       const axiosResponse = {
-        data: responseData,
+        data: this.processHistoryResponse(responseData, botName, botId),
         status: response.status,
         statusText: response.statusText,
         headers: {},
       };
       onResponse(axiosResponse);
-      //   this.emit(RTM_EVENT.GET_HISTORY, axiosResponse, this.botClient.getBotInfo());
     } catch (e: any) {
       const duration = Date.now() - startTime;
       Logger.logApiError(rtmUrl, 'GET', e, duration);
       onResponse();
     }
+  }
+
+  processHistoryResponse = (botHistory: any, botName: string, botId: string): any => {
+    let msgs: any[] = [];
+    console.log('BotHistory >>> ' + JSON.stringify(botHistory));
+    if (!botHistory.messages) return [];
+    const moreHistory = botHistory.moreAvailable;
+    const icon: string = botHistory.icon;
+    const messages: any[] = botHistory.messages;
+    if (messages) {
+      for (const msg of messages) {
+        const components: any[] = msg.components;
+        const data = (components[0].data.text ? components[0].data.text : '').replaceAll('&quot;', '\"');
+        let botMessage: any;
+        if (msg.type == 'outgoing') {
+          if (!data) continue;
+          botMessage = this.createBotResponse(data, icon, msg.createdOn, msg._id, botName, botId);
+        } else {
+          const tags: any = msg.tags;
+          const altText: any[] = tags.altText
+          const renderMsg = altText ? altText[0] ? altText[0].value : null : null;
+          botMessage = this.createBotRequest(msg._id, data, msg.createdOn, botName, botId, renderMsg);
+        }
+        msgs.push(botMessage);
+      }
+    }
+    msgs = [...msgs].sort((a, b) => b.timeMillis - a.timeMillis);
+    return { botHistory: msgs, moreAvailable: moreHistory };
+  }
+
+  createBotResponse = (data: any, icon: string, createdOn: string, msgId: string, botName: string, botId: string): any => {
+    let payloadOuter: any;
+    try {
+      payloadOuter = JSON.parse(data);
+    } catch (exception: any) {
+      payloadOuter = { text: data };
+    }
+    const componentModel = { type: 'template', payload: payloadOuter };
+    const componentInfo = { body: payloadOuter };
+    const messageArray: any[] = [];
+    const message = { type: 'text', component: componentModel, cInfo: componentInfo };
+    messageArray.push(message);
+    const botInfo = { botName: botName, taskBotId: botId, customData: null, channelClient: Platform.OS };
+    return {
+      type: 'bot_response',
+      timeMillis: new Date(createdOn).getTime(),
+      messageId: msgId,
+      message: messageArray,
+      from: 'bot',
+      isSend: false,
+      icon: icon,
+      createdOn: createdOn,
+      botInfo: botInfo
+    };
+  }
+
+  createBotRequest = (msgId: string, message: string, createdOn: string, botName: string, botId: string, renderMsg?: string): any => {
+    const component = {
+      type: 'text',
+      payload: {
+        text: renderMsg ? renderMsg : message,
+        attachments: '',
+        createdOn: createdOn
+      }
+    };
+    const botMessage = {
+      type: 'text',
+      component: component,
+      clientMessageId: new Date(createdOn).getTime()
+    };
+    const botInfo = { botName: botName, taskBotId: botId, customData: null, channelClient: Platform.OS };
+    return {
+      type: 'user_message',
+      timeMillis: new Date(createdOn).getTime(),
+      messageId: msgId,
+      message: [botMessage],
+      resourceId: "/bot.message",
+      botInfo: botInfo,
+      createdOn: createdOn,
+      client: Platform.OS,
+      isSend: true
+    };
   }
 
   public async subscribePushNotifications(deviceId?: string): Promise<boolean> {
