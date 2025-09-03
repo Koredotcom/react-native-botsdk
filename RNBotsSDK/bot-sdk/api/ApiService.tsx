@@ -95,7 +95,7 @@ export default class ApiService {
     }
   }
 
-  processHistoryResponse = (botHistory: any, botName: string, botId: string): any => {
+  private processHistoryResponse = (botHistory: any, botName: string, botId: string): any => {
     let msgs: any[] = [];
     console.log('BotHistory >>> ' + JSON.stringify(botHistory));
     if (!botHistory.messages) return [];
@@ -123,7 +123,7 @@ export default class ApiService {
     return { botHistory: msgs, moreAvailable: moreHistory };
   }
 
-  createBotResponse = (data: any, icon: string, createdOn: string, msgId: string, botName: string, botId: string): any => {
+  private createBotResponse = (data: any, icon: string, createdOn: string, msgId: string, botName: string, botId: string): any => {
     let payloadOuter: any;
     try {
       payloadOuter = JSON.parse(data);
@@ -149,7 +149,7 @@ export default class ApiService {
     };
   }
 
-  createBotRequest = (msgId: string, message: string, createdOn: string, botName: string, botId: string, renderMsg?: string): any => {
+  private createBotRequest = (msgId: string, message: string, createdOn: string, botName: string, botId: string, renderMsg?: string): any => {
     const component = {
       type: 'text',
       payload: {
