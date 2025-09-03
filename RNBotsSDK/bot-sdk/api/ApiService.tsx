@@ -35,7 +35,7 @@ export default class ApiService {
     }
   }
 
-  async getBotHistory(offset: number, limit: number, onResponse: (response: any) => void): Promise<void> {
+  async getBotHistory(offset: number, limit: number, onResponse: (response?: any) => void): Promise<void> {
     let rtmUrl = this.baseUrl + '/api' + URL_VERSION + '/botmessages/rtm';
     const startTime = Date.now();
 
@@ -71,7 +71,8 @@ export default class ApiService {
           statusText: response.statusText,
           data: responseData,
         };
-        throw error;
+        onResponse();
+        return;
       }
 
       Logger.logApiSuccess(rtmUrl, 'GET', {
@@ -91,6 +92,7 @@ export default class ApiService {
     } catch (e: any) {
       const duration = Date.now() - startTime;
       Logger.logApiError(rtmUrl, 'GET', e, duration);
+      onResponse();
     }
   }
 

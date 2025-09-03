@@ -371,6 +371,9 @@ export class BotClient extends EventEmitter implements IBotClient {
     switch (data.type) {
       case 'bot_response': {
         if (data.from === 'bot') {
+          if (data.type === 'bot_response') {
+            data.timeMillis = new Date(data.createdOn).getTime();
+          }
           this.emit(RTM_EVENT.ON_MESSAGE, data);
         }
         break;
@@ -706,6 +709,7 @@ export class BotClient extends EventEmitter implements IBotClient {
 
     var msgData = {
       type: 'user_message',
+      timeMillis: clientMessageId,
       message: [
         {
           type: 'text',
