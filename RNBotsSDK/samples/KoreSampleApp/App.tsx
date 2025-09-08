@@ -35,25 +35,25 @@ const BotChatComponent = () => {
   }, []);
 
   const botConfig = {
-      // Your bot configuration
-      botName: 'MyAssistant',
-      botId: 'botId',
-      clientId: 'clientId',
-      clientSecret: 'clientSecret',
-      botUrl: 'botUrl',
-      identity: 'identity',
-      jwtServerUrl: 'jwtServerUrl',
-      isWebHook: false,
-      value_aud: 'value_aud',
-      isHeaderVisible: true,
-      isFooterVisible: true
-    };
+    // Your bot configuration
+    botName: 'MyAssistant',
+    botId: 'botId',
+    clientId: 'clientId',
+    clientSecret: 'clientSecret',
+    botUrl: 'botUrl',
+    identity: 'identity',
+    jwtServerUrl: 'jwtServerUrl',
+    isWebHook: false,
+    value_aud: 'value_aud',
+    isHeaderVisible: true,
+    isFooterVisible: true
+  };
 
-  const getHistory= () =>{
-      const apiService = new ApiService(botConfig.botUrl, botClient.current);
-      apiService.getBotHistory(0, 10, (response: any) => {
-        console.log('botHistory '+JSON.stringify(response));
-      });
+  const getHistory = () => {
+    const apiService = new ApiService(botConfig.botUrl, botClient.current);
+    apiService.getBotHistory(0, 10, (response: any) => {
+      console.log('botHistory ' + JSON.stringify(response));
+    });
   }
 
   const setupBotClient = () => {
@@ -96,7 +96,6 @@ const BotChatComponent = () => {
 
   const disconnect = () => {
     updateStatus('Disconnecting...', '#ffc107');
-    botClient.current.sendEvent('close_agent_chat');
     botClient.current.disconnect();
     setTimeout(() => {
       updateStatus('Disconnected', '#dc3545');

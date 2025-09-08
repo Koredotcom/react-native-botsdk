@@ -26,6 +26,12 @@ export const ConnectionState = {
   DISCONNECTED: 2,
 };
 
+export const BOT_RECOGNITION_EVENTS = {
+  CLOSE_AGENT_CHAT: 'close_agent_chat',
+  TYPING: 'typing',
+  STOP_TYPING: 'stop_typing',
+};
+
 export const APP_STATE = {
   ACTIVE: 'active',
   SLEEP: 'sleep',
