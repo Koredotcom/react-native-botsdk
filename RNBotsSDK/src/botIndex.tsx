@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
-import { RTM_EVENT } from '../bot-sdk/constants/Constant';
+import { RTM_EVENT, BOT_RECOGNITION_EVENTS } from '../bot-sdk/constants/Constant';
 import { KoreBotClient } from '../bot-sdk/rtm/KoreBotClient';
 import { botConfig } from './BotConfig';
 import ApiService from '../bot-sdk/api/ApiService';
@@ -82,7 +82,6 @@ const BotConnection: React.FC = () => {
   const handleDisconnect = useCallback(() => {
     console.log('-----> Disconnect clicked <------');
     updateConnectionStatus('Disconnecting...', '#ffc107');
-    botClient.sendEvent('close_agent_chat', false);
     KoreBotClient.getInstance().disconnect();
     setTimeout(() => {
       updateConnectionStatus('Disconnected', '#dc3545');
@@ -176,7 +175,7 @@ const BotConnection: React.FC = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => botClient.sendEvent('typing')}
+            onPress={() => botClient.sendEvent(BOT_RECOGNITION_EVENTS.TYPING)}
 
             style={{
               backgroundColor: '#dc3545',
@@ -187,6 +186,7 @@ const BotConnection: React.FC = () => {
               borderRadius: 5,
               justifyContent: 'center',
               alignItems: 'center',
+              display: 'none',
             }}>
             <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>
               {'Send Event'}
