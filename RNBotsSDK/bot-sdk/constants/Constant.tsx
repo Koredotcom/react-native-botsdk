@@ -17,6 +17,7 @@ export const RTM_EVENT = {
   GET_HISTORY: 'get_history',
   GET_RESULT_VIEW_SETTINGS: 'result_view_settings',
   ON_ACK: 'ack',
+  ON_EVENTS: 'events',
   ON_JWT_TOKEN_AUTHORIZED: 'ON_JWT_TOKEN_AUTHORIZED',
 };
 
