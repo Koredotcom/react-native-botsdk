@@ -411,6 +411,10 @@ export class BotClient extends EventEmitter implements IBotClient {
         this.emit(RTM_EVENT.ON_ACK, data);
         break;
       }
+      case 'events': {
+        this.emit(RTM_EVENT.ON_EVENTS, data);
+        break;
+      }
       case 'pong': {
         break;
       }
