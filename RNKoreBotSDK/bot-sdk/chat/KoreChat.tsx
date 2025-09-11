@@ -52,6 +52,7 @@ import KoreBotClient, {
   BotConfigModel,
   APP_STATE,
   ActiveThemeAPI,
+  ApiService,
 } from 'rn-kore-bot-socket-lib-v77';
 //import BotConfigModel from '../model/BotConfigModel';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
@@ -1015,6 +1016,15 @@ export default class KoreChat extends React.Component<
           forwardRef={this._messageContainerRef}
           isTyping={this.props.isTyping}
           onDragList={this.props.onDragList}
+          onHistoryLoaded={(historyMessages)=>{
+            let newMessages = this.getMessages().concat(historyMessages);
+            newMessages = newMessages.filter(
+              (item, index, self) =>
+                index === self.findIndex(m => m.timeMillis === item.timeMillis)
+            );
+            console.log('newMessages '+newMessages.length);
+            this.setState({ messages: newMessages});
+          }}
         />
         {(this.state.messageBottomSheet && this.state.showTemplateBottomSheet) && (
           this.renderTemplateBottomSheet()
