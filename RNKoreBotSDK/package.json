@@ -76,7 +76,7 @@
         "react-native-vector-icons": "^10.2.0",
         "react-native-video": "^6.16.1",
         "reactotron-react-native": "^5.1.13",
-        "rn-kore-bot-socket-lib-v77": "^0.0.4",
+        "rn-kore-bot-socket-lib-v77": "^0.0.5",
         "use-memo-one": "^1.1.3"
     },
     "devDependencies": {
