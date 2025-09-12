@@ -99,6 +99,7 @@ dayjs.extend(localizedFormat);
 
 const imageFilesTypes = ['jpg', 'jpeg', 'png'];
 const windowWidth = Dimensions.get('window').width;
+var isAgentConnect = false;
 
 interface KoraChatProps {
   messages?: any[];
@@ -278,6 +279,7 @@ export default class KoreChat extends React.Component<
     super(props);
     this.themApi = new ActiveThemeAPI();
     this.fileUploadQueue = undefined;
+    isAgentConnect = false;
 
     this.state = {
       isInitialized: false,
@@ -565,6 +567,11 @@ export default class KoreChat extends React.Component<
 
   private handleDialogClose = () => {
     this.setState({ showBackButtonDialog: false });
+    if (isAgentConnect) {
+      KoreBotClient.getInstance().sendEvent('close_agent_chat');
+    } else {
+      KoreBotClient.getInstance().sendEvent('close_button_event');
+    }
     
     // Handle navigation for both iOS and Android
     setTimeout(() => {
@@ -583,7 +590,7 @@ export default class KoreChat extends React.Component<
 
   private handleDialogMinimize = () => {
     this.setState({ showBackButtonDialog: false });
-    
+    KoreBotClient.getInstance().sendEvent('minimize_button_event');
     // Handle navigation for both iOS and Android
     setTimeout(() => {
       try {
@@ -614,24 +621,24 @@ export default class KoreChat extends React.Component<
     });
     botClient.setSessionActive(true);
     // // Add back button handler for Android
-    // if (isAndroid) {
-    //   this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    // }
+    if (isAndroid) {
+      this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    }
 
-    // // Add navigation listener for iOS (and Android navigation)
-    // if (this.props.navigation) {
-    //   this.unsubscribeNavigation = this.props.navigation.addListener('beforeRemove', (e: any) => {
-    //     // Allow navigation if user explicitly chose to close
-    //     if (this.allowNavigation) {
-    //       this.allowNavigation = false; // Reset flag
-    //       return; // Allow navigation to proceed
-    //     }
+    // Add navigation listener for iOS (and Android navigation)
+    if (this.props.navigation) {
+      this.unsubscribeNavigation = this.props.navigation.addListener('beforeRemove', (e: any) => {
+        // Allow navigation if user explicitly chose to close
+        if (this.allowNavigation) {
+          this.allowNavigation = false; // Reset flag
+          return; // Allow navigation to proceed
+        }
         
-    //     // Prevent default behavior and show dialog
-    //     e.preventDefault();
-    //     this.setState({ showBackButtonDialog: true });
-    //   });
-    // }
+        // Prevent default behavior and show dialog
+        e.preventDefault();
+        this.setState({ showBackButtonDialog: true });
+      });
+    }
 
     const {text} = this.props;
     this.setisChatMounted(true);
@@ -698,10 +705,15 @@ export default class KoreChat extends React.Component<
     botClient
       ?.on(RTM_EVENT.ON_ACK, (data: any) => {
         if (data.type === 'ack') {
-          this.setIsBotResponseLoading(true);
+          // this.setIsBotResponseLoading(true);
         }
       });
-
+    botClient
+      ?.on(RTM_EVENT.ON_EVENTS, (data: any) => {
+        if (data.type === 'events') {
+          this.setIsBotResponseLoading(data.message.type === 'typing');
+        }
+      });
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
         if (data) {
@@ -713,11 +725,14 @@ export default class KoreChat extends React.Component<
           return;
         }
         console.log('✅ Processing bot message, stopping loading state');
-        setTimeout(() => {
-          this.setIsBotResponseLoading(false);
-        }, 150);
+        // setTimeout(() => {
+        //   this.setIsBotResponseLoading(false);
+        // }, 150);
+        this.setIsBotResponseLoading(false);
         this.processMessage(data);
-
+        if (isAgentConnect) {
+          KoreBotClient.getInstance().sendEvent('message_read');
+        }
         const quickReplies = this.isQuickReplies(data);
         if (quickReplies) {
           this.setState({
@@ -762,6 +777,8 @@ export default class KoreChat extends React.Component<
 
   private processMessage = (newMessages: any) => {
     // console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
+
+    console.log('botRESPONSESSSSSSSS '+JSON.stringify(newMessages));
     
     let modifiedMessages: any = null;
     const itemId = getItemId();
@@ -809,7 +826,18 @@ export default class KoreChat extends React.Component<
         this.setState({showTemplateBottomSheet: true, messageBottomSheet: message})
         return;
       }
+
+      if (message.type === 'bot_response'){
+        if (message.fromAgent == true){
+          isAgentConnect = true;
+          console.log('agentTrue')
+        }else{
+          isAgentConnect = false;
+          console.log('agentFalse')
+        }  
+      }
     }
+    
 
     // console.log('💬 Current messages count before append:', this.state.messages.length);
     // console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
@@ -1246,6 +1274,7 @@ export default class KoreChat extends React.Component<
       this.setIsTypingDisabled(true);
       this.resetInputToolbar();
     }
+    this.setIsBotResponseLoading(true);
     if (this.props.onSend) {
       this.props.onSend(message.text, data_type);
     } else {
@@ -1540,6 +1569,17 @@ export default class KoreChat extends React.Component<
   private onInputSizeChanged = (_size: {height: number; width: number}) => {};
 
   private onInputTextChanged = (text: string) => {
+
+    if (isAgentConnect == true){
+      if (text.length == 0){
+        console.log('stop_typing')
+        KoreBotClient.getInstance()?.sendEvent('stop_typing',false);
+      }else{
+        console.log('typing')
+        KoreBotClient.getInstance()?.sendEvent('typing',false);
+      }
+    }
+
     if (this.getIsTypingDisabled()) {
       return;
     }
@@ -2646,7 +2686,7 @@ export default class KoreChat extends React.Component<
               {this.renderMenuBottomSheet()}
               {this.renderSeeMoreBottomSheet()}
               {this.renderWelcomeScreenModel()}
-              {/* {this.renderBackButtonDialog()} */}
+              {this.renderBackButtonDialog()}
               <CustomAlertComponent ref={this.alertRef} />
               <LazyTTS
                 ref={this.ttsRef}

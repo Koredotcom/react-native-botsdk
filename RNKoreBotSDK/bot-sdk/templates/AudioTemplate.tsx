@@ -5,7 +5,7 @@ const windowWidth = Dimensions.get('window').width;
 
 import AudioPlayer from '../components/AudioPlayer';
 import BotText from './BotText';
-
+import {getBubbleTheme} from '../theme/themeHelper';
 interface AudioProps extends BaseViewProps {}
 
 interface AudioState extends BaseViewState {
@@ -23,7 +23,7 @@ export default class AudioTemplate extends BaseView<AudioProps, AudioState> {
 
   render() {
     const url = this.props.payload?.audioUrl;
-
+    const bubbleTheme = getBubbleTheme(this.props.theme)
     const isDisable = this.isViewDisable();
     return (
       <View pointerEvents={isDisable ? 'none' : 'auto'}>
@@ -38,7 +38,7 @@ export default class AudioTemplate extends BaseView<AudioProps, AudioState> {
           </View>
         )}
         {url && (
-          <View style={styles.container}>
+          <View style={[styles.container,{borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR,borderWidth: 1, borderRadius: 5}]}>
             <AudioPlayer
               audioUrl={url}
             />
