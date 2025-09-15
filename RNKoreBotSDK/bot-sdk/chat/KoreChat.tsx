@@ -100,7 +100,8 @@ dayjs.extend(localizedFormat);
 const imageFilesTypes = ['jpg', 'jpeg', 'png'];
 const windowWidth = Dimensions.get('window').width;
 var isAgentConnect = false;
-
+var isMinimizedWindow = false
+var historyMessages = 1;
 interface KoraChatProps {
   messages?: any[];
   messagesContainerStyle?: any;
@@ -452,10 +453,14 @@ export default class KoreChat extends React.Component<
     botClient
       .on(RTM_EVENT.ON_OPEN, (data: any) => {
         console.log('-----> SUCCESS TO KORA BOT CONNECTED <------:', data);
+        if (isMinimizedWindow) {
+          this.loadHistory();
+          isMinimizedWindow = false;
+        }
         //setTypingIndicator(false);
         this.getThemeData();
+        this.setBotClientListeners();
         if (!data?.isReconnectionAttempt) {
-          this.setBotClientListeners();
           if (this.props.route?.params?.postUtterance) {
             setTimeout(() => {
               if (this.props.route?.params?.postUtterance) {
@@ -479,7 +484,7 @@ export default class KoreChat extends React.Component<
         //   });
         // }
       });
-    botClient.initializeBotClient(this.props.botConfig);
+    botClient.initializeBotClient(this.props.botConfig, !isMinimizedWindow);
   };
 
   private showAlert = (title: string, message: string, isBack?: boolean) => {
@@ -566,6 +571,7 @@ export default class KoreChat extends React.Component<
   };
 
   private handleDialogClose = () => {
+    isMinimizedWindow = false
     this.setState({ showBackButtonDialog: false });
     if (isAgentConnect) {
       KoreBotClient.getInstance().sendEvent('close_agent_chat');
@@ -589,6 +595,7 @@ export default class KoreChat extends React.Component<
   };
 
   private handleDialogMinimize = () => {
+    isMinimizedWindow = true
     this.setState({ showBackButtonDialog: false });
     KoreBotClient.getInstance().sendEvent('minimize_button_event');
     // Handle navigation for both iOS and Android
@@ -842,19 +849,20 @@ export default class KoreChat extends React.Component<
     // console.log('💬 Current messages count before append:', this.state.messages.length);
     // console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
     
-    this.setState(
-      {
-        messages: KoreChat.append(this.state.messages, modifiedMessages),
-      },
-      () => {
+    this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
+    // this.setState(
+    //   {
+    //     messages: KoreChat.append(this.state.messages, modifiedMessages),
+    //   },
+    //   () => {
         // console.log('💬 Messages updated, new count:', this.state.messages.length);
         // console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
         console.log('🔊 Starting text-to-speech in 1 second');
         setTimeout(() => {
           this.textToSpeech(newMessages);
         }, 1000);
-      },
-    );
+      // },
+    // );
   };
   private stopTTS = async () => {
     // Load TTS module if not already loaded
@@ -973,6 +981,7 @@ export default class KoreChat extends React.Component<
   };
 
   private setMessages = (messages: any[]) => {
+    historyMessages = messages.length;
     this.setState({messages});
   };
 
@@ -1044,15 +1053,7 @@ export default class KoreChat extends React.Component<
           forwardRef={this._messageContainerRef}
           isTyping={this.props.isTyping}
           onDragList={this.props.onDragList}
-          onHistoryLoaded={(historyMessages)=>{
-            let newMessages = this.getMessages().concat(historyMessages);
-            newMessages = newMessages.filter(
-              (item, index, self) =>
-                index === self.findIndex(m => m.timeMillis === item.timeMillis)
-            );
-            console.log('newMessages '+newMessages.length);
-            this.setState({ messages: newMessages});
-          }}
+          onHistoryLoaded={this.onHistoryLoaded}
         />
         {(this.state.messageBottomSheet && this.state.showTemplateBottomSheet) && (
           this.renderTemplateBottomSheet()
@@ -2712,6 +2713,27 @@ export default class KoreChat extends React.Component<
       </View>
     );
   }
+
+  private onHistoryLoaded = (historyMessages: any[])=>{
+    let newMessages = this.getMessages().concat(historyMessages);
+    newMessages = newMessages.filter(
+      (item, index, self) =>
+        index === self.findIndex(m => m.timeMillis === item.timeMillis)
+    );
+    console.log('newMessages '+newMessages.length);
+    this.setMessages(newMessages);
+  }
+
+  private loadHistory = async () => {
+      const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
+      await apiService.getBotHistory(0, historyMessages > 20 ? 20 : historyMessages, this.props.botConfig.botName, this.props.botConfig.botId, (response: any) => {
+        if (response == null) {
+          console.log('BotHistory null');
+          return;
+        }
+        this.onHistoryLoaded(response.data.botHistory);
+      });
+  };
 }
 
 const styles = StyleSheet.create({
