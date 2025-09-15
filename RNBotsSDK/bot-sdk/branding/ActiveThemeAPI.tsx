@@ -55,7 +55,7 @@ export class ActiveThemeAPI {
           await this.getAppTheme(botConfig, callback);
         });
 
-      KoreBotClient.getInstance().initializeBotClient(botConfig);
+      // KoreBotClient.getInstance().initializeBotClient(botConfig);
     }
   }
 

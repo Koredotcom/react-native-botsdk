@@ -91,7 +91,7 @@ const BotChatComponent = () => {
 
   const connect = () => {
     setupBotClient();
-    botClient.current.initializeBotClient(botConfig);
+    botClient.current.initializeBotClient(botConfig, false);
   };
 
   const disconnect = () => {

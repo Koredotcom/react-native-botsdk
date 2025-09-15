@@ -8,7 +8,7 @@ export interface IBotClient {
     resetReconnectAttemptCount?: boolean,
   ): any;
   setIsNetworkAvailable(setNetWork: boolean): any;
-  initializeBotClient(model: BotConfigModel): any;
+  initializeBotClient(model: BotConfigModel, isFirstTime: boolean): any;
   disconnect(): any;
   setSessionActive(isActive: boolean): any;
   setAppState(appState: string): any;
