@@ -107,6 +107,7 @@ export default class BotTemplate extends React.Component<
     switch (templateType) {
       case TEMPLATE_TYPES.TEXT:
       case TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE:
+      case TEMPLATE_TYPES.SYSTEM_TEMPLATE:
         return this.renderMessageText(payload, theme, templateType);
       case TEMPLATE_TYPES.BUTTON:
         return <Button payload={payload} theme={theme} onListItemClick={this.props.onListItemClick}/>;

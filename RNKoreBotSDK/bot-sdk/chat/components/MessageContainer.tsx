@@ -232,7 +232,9 @@ export default class MessageContainer extends PureComponent<
             item.message[0].component.payload.payload.template_type !==
               TEMPLATE_TYPES.QUICK_REPLIES &&
             item.message[0].component.payload.payload.template_type !==
-              TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE
+              TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE &&
+              item.message[0].component.payload.payload.template_type !==
+                TEMPLATE_TYPES.SYSTEM_TEMPLATE
           ) {
             //position = 'center';
             //isDisplayTime = false;

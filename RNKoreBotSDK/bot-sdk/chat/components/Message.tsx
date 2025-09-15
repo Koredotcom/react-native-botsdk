@@ -44,7 +44,7 @@ const styles = {
   bot_icon: {
     height: normalize(23),
     width: normalize(23),
-    marginTop: 45,
+    marginTop: 10,
   },
   bot_icon_con2: {
     height: normalize(23),
