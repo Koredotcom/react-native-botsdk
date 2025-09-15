@@ -75,7 +75,7 @@ const BotConnection: React.FC = () => {
       }
     });
 
-    botClient.initializeBotClient(botConfig);
+    botClient.initializeBotClient(botConfig, false);
     //botClient.initSocketConnection();
   }, [connectionStatus, updateConnectionStatus]);
 

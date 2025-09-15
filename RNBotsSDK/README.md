@@ -86,7 +86,7 @@ class BotExample extends Component {
     });
 
     // Initialize the bot client
-    botClient.initializeBotClient(botConfig);
+    botClient.initializeBotClient(botConfig,false);
   };
 
   sendMessage = () => {
@@ -246,7 +246,7 @@ Logger.error('Error occurred', {error: 'details'}, errorObject);
 const botClient = KoreBotClient.getInstance();
 
 // Initialize and connect
-botClient.initializeBotClient(botConfig);
+botClient.initializeBotClient(botConfig,false);
 
 // Check connection state
 const connectionState = botClient.getConnectionState();
@@ -447,7 +447,7 @@ class BotChatComponent extends Component<{}, State> {
     const botConfig = {
       // Your bot configuration
     };
-    this.botClient.initializeBotClient(botConfig);
+    this.botClient.initializeBotClient(botConfig,false);
   };
 
   private disconnect = () => {
@@ -577,7 +577,7 @@ console.log('Support logs:', supportLogs);
 | Method                                         | Parameters           | Description                  |
 | ---------------------------------------------- | -------------------- | ---------------------------- |
 | `getInstance()`                                | None                 | Get singleton instance       |
-| `initializeBotClient(config)`                  | `BotConfigModel`     | Initialize bot connection    |
+| `initializeBotClient(config,false)`                  | `BotConfigModel`     | Initialize bot connection    |
 | `sendMessage(message, payload?, attachments?)` | `string, any?, any?` | Send message to bot          |
 | `disconnect()`                                 | None                 | Disconnect from bot          |
 | `reconnect(isReconnection, resetCount?)`       | `boolean, boolean?`  | Manual reconnection          |

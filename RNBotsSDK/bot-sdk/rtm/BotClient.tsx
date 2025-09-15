@@ -67,7 +67,7 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.isConnectAtleastOnce = false;
   }
 
-  initializeBotClient(config: BotConfigModel) {
+  initializeBotClient(config: BotConfigModel, isFirstTime: boolean) {
     if (config == null || config == undefined) {
       throw new Error('BotConfigModel object can not be null');
     }
@@ -81,7 +81,7 @@ export class BotClient extends EventEmitter implements IBotClient {
     ) {
       throw new Error('BotConfigModel object has some values are missing');
     }
-    this.connectToBot(config, true);
+    this.connectToBot(config, isFirstTime);
   }
 
   // async checkConnectivity() {
