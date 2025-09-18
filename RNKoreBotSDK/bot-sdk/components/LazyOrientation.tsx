@@ -111,6 +111,7 @@ export class LazyOrientation extends Component<LazyOrientationProps, LazyOrienta
       if (this.mounted) {
         // Handle different export patterns
         const Orientation = OrientationModule?.default || OrientationModule || null;
+        
 
         if (!Orientation || !Orientation.lockToPortrait) {
           throw new Error('Orientation module or required methods not found');
@@ -257,6 +258,7 @@ export const useLazyOrientation = (onOrientationChange?: (orientation: string) =
       );
 
       const Orientation = OrientationModule?.default || OrientationModule || null;
+      
 
       if (!Orientation || !Orientation.lockToPortrait) {
         throw new Error('Orientation module or required methods not found');
@@ -314,6 +316,24 @@ export const useLazyOrientation = (onOrientationChange?: (orientation: string) =
     return orientation.unlockAllOrientations();
   }, [loadOrientation]);
 
+  const lockToLandscapeLeft = React.useCallback(async () => {
+    const orientation = await loadOrientation();
+    if (!orientation) {
+      console.warn('Orientation locker not available');
+      return;
+    }
+    return orientation.lockToLandscapeLeft();
+  }, [loadOrientation]);
+
+  const lockToLandscapeRight = React.useCallback(async () => {
+    const orientation = await loadOrientation();
+    if (!orientation) {
+      console.warn('Orientation locker not available');
+      return;
+    }
+    return orientation.lockToLandscapeRight();
+  }, [loadOrientation]);
+
   // Set up dimension listener for fallback orientation detection
   React.useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({ window }) => {
@@ -345,6 +365,8 @@ export const useLazyOrientation = (onOrientationChange?: (orientation: string) =
     loadOrientation,
     lockToPortrait,
     lockToLandscape,
+    lockToLandscapeLeft,
+    lockToLandscapeRight,
     unlockAllOrientations,
   };
 };
@@ -387,6 +409,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    width: '0%',
+    height: '0%',
   },
   readyText: {
     fontSize: 14,

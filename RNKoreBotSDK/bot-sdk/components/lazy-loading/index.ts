@@ -47,21 +47,6 @@ export {
   FallbackTTS
 } from '../LazyTTS';
 
-// Lazy SVG components
-export { 
-  LazySvg,
-  LazySvgPath,
-  LazySvgRect,
-  LazySvgCircle,
-  LazySvgText,
-  useLazySvg,
-  FallbackSvg,
-  FallbackSvgPath,
-  FallbackSvgRect,
-  FallbackSvgCircle,
-  FallbackSvgText
-} from '../LazySvg';
-
 // Lazy Popover components
 export { 
   LazyPopover,
@@ -98,6 +83,13 @@ export {
   useLazyParsedText,
   FallbackParsedText
 } from '../LazyParsedText';
+
+// Lazy Slider components
+export { 
+  LazySlider,
+  useLazySlider,
+  FallbackSlider
+} from '../LazySlider';
 
 // Enhanced modal with lazy loading
 export { default as CustomDateTimePickerModal } from '../CustomDateTimePickerModal';
@@ -137,24 +129,6 @@ export type {
   Engine,
 } from '../LazyTTS';
 
-// LazyDocumentPicker types removed
-
-export type {
-  LazySvgProps,
-  SvgProps,
-  SvgPathProps,
-  SvgRectProps,
-  SvgCircleProps,
-  SvgTextProps,
-  SvgModule,
-} from '../LazySvg';
-
-export type {
-  LazyFastImageProps,
-  FastImageProps,
-  FastImageModule,
-} from '../LazyFastImage';
-
 export type {
   LazyPopoverProps,
   PopoverProps,
@@ -175,3 +149,9 @@ export type {
   ParsedTextProps,
   ParsedTextModule,
 } from '../LazyParsedText';
+
+export type {
+  LazySliderProps,
+  SliderProps,
+  SliderModule,
+} from '../LazySlider';
