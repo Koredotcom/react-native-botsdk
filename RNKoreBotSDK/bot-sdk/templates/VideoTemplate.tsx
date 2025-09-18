@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {createRef} from 'react';
-import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
+import { createRef } from 'react';
+import BaseView, { BaseViewProps, BaseViewState } from './BaseView';
 import {
   Dimensions,
   Modal,
@@ -8,23 +8,17 @@ import {
   StatusBar,
   StyleSheet,
   View,
+  Text,
 } from 'react-native';
 
 import FullScreenVideo, {
   MyFunctionComponentRef,
 } from '../components/FullScreenVideo';
 
-// Conditional import for orientation locker
-let Orientation: any = null;
-try {
-  Orientation = require('react-native-orientation-locker').default;
-} catch (error) {
-  console.warn('react-native-orientation-locker not available, orientation features will be disabled');
-}
-
-import {normalize} from '../utils/helpers';
-import MoVideoPlayer from '../components/MoVideoPlayer';
+import { normalize } from '../utils/helpers';
 import BotText from './BotText';
+import { LazyOrientation } from '../components/LazyOrientation';
+import Video, { OnLoadData, OnProgressData } from 'react-native-video';
 
 const WIDTH = Dimensions.get('window').width;
 
@@ -33,20 +27,24 @@ interface VideoProps extends BaseViewProps {}
 interface VideoState extends BaseViewState {
   modalVisible?: boolean;
   myVideoRef: any;
-  duration: any;
-  url?: string | undefined;
+  duration: number;
+  url?: string;
+  currentTime: number;
 }
 
 export default class VideoTemplate extends BaseView<VideoProps, VideoState> {
-  private videoRef = createRef<MyFunctionComponentRef>();
-  dur?: any;
+  private videoRef = createRef<Video>();
+  private orientationRef = createRef<LazyOrientation>();
+  dur?: number;
+
   constructor(props: VideoProps) {
     super(props);
     this.state = {
       modalVisible: false,
       myVideoRef: null,
       duration: 0,
-      url: this.props?.payload?.videoUrl,
+      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+      currentTime: 0,
     };
   }
 
@@ -56,78 +54,59 @@ export default class VideoTemplate extends BaseView<VideoProps, VideoState> {
     _snapshot?: any,
   ): void {
     if (prevState.modalVisible !== this.state.modalVisible) {
-      if (Orientation && Orientation.lockToPortrait) {
-        try {
-          Orientation.lockToPortrait();
-        } catch (error) {
-          console.warn('Failed to lock orientation:', error);
-        }
-      }
+      this.orientationRef.current?.lockToPortrait();
       StatusBar.setHidden(false);
     }
 
     if (this.isViewDisable() && this.state.url) {
-      this.setState({
-        url: undefined,
-      });
-      this.videoRef?.current?.setVideoState?.(true);
+      this.setState({ url: undefined });
+      this.videoRef?.current?.seek?.(0);
     }
   }
+
+  private onLoad = (data: OnLoadData) => {
+    this.setState({ duration: data.duration });
+    this.dur = data.duration;
+  };
+
+  private onProgress = (data: OnProgressData) => {
+    this.setState({ currentTime: data.currentTime });
+  };
+
+  private formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
   private renderPlayerView = () => {
     return (
-      <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'} style={{}}>
-        <MoVideoPlayer
-          ref={(ref: any) => {
-            if (!this.state.myVideoRef) {
-              this.videoRef = ref;
-              this.setState({
-                myVideoRef: ref,
-              });
-            }
-          }}
-          style={styles.player}
-          source={{
-            uri: this.state.url,
-          }}
-          //poster="https://www.carage.net/media/halfhd/carage_fahrzeuge_square_8.jpg"
-          // title="React Native MO-VIDEO-PLAYER"
-          autoPlay={false}
-          playInBackground={false}
-          //  source={{uri: this.state.url}}
-          isFromNormalScreen={true}
-          getCurrentVideoDuration={(dur: any) => {
-            this.dur = dur;
-          }}
-          isViewDisable={this.isViewDisable()}
-          showSettingButton={false}
-          showSeeking10SecondsButton={true}
-          showCoverButton={true}
-          showFullScreenButton={true}
-          onFullScreen={() => {
-            this.state.myVideoRef?.setVideoState?.(true);
-            setTimeout(() => {
-              // this.state.myVideoRef?.setVideoState?.(true);
-              this.setState({
-                modalVisible: true,
-                duration: this.dur,
-              });
-            }, 100);
-          }}
+      <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'}>
+        <Video
+          ref={this.videoRef}
+          source={{ uri: this.state.url! }}
+          style={styles.video}
+          controls={true}
+          resizeMode="contain"
+          onLoad={this.onLoad}
+          onProgress={this.onProgress}
         />
+
+        {/* Time display */}
+        <Text style={styles.timeText}>
+          {this.formatTime(this.state.currentTime)} /{' '}
+          {this.formatTime(this.state.duration)}
+        </Text>
 
         <Modal
           visible={this.state.modalVisible}
           animationType="slide"
           onRequestClose={() => {
-            this.setState({
-              modalVisible: false,
-            });
+            this.setState({ modalVisible: false });
           }}>
           <FullScreenVideo
             onClose={() => {
-              this.setState({
-                modalVisible: false,
-              });
+              this.setState({ modalVisible: false });
             }}
             getVideoRef={this.state.myVideoRef}
             duration={this.state.duration}
@@ -140,6 +119,7 @@ export default class VideoTemplate extends BaseView<VideoProps, VideoState> {
   render() {
     return (
       <View>
+        <LazyOrientation ref={this.orientationRef} autoLoad={true} />
         {this.props.payload && (
           <View>
             {this.props.payload?.text && (
@@ -159,10 +139,16 @@ export default class VideoTemplate extends BaseView<VideoProps, VideoState> {
 }
 
 const styles = StyleSheet.create({
-  player: {
+  video: {
     width: (WIDTH / 4) * 3.2,
     height: normalize(200),
-    marginTop: Platform.OS == 'ios' ? 30 : 0,
-    backgroundColor: 'green',
+    marginTop: Platform.OS === 'ios' ? 30 : 0,
+    backgroundColor: 'black',
+  },
+  timeText: {
+    marginTop: 8,
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: 14,
   },
 });

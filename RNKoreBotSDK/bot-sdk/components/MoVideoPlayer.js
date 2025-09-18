@@ -22,7 +22,6 @@ import {
 
 // Conditional imports for native modules
 let Video = null;
-let Orientation = null;
 let uuid = null;
 
 try {
@@ -31,18 +30,14 @@ try {
   console.warn('react-native-video not available, video features will be disabled');
 }
 
-try {
-  Orientation = require('react-native-orientation-locker').default;
-} catch (error) {
-  console.warn('react-native-orientation-locker not available, orientation features will be disabled');
-}
-
 // Use custom UUID implementation
 uuid = require('../utils/uuid').default;
 
 import {SvgIcon} from '../utils/SvgIcon';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
+import { useLazyOrientation } from './LazyOrientation';
+import { LazySlider } from './lazy-loading';
 
 const MoVideoPlayer = forwardRef((props, ref) => {
   useImperativeHandle(
@@ -50,13 +45,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
     () => ({
       onCloseScreen() {
         StatusBar.setHidden(false);
-        if (Orientation && Orientation.lockToPortrait) {
-          try {
-            Orientation.lockToPortrait();
-          } catch (error) {
-            console.warn('Failed to lock orientation:', error);
-          }
-        }
+        lockToPortrait?.();
       },
       onOpenScreen() {
         setAutoHideOptions(true, false, timeOutHandler);
@@ -104,6 +93,10 @@ const MoVideoPlayer = forwardRef((props, ref) => {
   const videoRef = useRef(null);
   const [isPaused, setIsPaused] = useState(!autoPlay);
   const [isMuted, setIsMuted] = useState(false);
+  
+  // Lazy load orientation module
+  const { lockToPortrait, lockToLandscape, lockToLandscapeLeft, isLoading, loadError } = useLazyOrientation();
+  
   const [isVideoSeeked, setIsVideoSeeked] = useState(false);
   const [isVideoFocused, setIsVideoFocused] = useState(true);
   const [isShowVideoCurrentDuration, setIsShowVideoCurrentDuration] =
@@ -198,13 +191,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
       'hardwareBackPress',
       () => {
         // if(isVideoFullScreen){
-        if (Orientation && Orientation.lockToPortrait) {
-          try {
-            Orientation.lockToPortrait();
-          } catch (error) {
-            console.warn('Failed to lock orientation:', error);
-          }
-        }
+        lockToPortrait?.();
         StatusBar.setHidden(false);
         return false;
         // }else{
@@ -276,22 +263,10 @@ const MoVideoPlayer = forwardRef((props, ref) => {
                 } else {
                   if (isVideoFullScreen) {
                     StatusBar.setHidden(false);
-                    if (Orientation && Orientation.lockToPortrait) {
-                      try {
-                        Orientation.lockToPortrait();
-                      } catch (error) {
-                        console.warn('Failed to lock orientation:', error);
-                      }
-                    }
+                    lockToPortrait?.();
                   } else {
                     StatusBar.setHidden(true);
-                    if (Orientation && Orientation.lockToLandscapeLeft) {
-                      try {
-                        Orientation.lockToLandscapeLeft();
-                      } catch (error) {
-                        console.warn('Failed to lock orientation:', error);
-                      }
-                    }
+                    lockToLandscapeLeft?.();
                   }
                 }
               }}
@@ -421,7 +396,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
           />
         </TouchableOpacity>
 
-        {/* <Slider
+        <LazySlider
           style={{flex: 1, marginEnd: 5}}
           //disabled={isRecordBeforePlay}
           maximumValue={videoDuration}
@@ -438,8 +413,8 @@ const MoVideoPlayer = forwardRef((props, ref) => {
             setCurrentVideoDuration(sliderData);
             videoRef.current.seek(sliderData);
           }}
-        /> */}
-
+        />
+        console.log('currentVideoDuration', currentVideoDuration);
         <Text style={{color: 'white', fontSize: 12, marginRight: 10}}>
           {new Date(currentVideoDuration * 1000).toISOString().substr(14, 5)} /
           <Text style={{color: 'white'}}>
@@ -1138,7 +1113,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
           />
         </TouchableOpacity>
 
-        {/* <Slider
+        <LazySlider
           //disabled={isRecordBeforePlay}
           style={{flex: 1}}
           maximumValue={1}
@@ -1160,7 +1135,7 @@ const MoVideoPlayer = forwardRef((props, ref) => {
               setIsMuted(false);
             }
           }}
-        /> */}
+        />
 
         <Text style={{color: 'white'}}>{videoSound}</Text>
       </View>
