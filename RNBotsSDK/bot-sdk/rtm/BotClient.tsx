@@ -157,6 +157,15 @@ export class BotClient extends EventEmitter implements IBotClient {
 
   private async createJwtToken(config: BotConfigModel, isFirstTime: boolean = true) {
     if (!this.botConfig) return;
+    if (this.botConfig.jwtToken) {
+      this.jwtToken = this.botConfig.jwtToken;
+      if (!this.botConfig?.isWebHook) {
+        await this.connectWithJwToken(this.jwtToken, !isFirstTime);
+      } else {
+        this.getWebhookMeta(this.botConfig, isFirstTime);
+      }
+      return;
+    }
     const apiService = new ApiService(this.botConfig?.botName + "", this);
     await apiService.getJwtToken(
       this.botConfig!!,
@@ -171,25 +180,7 @@ export class BotClient extends EventEmitter implements IBotClient {
         if (!this.botConfig?.isWebHook) {
           await this.connectWithJwToken(this.jwtToken, !isFirstTime);
         } else {
-          const apiService = new ApiService(this.botConfig.botUrl, this);
-          await apiService.getWebHookBotMeta(this.jwtToken, this.botConfig.botId, (response: any) => {
-            if (response) {
-              apiService.sendWebHookMessage(
-                this.botConfig!!,
-                isFirstTime,
-                'ON_CONNECT',
-                (response: any) => {
-                  this.emit(RTM_EVENT.ON_OPEN)
-                  if (isFirstTime) {
-                    const messages: any[] = response.data;
-                    for (const msg of messages) {
-                      this.onMessage(msg);
-                    }
-                  }
-                },
-              )
-            }
-          });
+          this.getWebhookMeta(this.botConfig, isFirstTime);
         }
       },
       (error: any) => {
@@ -199,6 +190,28 @@ export class BotClient extends EventEmitter implements IBotClient {
           isBack: false,
         });
       })
+  }
+
+  private async getWebhookMeta(botConfig: BotConfigModel, isFirstTime: boolean) {
+    const apiService = new ApiService(botConfig.botUrl, this);
+    await apiService.getWebHookBotMeta(this.jwtToken, botConfig.botId, (response: any) => {
+      if (response) {
+        apiService.sendWebHookMessage(
+          this.botConfig!!,
+          isFirstTime,
+          'ON_CONNECT',
+          (response: any) => {
+            this.emit(RTM_EVENT.ON_OPEN)
+            if (isFirstTime) {
+              const messages: any[] = response.data;
+              for (const msg of messages) {
+                this.onMessage(msg);
+              }
+            }
+          },
+        )
+      }
+    });
   }
 
   private initialize(botInfo: any, customData: any) {
