@@ -429,7 +429,7 @@ export default class MessageContainer extends PureComponent<
               this.loadHistory();
             }
           }}>
-          <Text style={{ fontSize: 10, color: '#000000', fontWeight:'bold'}}>Load history</Text>
+          <Text style={{ fontSize: 10, color: '#000000', fontWeight:'bold', display: 'none'}}>Load history</Text>
         </TouchableOpacity>
         <FlatList
           ref={this.props.forwardRef}

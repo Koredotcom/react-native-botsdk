@@ -265,8 +265,8 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
       }
     }
 
-    console.log('📄 MessageText - Processing payload:', JSON.stringify(payload, null, 2));
-    console.log('📄 MessageText - Extracted message:', message);
+    // console.log('📄 MessageText - Processing payload:', JSON.stringify(payload, null, 2));
+    // console.log('📄 MessageText - Extracted message:', message);
 
     let text: string | undefined = message;
     // console.log('========================');

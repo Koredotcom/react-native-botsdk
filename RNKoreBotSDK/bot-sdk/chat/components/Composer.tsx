@@ -162,7 +162,7 @@ export function Composer({
           {...textInputProps}
         />
 
-        {theme?.v3?.footer?.buttons?.speaker?.show && (
+        {true && (
           <TouchableOpacity
             onPress={() => {
               const spacker = !isTTS;

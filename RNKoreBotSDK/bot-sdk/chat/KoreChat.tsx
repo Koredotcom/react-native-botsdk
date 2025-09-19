@@ -89,10 +89,9 @@ import Welcome from '../components/WelcomeScreen';
 import CustomAlertComponent from '../components/CustomAlertComponent';
 import TemplateBottomSheet from './components/TemplateBottomSheet';
 import ArticleTemplate from '../templates/ArticleTemplate';
+import { LazyLoader } from '../utils/LazyLoader';
 
-let Tts: any = null;
 let Sound: any = null;
-let isTTSAvailable = false;
 
 try {
   Sound = require('react-native-sound').default;
@@ -101,45 +100,7 @@ try {
     Sound.setActive(true);
   }
 } catch (error) {
-}
-
-try {
-  Tts = require('react-native-tts').default;
-  if (Tts && typeof Tts.speak === 'function') {
-    isTTSAvailable = true;
-    
-    try {
-      Tts.setDefaultRate(0.5);
-      Tts.setDefaultPitch(1.0);
-      Tts.setIgnoreSilentSwitch('ignore');
-      Tts.setDucking(false);
-      
-      if (Sound) {
-        try {
-          Sound.setCategory('Playback', false);
-          Sound.setActive(true);
-        } catch (soundError) {
-        }
-      }
-      
-      setTimeout(() => {
-        try {
-          Tts.speak('Ready', {
-            iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
-            rate: 2.0,
-            volume: 0.1,
-          });
-        } catch (e) {
-          // TTS initialization failed
-        }
-      }, 500);
-      
-    } catch (initError) {
-      // TTS initialization failed
-    }
-  }
-} catch (error) {
-  // TTS not available
+  // Sound not available
 }
 
 dayjs.extend(localizedFormat);
@@ -231,7 +192,9 @@ export default class KoreChat extends React.Component<
   KoraChatProps,
   KoraChatState
 > {
-  _messageContainerRef: RefObject<any> = React.createRef();
+  _messageContainerRef: RefObject<any> = React.createRef()
+  private ttsModule: any = null;
+  private isTTSAvailable: boolean = false;
   textInput: any = null;
   alertRef = React.createRef<CustomAlertComponent>();
 
@@ -721,9 +684,9 @@ export default class KoreChat extends React.Component<
       });
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
-        if (data) {
-          console.log('Bot Response Data ------->:', JSON.stringify(data, null, 2));
-        }
+        // if (data) {
+        //   console.log('Bot Response Data ------->:', JSON.stringify(data, null, 2));
+        // }
         if (data.type === 'ack') {
           console.log('Received ACK message, setting loading state');
           this.setIsBotResponseLoading(true);
@@ -833,13 +796,96 @@ export default class KoreChat extends React.Component<
           this.textToSpeech(newMessages);
         }, 1000);
   };
-  private stopTTS = () => {
-    if (!isTTSAvailable || !Tts) {
+  private stopTTS = async () => {
+    if (!this.ttsModule || !this.isTTSAvailable) {
       return;
     }
-    // TTS will stop when new speech starts or app backgrounds
+    try {
+      await this.ttsModule.stop();
+    } catch (error) {
+      // TTS stop failed - silent fail
+    }
   };
 
+  private initializeTTS = async () => {
+    if (this.ttsModule && this.isTTSAvailable) {
+      return; // Already initialized
+    }
+    
+    try {
+      // Load TTS module using LazyLoader
+      const TTS = await LazyLoader.importModule(
+        () => import('react-native-tts'),
+        'tts'
+      );
+      
+      if (!TTS || !TTS.speak) {
+        throw new Error('TTS module or required methods not found');
+      }
+      
+      // Test availability
+      try {
+        await TTS.getInitStatus();
+        this.isTTSAvailable = true;
+      } catch (error) {
+        this.isTTSAvailable = true; // Assume available even if check fails
+      }
+      
+      this.ttsModule = TTS;
+      
+      // Configure TTS settings
+      try {
+        await TTS.setDefaultRate(0.5);
+        await TTS.setDefaultPitch(1.0);
+        await TTS.setIgnoreSilentSwitch('ignore');
+        await TTS.setDucking(false);
+      } catch (configError) {
+        console.warn('TTS: Configuration failed:', configError);
+      }
+      
+    } catch (error) {
+      console.error('TTS: Failed to initialize:', error);
+      this.ttsModule = null;
+      this.isTTSAvailable = false;
+    }
+  };
+
+  private cleanupTTS = async () => {
+    if (!this.ttsModule) {
+      return;
+    }
+    
+    try {
+      await this.ttsModule.stop();
+    } catch (error) {
+      console.warn('TTS: Error during cleanup:', error);
+    }
+    
+    this.ttsModule = null;
+    this.isTTSAvailable = false;
+  };
+
+  private speakMessage = async (message: string) => {
+    if (!this.ttsModule || !this.isTTSAvailable) {
+      return;
+    }
+    
+    try {
+      await this.ttsModule.speak(message, {
+        iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
+        rate: 0.5,
+        pitch: 1.0,
+      });
+    } catch (error) {
+      console.error('TTS: Speak failed:', error);
+      // Try a simpler speak call without options
+      try {
+        await this.ttsModule.speak(message);
+      } catch (fallbackError) {
+        console.error('TTS: Fallback speak also failed:', fallbackError);
+      }
+    }
+  };
 
   isSliderView=(message: any) => {
     return message.message &&
@@ -883,15 +929,7 @@ export default class KoreChat extends React.Component<
       }
 
       if (message) {
-        try {
-          Tts.speak(message, {
-            iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
-            rate: 0.5,
-            pitch: 1.0,
-          });
-        } catch (error) {
-          // TTS speak failed
-        }
+        this.speakMessage(message);
       }
     }
   };
@@ -1551,9 +1589,12 @@ export default class KoreChat extends React.Component<
         isTTSenable: _isSpeech,
       },
       () => {
-        if (!this.state.isTTSenable) {
-          this.stopTTS();
-          return;
+        if (this.state.isTTSenable) {
+          // User enabled TTS - create LazyTTS instance on demand
+          this.initializeTTS();
+        } else {
+          // User disabled TTS - cleanup and destroy instance
+          this.cleanupTTS();
         }
       },
     );

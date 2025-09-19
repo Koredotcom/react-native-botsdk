@@ -174,14 +174,14 @@ export class Localization {
    */
   public getLocalizedString(key: string, locale?: string): string {
     const targetLocale = locale || this.currentLocale;
-    console.log('Localization: Looking up key:', key, 'in locale:', targetLocale);
+    // console.log('Localization: Looking up key:', key, 'in locale:', targetLocale);
     
     const strings = LOCALIZED_STRINGS[targetLocale as keyof typeof LOCALIZED_STRINGS];
-    console.log('Localization: Found strings for locale:', targetLocale, '→', !!strings);
+    // console.log('Localization: Found strings for locale:', targetLocale, '→', !!strings);
     
     if (strings && strings[key as keyof typeof strings]) {
       const translatedString = strings[key as keyof typeof strings];
-      console.log(`Localization: Translated "${key}" to "${translatedString}" (${targetLocale})`);
+      // console.log(`Localization: Translated "${key}" to "${translatedString}" (${targetLocale})`);
       return translatedString;
     }
     
