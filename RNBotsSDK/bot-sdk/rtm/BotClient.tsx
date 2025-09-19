@@ -157,6 +157,9 @@ export class BotClient extends EventEmitter implements IBotClient {
 
   private async createJwtToken(config: BotConfigModel, isFirstTime: boolean = true) {
     if (!this.botConfig) return;
+    this.botInfo = new BotInfoModel(config.botName, config.botId, { identity: '', userName: '' });
+    this.initialize(this.botInfo, this.botCustomData);
+
     if (this.botConfig.jwtToken) {
       this.jwtToken = this.botConfig.jwtToken;
       if (!this.botConfig?.isWebHook) {
@@ -172,11 +175,6 @@ export class BotClient extends EventEmitter implements IBotClient {
       isFirstTime,
       async (jwtToken: any) => {
         this.jwtToken = jwtToken;
-        this.botInfo = new BotInfoModel(config.botName, config.botId, {
-          identity: '',
-          userName: '',
-        });
-        this.initialize(this.botInfo, this.botCustomData);
         if (!this.botConfig?.isWebHook) {
           await this.connectWithJwToken(this.jwtToken, !isFirstTime);
         } else {
