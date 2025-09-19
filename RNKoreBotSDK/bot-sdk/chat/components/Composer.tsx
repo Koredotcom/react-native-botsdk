@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -37,6 +37,7 @@ export interface ComposerProps {
   onInputSizeChanged?(layout: {width: number; height: number}): void;
   theme: IThemeType;
   onSpeakerClicked?(isSpeek: boolean): void;
+  isTTSenable?: boolean;
 }
 
 export function Composer({
@@ -53,10 +54,16 @@ export function Composer({
   textInputProps = {},
   theme,
   onSpeakerClicked = () => {},
+  isTTSenable = false,
 }: ComposerProps): React.ReactElement {
   const dimensionsRef = useRef<{width: number; height: number}>();
   const [isTTS, setTTS] = useState(false);
   //onSpeakerClicked(false);
+
+  // Sync local state with parent state when it changes
+  useEffect(() => {
+    setTTS(isTTSenable);
+  }, [isTTSenable]);
 
   const composerHeightNew: number = composerHeight || 35;
 
