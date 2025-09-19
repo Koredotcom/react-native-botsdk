@@ -10,4 +10,5 @@ export interface BotConfigModel {
   value_aud: string;
   isHeaderVisible: boolean;
   isFooterVisible: boolean;
+  jwtToken?: string
 }
