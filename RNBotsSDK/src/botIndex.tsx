@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, TextInput, Alert, StyleSheet } from 'react-native';
 import { RTM_EVENT, BOT_RECOGNITION_EVENTS } from '../bot-sdk/constants/Constant';
 import { KoreBotClient } from '../bot-sdk/rtm/KoreBotClient';
 import { botConfig } from './BotConfig';
@@ -8,6 +8,7 @@ import ApiService from '../bot-sdk/api/ApiService';
 const BotConnection: React.FC = () => {
   const [connectionStatus, setConnectionStatus] = useState<string>('Disconnected');
   const [connectionColor, setConnectionColor] = useState<string>('#dc3545'); // Red
+  const [inputText, setInputText] = useState('');
 
   const updateConnectionStatus = useCallback((status: string, color: string) => {
     setConnectionStatus(status);
@@ -30,9 +31,9 @@ const BotConnection: React.FC = () => {
 
     botClient.on(RTM_EVENT.ON_OPEN, () => {
       //setTypingIndicator(false);
-      const interval = setTimeout(() => {
-        botClient.sendMessage('Help');
-      }, 5000);
+      // const interval = setTimeout(() => {
+      //   botClient.sendMessage('Help');
+      // }, 5000);
       console.log('RTM_EVENT.ON_OPEN   ---->:', RTM_EVENT.ON_OPEN);
       const apiService = new ApiService(botConfig.botUrl, botClient);
       apiService.subscribePushNotifications("12345");
@@ -109,93 +110,145 @@ const BotConnection: React.FC = () => {
     };
   }, []);
 
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <Text style={{ fontSize: 18, marginBottom: 20 }}>
-          {'Kore.ai Inc, Bot Socket module'}
-        </Text>
+  const sendMessage = () => {
+    if (inputText.trim() === '') {
+      Alert.alert('Error', 'Please enter a message');
+      return;
+    }
 
-        {/* Connection Status Display */}
-        <View
-          style={{
-            backgroundColor: connectionColor,
-            padding: 12,
-            borderRadius: 8,
-            marginBottom: 20,
-            minWidth: 200,
-            alignItems: 'center',
-          }}>
-          <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+    if (!botConfig.isWebHook && connectionStatus !== 'Connected') {
+      Alert.alert('Error', 'Please connect to the bot first');
+      return;
+    }
+
+    try {
+      botClient.sendMessage(inputText);
+      setInputText(''); // Clear input after sending
+
+      // // Add user message to messages array for display
+      // addMessage({
+      //   type: 'user',
+      //   message: inputText,
+      //   timestamp: new Date().toLocaleTimeString()
+      // });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send message');
+      console.error('Send message error:', error);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Kore.ai Bot Chat</Text>
+        <View style={[styles.statusBadge, { backgroundColor: connectionColor }]}>
+          <Text style={styles.statusText}>
             Status: {connectionStatus}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 15 }}>
-          <TouchableOpacity
-            onPress={init}
-            style={{
-              backgroundColor: '#007bff',
-              padding: 10,
-              marginTop: 30,
-              minHeight: 40,
-              minWidth: 100,
-              borderRadius: 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>
-              {'Connect'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleDisconnect}
-            style={{
-              backgroundColor: '#dc3545',
-              padding: 10,
-              marginTop: 30,
-              minHeight: 40,
-              minWidth: 100,
-              borderRadius: 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>
-              {'Disconnect'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => botClient.sendEvent(BOT_RECOGNITION_EVENTS.TYPING)}
-
-            style={{
-              backgroundColor: '#dc3545',
-              padding: 10,
-              marginTop: 30,
-              minHeight: 40,
-              minWidth: 100,
-              borderRadius: 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-              display: 'none',
-            }}>
-            <Text style={{ fontSize: 16, color: 'white', fontWeight: 'bold' }}>
-              {'Send Event'}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </View>
-    </SafeAreaView >
+
+      <View style={styles.controls}>
+        <TouchableOpacity style={styles.connectButton} onPress={init}>
+          <Text style={styles.buttonText}>Connect</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.disconnectButton} onPress={handleDisconnect}>
+          <Text style={styles.buttonText}>Disconnect</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.messageInputContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Send message to bot..."
+          placeholderTextColor="#999999"
+          value={inputText}
+          onChangeText={setInputText}
+          multiline
+          maxLength={500}
+        />
+        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+          <Text style={styles.buttonText}>Send</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  statusBadge: {
+    padding: 10,
+    borderRadius: 8,
+    minWidth: 200,
+    alignItems: 'center',
+  },
+  statusText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  connectButton: {
+    backgroundColor: '#007bff',
+    padding: 15,
+    borderRadius: 8,
+    flex: 0.4,
+    alignItems: 'center',
+  },
+  disconnectButton: {
+    backgroundColor: '#dc3545',
+    padding: 15,
+    borderRadius: 8,
+    flex: 0.4,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  messageInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+    padding: 10,
+    marginTop: 20,
+  },
+  textInput: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 15,
+    backgroundColor: 'white',
+    marginRight: 10,
+    maxHeight: 100,
+    minHeight: 40,
+    fontSize: 16,
+    paddingHorizontal: 15,
+  },
+  sendButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default BotConnection;
