@@ -93,7 +93,7 @@ export class Localization {
       const intlLocale = Intl.DateTimeFormat().resolvedOptions().locale;
       if (intlLocale) {
         const langCode = intlLocale.split(/[-_]/)[0];
-        console.log('Localization: Device locale from Intl API:', intlLocale, '→', langCode);
+        // console.log('Localization: Device locale from Intl API:', intlLocale, '→', langCode);
         return langCode;
       }
     } catch (error) {
@@ -194,7 +194,7 @@ export class Localization {
       console.warn(`⚠️  Missing translation for "${key}" in locale "${targetLocale}", using English fallback: "${fallbackString}"`);
     }
     
-    console.log(`Localization: Using fallback for "${key}": "${fallbackString}"`);
+    // console.log(`Localization: Using fallback for "${key}": "${fallbackString}"`);
     return fallbackString;
   }
 
