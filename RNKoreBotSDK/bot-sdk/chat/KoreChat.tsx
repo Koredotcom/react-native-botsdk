@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable react-native/no-inline-styles */
 import * as React from 'react';
 import {ReactNode, RefObject} from 'react';
 import {
@@ -46,7 +44,6 @@ import {
 } from '../constants/Constant';
 import { LocalizationManager } from '../constants/Localization';
 
-//import BotException from '../exceptions/BotException';
 import KoreBotClient, {
   RTM_EVENT,
   BotConfigModel,
@@ -54,7 +51,6 @@ import KoreBotClient, {
   ActiveThemeAPI,
   ApiService,
 } from 'rn-kore-bot-socket-lib-v77';
-//import BotConfigModel from '../model/BotConfigModel';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {
   getDrawableByExt,
@@ -90,10 +86,61 @@ import CustomTemplate, {
   CustomViewState,
 } from '../templates/CustomTemplate';
 import Welcome from '../components/WelcomeScreen';
-import { LazyTTS, TTSModule, TTSOptions } from '../components/LazyTTS';
 import CustomAlertComponent from '../components/CustomAlertComponent';
 import TemplateBottomSheet from './components/TemplateBottomSheet';
 import ArticleTemplate from '../templates/ArticleTemplate';
+
+let Tts: any = null;
+let Sound: any = null;
+let isTTSAvailable = false;
+
+try {
+  Sound = require('react-native-sound').default;
+  if (Sound) {
+    Sound.setCategory('Playback');
+    Sound.setActive(true);
+  }
+} catch (error) {
+}
+
+try {
+  Tts = require('react-native-tts').default;
+  if (Tts && typeof Tts.speak === 'function') {
+    isTTSAvailable = true;
+    
+    try {
+      Tts.setDefaultRate(0.5);
+      Tts.setDefaultPitch(1.0);
+      Tts.setIgnoreSilentSwitch('ignore');
+      Tts.setDucking(false);
+      
+      if (Sound) {
+        try {
+          Sound.setCategory('Playback', false);
+          Sound.setActive(true);
+        } catch (soundError) {
+        }
+      }
+      
+      setTimeout(() => {
+        try {
+          Tts.speak('Ready', {
+            iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
+            rate: 2.0,
+            volume: 0.1,
+          });
+        } catch (e) {
+          // TTS initialization failed
+        }
+      }, 500);
+      
+    } catch (initError) {
+      // TTS initialization failed
+    }
+  }
+} catch (error) {
+  // TTS not available
+}
 
 dayjs.extend(localizedFormat);
 
@@ -106,7 +153,6 @@ interface KoraChatProps {
   messages?: any[];
   messagesContainerStyle?: any;
   text?: string | null;
-  // ... (other props)
   actionSheet: any;
   _actionSheetRef?: any;
   inverted: any;
@@ -179,7 +225,6 @@ interface KoraChatState {
   showBackButtonDialog?: boolean;
   showTemplateBottomSheet: boolean;
   messageBottomSheet?: any;
-  ttsModule?: TTSModule | null;
 }
 
 export default class KoreChat extends React.Component<
@@ -189,7 +234,6 @@ export default class KoreChat extends React.Component<
   _messageContainerRef: RefObject<any> = React.createRef();
   textInput: any = null;
   alertRef = React.createRef<CustomAlertComponent>();
-  ttsRef = React.createRef<LazyTTS>();
 
   _isFirstLayout = true;
   _locale = 'en';
@@ -295,8 +339,8 @@ export default class KoreChat extends React.Component<
       modalVisible: false,
       viewMoreObj: undefined,
       isBotResponseLoading: false,
-      menuItems: undefined, // Explicitly set to undefined initially
-      showAttachmentModal: false, // For attachment bottom sheet
+      menuItems: undefined,
+      showAttachmentModal: false,
       showSeeMoreModal: false,
       progressObj: {},
       isShowProgress: false,
@@ -311,19 +355,13 @@ export default class KoreChat extends React.Component<
       showBackButtonDialog: false,
       showTemplateBottomSheet: false,
       messageBottomSheet: null,
-      ttsModule: null
+      isTTSenable: false
     };
   }
 
-  // Handle TTS module loading
-  private onTTSModuleLoaded = (ttsModule: TTSModule | null) => {
-    this.setState({ ttsModule });
-  };
 
-  // Lazy loading method for image picker
   private lazyLaunchCamera = async (options: any, callback: (response: any) => void) => {
     try {
-      // Use dynamic import for true lazy loading
       const { launchCamera } = await import('react-native-image-picker');
       launchCamera(options, callback);
     } catch (error) {
@@ -337,10 +375,8 @@ export default class KoreChat extends React.Component<
     }
   };
 
-  // Lazy loading method for document picker
   private lazyDocumentPicker = async () => {
     try {
-      // Use dynamic import for true lazy loading
       const DocumentPickerModule = await import('react-native-document-picker');
       return DocumentPickerModule.default || DocumentPickerModule;
     } catch (error) {
@@ -349,7 +385,6 @@ export default class KoreChat extends React.Component<
     }
   };
 
-  // Lazy loading method for document picker types
   private getDocumentPickerTypes = async () => {
     try {
       const DocumentPickerModule = await import('react-native-document-picker');
@@ -357,7 +392,6 @@ export default class KoreChat extends React.Component<
       return DocumentPicker?.types || {};
     } catch (error) {
       console.warn('Failed to load DocumentPicker types:', error);
-      // Return fallback types
       return {
         images: 'public.image',
         doc: 'com.microsoft.word.doc',
@@ -372,7 +406,6 @@ export default class KoreChat extends React.Component<
     }
   };
 
-  // Handle document type selection with lazy loading
   private handleDocumentTypeSelection = async (typeCategory: string) => {
     try {
       const types = await this.getDocumentPickerTypes();
@@ -409,12 +442,6 @@ export default class KoreChat extends React.Component<
 
   private init = () => {
     if (!this.props.botConfig) {
-      // throw new BotException();
-      // Toast.showWithGravity(
-      //   "Bot socket not connected, Please call 'BotClient.initializeBotClient' with proper values.",
-      //   Toast.LONG,
-      //   Toast.BOTTOM,
-      // );
       setTimeout(() => {
         try {
           if (this.props.navigation?.canGoBack?.()) {
@@ -429,7 +456,6 @@ export default class KoreChat extends React.Component<
       return;
     }
     console.log('this.props.botConfig ------>:', this.props.botConfig);
-    //console.log('-----> Connect clicked <------');
     const botClient = KoreBotClient.getInstance();
 
     botClient.setAppState(APP_STATE.ACTIVE);
@@ -457,7 +483,6 @@ export default class KoreChat extends React.Component<
           this.loadHistory();
           isMinimizedWindow = false;
         }
-        //setTypingIndicator(false);
         this.getThemeData();
         this.setBotClientListeners();
         if (!data?.isReconnectionAttempt) {
@@ -478,11 +503,6 @@ export default class KoreChat extends React.Component<
             showLoader: false,
           });
         }
-        // } else if (this.state.showLoader) {
-        //   this.setState({
-        //     showLoader: false,
-        //   });
-        // }
       });
     botClient.initializeBotClient(this.props.botConfig, !isMinimizedWindow);
   };
@@ -548,7 +568,6 @@ export default class KoreChat extends React.Component<
         });
       }
     });
-    // }
   };
 
   static append(currentMessages: any = [], messages: any) {
@@ -579,11 +598,10 @@ export default class KoreChat extends React.Component<
       KoreBotClient.getInstance().sendEvent('close_button_event');
     }
     
-    // Handle navigation for both iOS and Android
     setTimeout(() => {
       try {
         if (this.props.navigation?.canGoBack?.()) {
-          this.allowNavigation = true; // Set flag to allow navigation
+          this.allowNavigation = true;
           this.props.navigation.goBack();
         } else {
           BackHandler.exitApp();
@@ -591,14 +609,13 @@ export default class KoreChat extends React.Component<
       } catch (error) {
         BackHandler.exitApp();
       }
-    }, 100); // Small delay to ensure modal closes first
+    }, 100);
   };
 
   private handleDialogMinimize = () => {
     isMinimizedWindow = true
     this.setState({ showBackButtonDialog: false });
     KoreBotClient.getInstance().sendEvent('minimize_button_event');
-    // Handle navigation for both iOS and Android
     setTimeout(() => {
       try {
         if (this.props.navigation?.canGoBack?.()) {
@@ -610,7 +627,7 @@ export default class KoreChat extends React.Component<
       } catch (error) {
         BackHandler.exitApp();
       }
-    }, 100); // Small delay to ensure modal closes first
+    }, 100);
   };
 
   componentDidMount() {
@@ -627,21 +644,17 @@ export default class KoreChat extends React.Component<
       this.setState({isNetConnected: isConnected ? isConnected : false});
     });
     botClient.setSessionActive(true);
-    // // Add back button handler for Android
     if (isAndroid) {
       this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
     }
 
-    // Add navigation listener for iOS (and Android navigation)
     if (this.props.navigation) {
       this.unsubscribeNavigation = this.props.navigation.addListener('beforeRemove', (e: any) => {
-        // Allow navigation if user explicitly chose to close
         if (this.allowNavigation) {
-          this.allowNavigation = false; // Reset flag
-          return; // Allow navigation to proceed
+          this.allowNavigation = false;
+          return; 
         }
         
-        // Prevent default behavior and show dialog
         e.preventDefault();
         this.setState({ showBackButtonDialog: true });
       });
@@ -650,7 +663,6 @@ export default class KoreChat extends React.Component<
     const {text} = this.props;
     this.setisChatMounted(true);
     this.initLocale();
-    // this.setMessages(messages || []);
     this.setTextFromProp(text);
     this.stopTTS();
 
@@ -665,17 +677,6 @@ export default class KoreChat extends React.Component<
 
   componentWillUnmount() {
     this.setisChatMounted(false);
-    
-    // // Remove back button handler (Android)
-    // if (this.backHandler) {
-    //   this.backHandler.remove();
-    // }
-    
-    // // Remove navigation listener (iOS and Android navigation)
-    // if (this.unsubscribeNavigation) {
-    //   this.unsubscribeNavigation();
-    // }
-    
     const botClient = KoreBotClient.getInstance();
     botClient.removeAllListeners(RTM_EVENT.CONNECTING);
     botClient.removeAllListeners(RTM_EVENT.ON_OPEN);
@@ -703,8 +704,6 @@ export default class KoreChat extends React.Component<
     if (text !== prevProps.text) {
       this.setTextFromProp(text);
     }
-
-    // No longer needed since we're using regular Modal that shows automatically when menuItems has content
   }
 
   private setBotClientListeners = () => {
@@ -712,7 +711,6 @@ export default class KoreChat extends React.Component<
     botClient
       ?.on(RTM_EVENT.ON_ACK, (data: any) => {
         if (data.type === 'ack') {
-          // this.setIsBotResponseLoading(true);
         }
       });
     botClient
@@ -724,17 +722,13 @@ export default class KoreChat extends React.Component<
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
         if (data) {
-          console.log('🤖 Bot Response Data ------->:', JSON.stringify(data, null, 2));
+          console.log('Bot Response Data ------->:', JSON.stringify(data, null, 2));
         }
         if (data.type === 'ack') {
-          console.log('📨 Received ACK message, setting loading state');
+          console.log('Received ACK message, setting loading state');
           this.setIsBotResponseLoading(true);
           return;
         }
-        console.log('✅ Processing bot message, stopping loading state');
-        // setTimeout(() => {
-        //   this.setIsBotResponseLoading(false);
-        // }, 150);
         this.setIsBotResponseLoading(false);
         this.processMessage(data);
         if (isAgentConnect) {
@@ -752,15 +746,11 @@ export default class KoreChat extends React.Component<
 
   private onReconnect = () => {
     if (this.state.isReconnecting) {
-      // Toast.showWithGravity('Connecting ...', Toast.SHORT, Toast.CENTER);
       return;
     }
     this.setState({isReconnecting: true}, () => {
       const botClient = KoreBotClient.getInstance();
       botClient.reconnect(true, true);
-      // console.log(
-      //   '--------->>>> Reconnect implimentation pending <<<<------------',
-      // );
     });
   };
 
@@ -783,20 +773,16 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
-    // console.log('🔄 Processing message:', JSON.stringify(newMessages, null, 2));
-
     console.log('botRESPONSESSSSSSSS '+JSON.stringify(newMessages));
     
     let modifiedMessages: any = null;
     const itemId = getItemId();
 
-    // Check if this message has actual attachment data (not just the string "attachments")
     const hasRealAttachments = newMessages?.message?.[0]?.component?.payload?.attachments && 
                               newMessages?.message?.[0]?.component?.payload?.attachments !== "attachments" &&
                               newMessages?.message?.[0]?.component?.payload?.attachments !== "";
 
     if (hasRealAttachments) {
-      console.log('📎 Processing attachment template');
       let attachmentTemplate = {
         type: 'user_message',
         message: [
@@ -816,7 +802,6 @@ export default class KoreChat extends React.Component<
         },
       ];
     } else {
-      // For messages without attachments, process normally
       modifiedMessages = [
         {
           ...newMessages,
@@ -825,8 +810,6 @@ export default class KoreChat extends React.Component<
       ];
     }
 
-    // Check for slider view bottom sheet (from upstream)
-    // Only check if we have a single message (not attachment + text combo)
     if (modifiedMessages.length === 1 && !newMessages?.message?.[0]?.component?.payload?.attachments){
       let message = modifiedMessages[0];
       if (message.type === 'bot_response' && this.isSliderView(message)) {
@@ -845,41 +828,18 @@ export default class KoreChat extends React.Component<
       }
     }
     
-
-    // console.log('💬 Current messages count before append:', this.state.messages.length);
-    // console.log('💬 Messages being appended:', JSON.stringify(modifiedMessages, null, 2));
-    
     this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
-    // this.setState(
-    //   {
-    //     messages: KoreChat.append(this.state.messages, modifiedMessages),
-    //   },
-    //   () => {
-        // console.log('💬 Messages updated, new count:', this.state.messages.length);
-        // console.log('💬 All messages after update:', JSON.stringify(this.state.messages.slice(-3), null, 2));
-        console.log('🔊 Starting text-to-speech in 1 second');
         setTimeout(() => {
           this.textToSpeech(newMessages);
         }, 1000);
-      // },
-    // );
   };
-  private stopTTS = async () => {
-    // Load TTS module if not already loaded
-    if (!this.state.ttsModule && this.ttsRef.current) {
-      await this.ttsRef.current.loadTTS();
-    }
-    
-    if (!this.state.ttsModule || !this.state.ttsModule.stop) {
+  private stopTTS = () => {
+    if (!isTTSAvailable || !Tts) {
       return;
     }
-    try {
-      await this.state.ttsModule.stop();
-      //console.log('TTS stopped');
-    } catch (error) {
-      console.warn('TTS stop error:', error);
-    }
+    // TTS will stop when new speech starts or app backgrounds
   };
+
 
   isSliderView=(message: any) => {
     return message.message &&
@@ -895,16 +855,10 @@ export default class KoreChat extends React.Component<
       message.message[0].component.payload.payload.template_type === TEMPLATE_TYPES.RESET_PIN_TEMPLATE);
   }
 
-  private textToSpeech = async (botResponse: any) => {
+  private textToSpeech = (botResponse: any) => {
     if (!this.state.isTTSenable) {
       this.stopTTS();
-
       return;
-    }
-    
-    // Load TTS module if not already loaded
-    if (!this.state.ttsModule && this.ttsRef.current) {
-      await this.ttsRef.current.loadTTS();
     }
     if (botResponse.type === 'bot_response') {
       let message: any;
@@ -914,7 +868,6 @@ export default class KoreChat extends React.Component<
         message = component?.payload?.payload?.speech_hint;
       } else {
         let tType = getTemplateType(botResponse.message);
-        //console.log('textToSpeech tType ========>:', tType);
         const payload = component.payload?.payload || component?.payload;
         if (tType === TEMPLATE_TYPES.TEXT) {
           message = payload?.text;
@@ -929,37 +882,27 @@ export default class KoreChat extends React.Component<
         }
       }
 
-      if (message && this.state.ttsModule && this.state.ttsModule.stop && this.state.ttsModule.speak) {
+      if (message) {
         try {
-          await this.state.ttsModule.stop(true);
-          const ttsOptions = {
+          Tts.speak(message, {
             iosVoiceId: 'com.apple.ttsbundle.Moira-compact',
             rate: 0.5,
-            androidParams: {
-              KEY_PARAM_PAN: -1,
-              KEY_PARAM_VOLUME: 0.5,
-              KEY_PARAM_STREAM: 'STREAM_MUSIC',
-            },
-          };
-          this.state.ttsModule.speak(message, ttsOptions);
+            pitch: 1.0,
+          });
         } catch (error) {
-          console.warn('textToSpeech error:', error);
+          // TTS speak failed
         }
       }
     }
   };
 
   private initLocale = () => {
-    // Initialize the LocalizationManager with the provided locale
     LocalizationManager.initializeLocale(this.props.locale);
-    
-    // Sync the component's internal locale with LocalizationManager
     this.setLocale(LocalizationManager.getLocale());
   };
 
   private setLocale = (locale: string) => {
     this._locale = locale;
-    // Keep LocalizationManager in sync
     LocalizationManager.setLocale(locale);
   };
 
@@ -1068,7 +1011,6 @@ export default class KoreChat extends React.Component<
     let isShow = this.state.showTemplateBottomSheet;
 
     if (!message) return <></>;
-    let theme = this.context as IThemeType;
     return(
       <TemplateBottomSheet 
       isShow= {isShow && message} 
@@ -1128,9 +1070,6 @@ export default class KoreChat extends React.Component<
         this.setState({
           mediaPayload: [],
         });
-        // message = payload.message;
-        // data = payload.data;
-        // data_type = payload.data_type;
 
         this.onSend({
           message: payload.message,
@@ -1138,10 +1077,6 @@ export default class KoreChat extends React.Component<
           shouldResetInputToolbar,
           data_type: payload.data_type,
         });
-
-        // Don't send the text message separately when attachments are present
-        // The attachment payload already includes the text
-        console.log('📎 Attachment message sent, skipping separate text message');
       } else {
         this.onSend({
           message,
@@ -1162,7 +1097,6 @@ export default class KoreChat extends React.Component<
     return <QuickReplies {...props} itemClick={itemClick} />;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private renderMediaView = (props: any) => {
     if (this.props.renderMediaView) {
       return this.props.renderMediaView(this.state.mediaPayload || []);
@@ -1250,7 +1184,6 @@ export default class KoreChat extends React.Component<
   };
 
   private clearQuickReplies = () => {
-    //throw new Error('Method not implemented.');
     if (this.state?.quickReplies?.length !== 0) {
       this.setState({
         quickReplies: [],
@@ -1266,9 +1199,7 @@ export default class KoreChat extends React.Component<
     shouldResetInputToolbar = true,
     data_type = '',
   }): void => {
-    console.log('🚀 onSend called with message:', message);
-    console.log('🚀 onSend called with data:', data);
-    console.log('🚀 onSend called with data_type:', data_type);
+    console.log('onSend called with message:', message);
 
     this.clearQuickReplies();
     if (shouldResetInputToolbar === true) {
@@ -1284,8 +1215,6 @@ export default class KoreChat extends React.Component<
         data,
         data_type,
       );
-      console.log('📤 User sent message data:', JSON.stringify(messageData, null, 2));
-      console.log('📤 User sent message type:', messageData?.type);
       
       setTimeout(() => {
         this.scrollToBottom(true);
@@ -1316,7 +1245,6 @@ export default class KoreChat extends React.Component<
       case 'text':
       case 'dateTime':
       case 'person':
-        //message, data = null, data_type = ''
         let message =
           item?.utterance?.trim() ||
           item?.title?.value?.trim() ||
@@ -1336,7 +1264,6 @@ export default class KoreChat extends React.Component<
             : undefined;
         if (pArray?.length === 2) {
           data_type = pArray[0].trim();
-          //data = pArray[1].trim();
         } else {
         }
         data = item;
@@ -1393,7 +1320,6 @@ export default class KoreChat extends React.Component<
 
       case 'bot_msz':
         if (item?.message && item?.payload) {
-          // onSend(item?.message);
           this.onSend({
             message: {text: item?.message},
             data: item?.payload,
@@ -1539,10 +1465,6 @@ export default class KoreChat extends React.Component<
     }
     //let dateFormat = 'MMMM Do, YYYY';
     try {
-      // let dateStr =
-      //   dayjs(item.startDate).format(dateFormat) +
-      //   ' to ' +
-      //   dayjs(item.endDate).format(dateFormat);
       return item.startDate + ' to ' + item.endDate;
     } catch (error) {
       console.log('getDateRangeText Error ----->:', error);
@@ -1559,12 +1481,6 @@ export default class KoreChat extends React.Component<
     this.setState({
       text: this.getTextFromProp(''),
     });
-  };
-
-  private focusTextInput = () => {
-    if (this.textInput) {
-      this.textInput.focus();
-    }
   };
 
   private onInputSizeChanged = (_size: {height: number; width: number}) => {};
@@ -1628,6 +1544,7 @@ export default class KoreChat extends React.Component<
     let list = this.state?.mediaPayload?.filter((media: any) => media?.status);
     return list?.length > 0 || false;
   };
+  
   private onSpeakerClicked = (_isSpeech: boolean) => {
     this.setState(
       {
@@ -1636,7 +1553,6 @@ export default class KoreChat extends React.Component<
       () => {
         if (!this.state.isTTSenable) {
           this.stopTTS();
-
           return;
         }
       },
@@ -1655,6 +1571,7 @@ export default class KoreChat extends React.Component<
       onInputSizeChanged: this.onInputSizeChanged,
       onTextChanged: this.onInputTextChanged,
       onSpeakerClicked: this.onSpeakerClicked,
+      isTTSenable: this.state.isTTSenable,
       textInputProps: {
         ...this.props.textInputProps,
         ref: (textInput: any) => (this.textInput = textInput),
@@ -2146,9 +2063,7 @@ export default class KoreChat extends React.Component<
             <TouchableOpacity
               key={index + ''}
               onPress={() => {
-                // Close the modal first
                 this.setState({ menuItems: undefined });
-                // Then execute the action
                 setTimeout(() => {
                   this.computePostBack(btn);
                 }, 100);
@@ -2182,23 +2097,16 @@ export default class KoreChat extends React.Component<
             <TouchableOpacity
               key={index + ''}
               onPress={async () => {
-                // Close the attachment modal first
                 this.setState({ showAttachmentModal: false });
 
-                // Add a small delay to ensure modal closes before permission request
                 setTimeout(async () => {
                   switch (btn?.id) {
                     case 1:
-                      console.log('Camera button pressed - checking permissions...');
-                      
-                      // Check camera permission first
                       const hasPermission = await this.requestCameraPermission();
                       if (!hasPermission) {
                         console.error('Camera permission denied');
                         return;
                       }
-                      
-                      console.log('Camera permission granted - launching camera...');
                       
                       try {
                       this.lazyLaunchCamera(
@@ -2210,7 +2118,6 @@ export default class KoreChat extends React.Component<
                           maxHeight: 1920,
                         },
                         (response: any) => {
-                          console.log('Camera response received:', response);
                           
                           if (response.didCancel) {
                             console.log('User cancelled image picker');
@@ -2229,8 +2136,6 @@ export default class KoreChat extends React.Component<
 
                           const res = response.assets?.[0];
                           if (res) {
-                            console.log('Processing camera result:', res);
-                            
                             let fileName = res.fileName;
                             if (res.fileName) {
                               let names = res.fileName.split('.');
@@ -2251,7 +2156,6 @@ export default class KoreChat extends React.Component<
                               },
                             ];
                             
-                            console.log('Calling computeMediaResult with:', result);
                             this.computeMediaResult(result);
                           } else {
                             console.warn('No camera result received');
@@ -2272,7 +2176,7 @@ export default class KoreChat extends React.Component<
                       this.handleDocumentTypeSelection('video');
                       break;
                   }
-                }, 150); // 150ms delay to ensure modal closes
+                }, 150);
               }}
               style={{padding: 15, backgroundColor: Color.white, borderBottomWidth: 1, borderBottomColor: '#f0f0f0'}}>
               <Text style={{fontSize: normalize(16), color: Color.text_color}}>
@@ -2454,7 +2358,6 @@ export default class KoreChat extends React.Component<
         this.computePostBack(item);
         break;
       case HeaderIconsId.RECONNECT:
-        // this.props.navigation?.goBack?.();
         this.onReconnect();
         break;
       case HeaderIconsId.LIVE_AGENT:
@@ -2535,10 +2438,6 @@ export default class KoreChat extends React.Component<
               }
             },
           );
-          // this.props?.navigation?.navigate(ROUTE_NAMES.HOME, {
-          //   activetheme: activetheme,
-          //   postUtterance: utterance,
-          // });
         }}
       />
     );
@@ -2689,12 +2588,6 @@ export default class KoreChat extends React.Component<
               {this.renderWelcomeScreenModel()}
               {this.renderBackButtonDialog()}
               <CustomAlertComponent ref={this.alertRef} />
-              <LazyTTS
-                ref={this.ttsRef}
-                autoLoad={false}
-                onModuleLoaded={this.onTTSModuleLoaded}
-                hideUI={true}
-              />
             </View>
           </Wrapper>
         </ThemeProvider>
@@ -2704,12 +2597,6 @@ export default class KoreChat extends React.Component<
       <View style={styles.container} onLayout={this.onInitialLayoutViewLayout}>
         {this.renderLoading()}
         <CustomAlertComponent ref={this.alertRef} />
-        <LazyTTS
-          ref={this.ttsRef}
-          autoLoad={false}
-          onModuleLoaded={this.onTTSModuleLoaded}
-          hideUI={true}
-        />
       </View>
     );
   }
@@ -2742,11 +2629,8 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
     marginBottom: 10,
-
-    //backgroundColor: 'yellow',
     textAlign: 'left',
     justifyContent: 'center',
-
     color: Color.text_color,
     fontWeight: '800',
   },
@@ -2802,7 +2686,6 @@ const styles = StyleSheet.create({
   stt_text: {
     backgroundColor: 'rgba(75, 78, 222, 0.05)',
     flexWrap: 'nowrap',
-    //borderWidth: StyleSheet.hairlineWidth,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
@@ -2816,7 +2699,6 @@ const styles = StyleSheet.create({
   },
   progress_main: {
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    //backgroundColor: 'white',
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -2833,8 +2715,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Color.black,
     right: 0,
-    // marginTop: -8,
-    //padding: 5,
     marginEnd: -5,
     padding: 2,
   },
@@ -2853,7 +2733,6 @@ const styles = StyleSheet.create({
     marginBottom: 7,
   },
   container1: {
-    //flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -2880,11 +2759,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0.45,
     borderColor: 'black',
-    //marginBottom: 5,
     justifyContent: 'center',
   },
   pop_sub: {
-    //marginTop: 5,
     flexDirection: 'column',
     padding: 10,
     marginBottom: 10,
@@ -2905,7 +2782,6 @@ const styles = StyleSheet.create({
   dropdown_main: {
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'green',
   },
   m_main_con: {
     paddingLeft: 10,
@@ -2932,7 +2808,6 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: 'white',
-    //padding: 20,
     borderRadius: 10,
     width: '100%',
     alignItems: 'center',
@@ -2954,7 +2829,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 4,
     marginStart: 15,
-    // borderWidth:0.5,
     shadowColor: '#000000',
     shadowOffset: {
       width: 0,
@@ -2962,13 +2836,10 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 1,
     shadowOpacity: 0.1,
-    //background: #0D6EFD;
     borderColor: '#BDC1C6', //'#F8F9FA',
     borderWidth: 1,
     backgroundColor: 'white',
-
     color: TEMPLATE_STYLE_VALUES.TEXT_COLOR,
-    //background: #0D6EFD;
   },
   quick_container_2: {
     justifyContent: 'flex-start',
@@ -2976,7 +2847,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 4,
     marginStart: 15,
-    // borderWidth:0.5,
     shadowColor: '#000000',
     shadowOffset: {
       width: 0,
@@ -2984,17 +2854,10 @@ const styles = StyleSheet.create({
     },
     shadowRadius: 1,
     shadowOpacity: 0.1,
-    //background: #0D6EFD;
     borderColor: '#BDC1C6', //'#F8F9FA',
     borderWidth: 1,
-    //backgroundColor: 'white',
-
     color: TEMPLATE_STYLE_VALUES.TEXT_COLOR,
-    //background: #0D6EFD;
-
     backgroundColor: '#0D6EFD',
-
-    //background: #0D6EFD;
   },
   quick_main_container: {
     marginStart: 5,
@@ -3002,14 +2865,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     elevation: 2,
     flexDirection: 'row',
-    //flexWrap: 'wrap',
-    // flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     alignSelf: 'flex-start',
     justifyContent: 'flex-start',
     marginBottom: 5,
     backgroundColor: '#FCFCFC',
-    //backgroundColor:'yellow',
   },
   container: {
     flex: 1,
@@ -3031,11 +2891,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-// KoreChat.childContextTypes = {
-//   actionSheet: PropTypes.func,
-//   getLocale: PropTypes.func,
-// };
 
 KoreChat.defaultProps = {
   _actionSheetRef: null,
