@@ -35,29 +35,35 @@ export default class ApiService {
     }
   }
 
-  async getBotHistory(offset: number, limit: number, botName: string, botId: string, onResponse: (response?: any) => void): Promise<void> {
-    let rtmUrl = this.baseUrl + '/api' + URL_VERSION + '/botmessages/rtm';
+  async getBotHistory(offset: number, limit: number, botConfig: BotConfigModel, onResponse: (response?: any) => void): Promise<void> {
+    let historyUrl = this.baseUrl + (
+      botConfig.isWebHook ? '/api/chathistory/' + botConfig.botId + '/ivr?&botId=' + botConfig.botId + '&limit=' + limit + '&offset=' + offset
+        : '/api' + URL_VERSION + '/botmessages/rtm'
+    );
     const startTime = Date.now();
 
-    Logger.logApiRequest(rtmUrl, 'GET', {
-      botId: this.botClient.getBotInfo().taskBotId,
+    Logger.logApiRequest(historyUrl, 'GET', {
+      botId: botConfig.botId,
       limit: limit,
       offset: offset,
       forward: true
     });
 
-    const urlWithParams = new URL(rtmUrl);
-    urlWithParams.searchParams.append('botId', this.botClient.getBotInfo().taskBotId);
-    urlWithParams.searchParams.append('limit', limit + "");
-    urlWithParams.searchParams.append('offset', offset + "");
-    urlWithParams.searchParams.append('forward', 'true');
+    const urlWithParams = new URL(historyUrl);
+
+    if (!botConfig.isWebHook) {
+      urlWithParams.searchParams.append('botId', botConfig.botId);
+      urlWithParams.searchParams.append('limit', limit + "");
+      urlWithParams.searchParams.append('offset', offset + "");
+      urlWithParams.searchParams.append('forward', 'true');
+    }
 
     try {
       const response = await this.fetchWithRetries(urlWithParams.toString(), {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          Authorization: this.botClient.getAuthorization() + "",
+          Authorization: botConfig.isWebHook ? 'bearer ' + this.botClient.getJwtToken() : this.botClient.getAuthorization() + "",
         },
       }, 1, 'GET');
 
@@ -75,14 +81,14 @@ export default class ApiService {
         return;
       }
 
-      Logger.logApiSuccess(rtmUrl, 'GET', {
+      Logger.logApiSuccess(historyUrl, 'GET', {
         messageCount: responseData?.length || 0,
         hasData: !!responseData
       }, duration);
 
       // Create axios-like response object for compatibility
       const axiosResponse = {
-        data: this.processHistoryResponse(responseData, botName, botId),
+        data: this.processHistoryResponse(responseData, botConfig.botName || '', botConfig.botId),
         status: response.status,
         statusText: response.statusText,
         headers: {},
@@ -90,7 +96,7 @@ export default class ApiService {
       onResponse(axiosResponse);
     } catch (e: any) {
       const duration = Date.now() - startTime;
-      Logger.logApiError(rtmUrl, 'GET', e, duration);
+      Logger.logApiError(historyUrl, 'GET', e, duration);
       onResponse();
     }
   }
@@ -505,6 +511,260 @@ export default class ApiService {
     } catch (e: any) {
       const duration = Date.now() - startTime;
       Logger.logApiError(urlString, 'GET', e, duration);
+    }
+  }
+
+  async getWebHookBotMeta(jwtToken: String, botId: string, onResponse: (response?: any) => void): Promise<void> {
+    let url = this.baseUrl + '/api/botmeta/' + botId;
+    const startTime = Date.now();
+
+    Logger.logApiRequest(url, 'GET', { botId: botId });
+
+    const urlWithParams = new URL(url);
+
+    try {
+      const response = await this.fetchWithRetries(urlWithParams.toString(), {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          Authorization: 'bearer ' + jwtToken,
+        },
+      }, 1, 'GET');
+
+      const duration = Date.now() - startTime;
+      const responseData: any = response;
+
+      if (!response.ok) {
+        const error: any = new Error(`HTTP ${response.status}`);
+        error.response = {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+        };
+        onResponse();
+        return;
+      }
+
+      Logger.logApiSuccess(url, 'GET', {
+        messageCount: responseData?.length || 0,
+        hasData: responseData
+      }, duration);
+
+      // Create axios-like response object for compatibility
+      const axiosResponse = {
+        data: responseData,
+        status: response.status,
+        statusText: response.statusText,
+        headers: {},
+      };
+      onResponse(axiosResponse);
+    } catch (e: any) {
+      const duration = Date.now() - startTime;
+      Logger.logApiError(url, 'GET', e, duration);
+      onResponse();
+    }
+  }
+
+  async sendWebHookMessage(
+    botConfig: BotConfigModel,
+    isNewSession: Boolean,
+    msg: String,
+    onResponse: (response?: any) => void,
+    payload?: string,
+    attachments?: any,
+  ): Promise<void> {
+    let url = this.baseUrl + '/chatbot/v2/webhook/' + botConfig.botId;
+    const startTime = Date.now();
+
+    const urlWithParams = new URL(url);
+
+    const customData = {
+      userName: '',
+      identity: '',
+      userAgent: Platform.OS,
+      botToken: this.botClient.getJwtToken()
+    };
+
+    const requestPayload = {
+      session: { new: isNewSession },
+      message: {
+        type: isNewSession ? 'event' : 'text',
+        val: payload ? payload : msg
+      },
+      from: {
+        userInfo: {
+          firstName: '',
+          lastName: '',
+          email: ''
+        },
+        id: botConfig.identity
+      },
+      to: {
+        id: botConfig.botName,
+        groupInfo: {
+          id: '',
+          name: ''
+        }
+      },
+      attachments,
+      customData
+    };
+
+    console.log('Webhook payload ' + JSON.stringify(requestPayload));
+
+    Logger.logApiRequest(url, 'POST', { message: requestPayload });
+
+    try {
+      const response = await this.fetchWithRetries(urlWithParams.toString(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          Authorization: 'bearer ' + this.botClient.getJwtToken()
+        },
+        body: JSON.stringify(requestPayload)
+      }, 1, 'POST');
+
+      const duration = Date.now() - startTime;
+      const responseData = await response.json();
+
+      console.log('Webhook response ' + JSON.stringify(responseData));
+
+      if (!response.ok) {
+        const error: any = new Error(`HTTP ${response.status}`);
+        error.response = {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+        };
+        onResponse();
+        return;
+      }
+
+      Logger.logApiSuccess(url, 'POST', {
+        messageCount: responseData?.length || 0,
+        hasData: !!responseData
+      }, duration);
+      const messages = this.processWebHookResponse(botConfig, responseData);
+
+      // Create axios-like response object for compatibility
+      const axiosResponse = {
+        data: messages,
+        status: response.status,
+        statusText: response.statusText,
+        headers: {},
+        pollId: responseData.pollId
+      };
+      onResponse(axiosResponse);
+      if (responseData.pollId) {
+        setTimeout(async () => {
+          await this.getPollData(botConfig, responseData.pollId, onResponse)
+        }, 5000);
+      }
+    } catch (e: any) {
+      const duration = Date.now() - startTime;
+      Logger.logApiError(url, 'POST', e, duration);
+      onResponse();
+    }
+  }
+
+  private processWebHookResponse(botConfig: BotConfigModel, response: any): any {
+    const messages: any[] = response.data;
+    const processedMessages: any[] = [];
+    for (const message of messages) {
+      const isObject = typeof (message.val) === 'object'
+
+      const payloadInner = { template_type: 'text', text: '' };
+      if (!isObject) {
+        payloadInner.text = message.val;
+      }
+
+      let payloadOuter = isObject ? message.val : { text: message.val, type: 'text', payload: payloadInner };
+      if (!isObject) {
+        try {
+          payloadOuter = JSON.parse(message.val);
+        } catch (e) {
+        }
+      }
+      const component = { type: isObject ? payloadOuter.type : 'text', payload: payloadOuter };
+      const cInfo = { body: isObject ? payloadOuter : payloadInner }
+      const botResponseMsg = { type: isObject ? component.type : 'text', component, cInfo }
+      const msgs = [botResponseMsg];
+      const botInfo = { chatBot: botConfig.botName, taskBotId: botConfig.botId, customData: null, channelClient: Platform.OS }
+      const msg = {
+        type: 'bot_response',
+        from: 'bot',
+        message: msgs,
+        messageId: message.messageId,
+        createdOn: message.createdOn,
+        timeMillis: new Date(message.createdOn).getTime(),
+        botInfo
+      };
+      processedMessages.push(JSON.stringify(msg));
+    }
+    return processedMessages;
+  }
+
+  async getPollData(botConfig: BotConfigModel, pollId: string, onResponse: (response?: any) => void): Promise<void> {
+    let url = this.baseUrl + '/chatbot/v2/webhook/' + botConfig.botId + '/poll/' + pollId;
+    const startTime = Date.now();
+
+    const urlWithParams = new URL(url);
+
+    Logger.logApiRequest(url, 'GET', { pollId: pollId });
+
+    try {
+      const response = await this.fetchWithRetries(urlWithParams.toString(), {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          Authorization: 'bearer ' + this.botClient.getJwtToken()
+        },
+      }, 1, 'GET');
+
+      const duration = Date.now() - startTime;
+      const responseData = await response.json();
+
+      console.log('PollData response ' + JSON.stringify(responseData));
+
+      if (!response.ok) {
+        const error: any = new Error(`HTTP ${response.status}`);
+        error.response = {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+        };
+        onResponse();
+        return;
+      }
+
+      Logger.logApiSuccess(url, 'GET', {
+        messageCount: responseData?.length || 0,
+        hasData: !!responseData
+      }, duration);
+      if (!responseData.data) {
+        return;
+      }
+      const messages = this.processWebHookResponse(botConfig, responseData);
+
+      // Create axios-like response object for compatibility
+      const axiosResponse = {
+        data: messages,
+        status: response.status,
+        statusText: response.statusText,
+        headers: {},
+      };
+      onResponse(axiosResponse);
+
+      if (responseData.pollId) {
+        setTimeout(async () => {
+          await this.getPollData(botConfig, responseData.pollId, onResponse)
+        }, 5000);
+      }
+    } catch (e: any) {
+      const duration = Date.now() - startTime;
+      Logger.logApiError(url, 'GET', e, duration);
+      onResponse();
     }
   }
 }
