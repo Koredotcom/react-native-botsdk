@@ -51,7 +51,7 @@ const BotChatComponent = () => {
 
   const getHistory = () => {
     const apiService = new ApiService(botConfig.botUrl, botClient.current);
-    apiService.getBotHistory(0, 10, (response: any) => {
+    apiService.getBotHistory(0, 10, botConfig, (response: any) => {
       console.log('botHistory ' + JSON.stringify(response));
     });
   }

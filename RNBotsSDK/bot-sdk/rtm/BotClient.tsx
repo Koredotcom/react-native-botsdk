@@ -95,6 +95,9 @@ export class BotClient extends EventEmitter implements IBotClient {
   //   return false;
   // }
 
+  getJwtToken = () => {
+    return this.jwtToken;
+  }
 
   getAccessToken() {
     return this.authorization?.accessToken;
@@ -149,10 +152,10 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.botCustomData.set(this.DATA_USERNAME, '');
     this.isReconnectAttemptRequired = true;
 
-    await this.getJwtToken(this.botConfig, isFirstTime);
+    await this.createJwtToken(this.botConfig, isFirstTime);
   }
 
-  private async getJwtToken(config: BotConfigModel, isFirstTime: boolean = true) {
+  private async createJwtToken(config: BotConfigModel, isFirstTime: boolean = true) {
     if (!this.botConfig) return;
     const apiService = new ApiService(this.botConfig?.botName + "", this);
     await apiService.getJwtToken(
@@ -165,7 +168,29 @@ export class BotClient extends EventEmitter implements IBotClient {
           userName: '',
         });
         this.initialize(this.botInfo, this.botCustomData);
-        await this.connectWithJwToken(this.jwtToken, !isFirstTime);
+        if (!this.botConfig?.isWebHook) {
+          await this.connectWithJwToken(this.jwtToken, !isFirstTime);
+        } else {
+          const apiService = new ApiService(this.botConfig.botUrl, this);
+          await apiService.getWebHookBotMeta(this.jwtToken, this.botConfig.botId, (response: any) => {
+            if (response) {
+              apiService.sendWebHookMessage(
+                this.botConfig!!,
+                isFirstTime,
+                'ON_CONNECT',
+                (response: any) => {
+                  this.emit(RTM_EVENT.ON_OPEN)
+                  if (isFirstTime) {
+                    const messages: any[] = response.data;
+                    for (const msg of messages) {
+                      this.onMessage(msg);
+                    }
+                  }
+                },
+              )
+            }
+          });
+        }
       },
       (error: any) => {
         this.emit(RTM_EVENT.ERROR, {
@@ -646,7 +671,7 @@ export class BotClient extends EventEmitter implements IBotClient {
     }, this.pingInterval);
   }
 
-  send = (message: {
+  private send = (message: {
     type?: string;
     clientMessageId?: {};
     message?: any;
@@ -747,7 +772,17 @@ export class BotClient extends EventEmitter implements IBotClient {
       client: Platform.OS,
     };
 
-    this.send(messageToBot);
+    if (this.botConfig?.isWebHook) {
+      const apiService = new ApiService(this.botConfig.botUrl, this);
+      apiService.sendWebHookMessage(this.botConfig, false, message, (response: any) => {
+        const messages: any[] = response.data;
+        for (const msg of messages) {
+          this.onMessage(msg);
+        }
+      }, payload, attachments);
+    } else {
+      this.send(messageToBot);
+    }
 
     return msgData;
   }
