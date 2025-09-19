@@ -16,7 +16,7 @@ import {ThemeType} from '../../theme/ThemeType';
 import {ThemeContext} from '../../theme/ThemeContext';
 import {IThemeType} from '../../theme/IThemeType';
 import {TEMPLATE_TYPES} from '../../constants/Constant';
-import KoreBotClient, { ApiService, BotConfigModel } from 'rn-kore-bot-socket-lib-v77';
+import KoreBotClient, { ApiService, BotConfigModel } from 'rn-kore-bot-socket-lib-v77-test';
 import { getWindowWidth } from '../../charts';
 //import {FlatList} from 'react-native-gesture-handler';
 
@@ -395,7 +395,8 @@ export default class MessageContainer extends PureComponent<
   loadHistory = async () => {
     if (this.state.hasMoreHististory) {
       const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
-      await apiService.getBotHistory(this.state.historyOffset, 10, this.props.botConfig.botName, this.props.botConfig.botId, (response: any) => {
+      await apiService.getBotHistory(this.state.historyOffset, 10, this.props.botConfig, (response: any) => {
+
         this.setState({loadingHistory: false});
         if (response == null) {
           console.log('BotHistory null');

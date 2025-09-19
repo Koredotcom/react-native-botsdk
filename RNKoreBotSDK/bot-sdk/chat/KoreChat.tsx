@@ -50,7 +50,7 @@ import KoreBotClient, {
   APP_STATE,
   ActiveThemeAPI,
   ApiService,
-} from 'rn-kore-bot-socket-lib-v77';
+} from 'rn-kore-bot-socket-lib-v77-test';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {
   getDrawableByExt,
@@ -465,7 +465,12 @@ export default class KoreChat extends React.Component<
             isReconnecting: false,
             showLoader: false,
           });
+        } else if (this.state.showLoader) {
+          this.setState({
+            showLoader: false,
+          });
         }
+
       });
     botClient.initializeBotClient(this.props.botConfig, !isMinimizedWindow);
   };
@@ -521,6 +526,7 @@ export default class KoreChat extends React.Component<
       if (data?.v3) {
         this.saveThemeData(data);
         this.setState({
+          showLoader: false,
           themeData: data,
         });
       } else {
@@ -736,7 +742,6 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
-    console.log('botRESPONSESSSSSSSS '+JSON.stringify(newMessages));
     
     let modifiedMessages: any = null;
     const itemId = getItemId();
@@ -783,10 +788,8 @@ export default class KoreChat extends React.Component<
       if (message.type === 'bot_response'){
         if (message.fromAgent == true){
           isAgentConnect = true;
-          console.log('agentTrue')
         }else{
           isAgentConnect = false;
-          console.log('agentFalse')
         }  
       }
     }
@@ -2654,7 +2657,8 @@ export default class KoreChat extends React.Component<
 
   private loadHistory = async () => {
       const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
-      await apiService.getBotHistory(0, historyMessages > 20 ? 20 : historyMessages, this.props.botConfig.botName, this.props.botConfig.botId, (response: any) => {
+      await apiService.getBotHistory(0, historyMessages > 20 ? 20 : historyMessages, this.props.botConfig, (response: any) => {
+
         if (response == null) {
           console.log('BotHistory null');
           return;
