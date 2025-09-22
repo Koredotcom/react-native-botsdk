@@ -201,10 +201,7 @@ export class BotClient extends EventEmitter implements IBotClient {
           (response: any) => {
             this.emit(RTM_EVENT.ON_OPEN)
             if (isFirstTime) {
-              const messages: any[] = response.data;
-              for (const msg of messages) {
-                this.onMessage(msg);
-              }
+              this.onWebhookMessages(response.data);
             }
           },
         )
@@ -786,16 +783,27 @@ export class BotClient extends EventEmitter implements IBotClient {
     if (this.botConfig?.isWebHook) {
       const apiService = new ApiService(this.botConfig.botUrl, this);
       apiService.sendWebHookMessage(this.botConfig, false, message, (response: any) => {
-        const messages: any[] = response.data;
-        for (const msg of messages) {
-          this.onMessage(msg);
-        }
+        this.onWebhookMessages(response.data);
       }, payload, attachments);
     } else {
       this.send(messageToBot);
     }
 
     return msgData;
+  }
+
+  private onWebhookMessages(messages: any[]) {
+    let index = 0;
+    const loop = () => {
+      if (index >= messages.length) return;
+
+      this.onMessage(messages[index]);
+      index++;
+
+      setTimeout(loop, index * 200);
+    };
+
+    loop();
   }
 
   sendEvent(eventName: any, isZenDeskEvent?: any) {
