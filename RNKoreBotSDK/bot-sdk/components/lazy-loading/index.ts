@@ -70,13 +70,6 @@ export {
   FallbackSoundAPI
 } from '../LazySound';
 
-// Lazy Orientation components
-export { 
-  LazyOrientation,
-  useLazyOrientation,
-  FallbackOrientation
-} from '../LazyOrientation';
-
 // Lazy ParsedText components
 export { 
   LazyParsedText,
@@ -138,11 +131,6 @@ export type {
   LazyCommunicationsProps,
   CommunicationsModule,
 } from '../LazyCommunications';
-
-export type {
-  LazyOrientationProps,
-  OrientationModule,
-} from '../LazyOrientation';
 
 export type {
   LazyParsedTextProps,
