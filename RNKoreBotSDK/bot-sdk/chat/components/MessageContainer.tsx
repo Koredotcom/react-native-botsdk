@@ -413,7 +413,7 @@ export default class MessageContainer extends PureComponent<
 
   render() {
     const {inverted} = this.props;
-    this.setState({historyOffset: this.props.messages.length});
+    // this.setState({historyOffset: this.props.messages.length});
     return (
       <View
         style={[
