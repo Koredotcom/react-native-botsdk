@@ -33,7 +33,7 @@ export default class VideoTemplate extends BaseView<VideoProps, VideoState> {
     this.state = {
       myVideoRef: null,
       duration: 0,
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+      url: this.props?.payload?.videoUrl || 'https://www.w3schools.com/html/mov_bbb.mp4',
       currentTime: 0,
     };
   }
