@@ -3,7 +3,7 @@ import {Text, View, TouchableOpacity, Platform} from 'react-native';
 import dayjs from 'dayjs';
 import normalize from './normalizeText';
 import Month from './Month';
-import { LazyPicker, LazyPickerItem } from '../lazy-loading';
+import { LazyPicker, LazyPickerItem, FallbackPicker } from '../lazy-loading';
 import {SvgIcon} from '../../utils/SvgIcon';
 import Color from '../../theme/Color';
 import {isAndroid} from '../../utils/PlatformCheck';
@@ -265,22 +265,21 @@ export default class DateRange extends Component {
                             height: normalize(60),
                             marginBottom: this.props.mode != 'single' ? -50: -10,
                             backgroundColor: 'transparent',
-
-                            // backgroundColor: 'yellow',
                             ...customStyles.headerMarkTitle,
                           }}
-                          dropdownIconColor={
-                            customStyles.headerStyle?.backgroundColor ||
-                            Color.white
-                          }
-                          dropdownIconRippleColor={
-                            customStyles.headerStyle?.backgroundColor ||
-                            Color.white
-                          }
+                          // dropdownIconColor={
+                          //   customStyles.headerStyle?.backgroundColor ||
+                          //   Color.white
+                          // }
+                          // dropdownIconRippleColor={
+                          //   customStyles.headerStyle?.backgroundColor ||
+                          //   Color.white
+                          // }
                           itemStyle={{
                             fontWeight: '900',
                             height: normalize(50),
                           }}
+                          fallbackComponent={FallbackPicker}
                           onValueChange={this.changeYear}>
                           {rangeArray.map((value, index) => {
                             return (
@@ -402,6 +401,7 @@ export default class DateRange extends Component {
             <LazyPicker
               selectedValue={this.state.selectedYear}
               mode={'dropdown'}
+              fallbackComponent={FallbackPicker}
               onValueChange={itemValue => {
                 this.setState({selectedYear: itemValue});
                 //
