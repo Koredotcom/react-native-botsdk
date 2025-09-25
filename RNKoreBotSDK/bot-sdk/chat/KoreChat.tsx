@@ -15,7 +15,6 @@ import {
   Dimensions,
   StatusBar,
   BackHandler,
-  Alert,
   TouchableWithoutFeedback
 } from 'react-native';
 import uuid from '../utils/uuid';
@@ -50,7 +49,7 @@ import KoreBotClient, {
   APP_STATE,
   ActiveThemeAPI,
   ApiService,
-} from 'rn-kore-bot-socket-lib-v77-test';
+} from 'rn-kore-bot-socket-lib-v77';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {
   getDrawableByExt,
@@ -443,7 +442,7 @@ export default class KoreChat extends React.Component<
       .on(RTM_EVENT.ON_OPEN, (data: any) => {
         console.log('-----> SUCCESS TO KORA BOT CONNECTED <------:', data);
         if (isMinimizedWindow) {
-          this.loadHistory();
+          // this.loadHistory();
           isMinimizedWindow = false;
         }
         this.getThemeData();
