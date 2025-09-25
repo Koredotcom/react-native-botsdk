@@ -110,6 +110,7 @@ export const TEMPLATE_TYPES = {
   ERROR_TEMPLATE: 'error',
   CAROUSEL_TEMPLATE: 'carousel',
   LIVE_AGENT_TEMPLATE: 'live_agent',
+  SYSTEM_TEMPLATE: 'SYSTEM',
   START_TIMER: 'start_timer',
   ADVANCED_LIST_TEMPLATE: 'advancedListTemplate',
   MINI_TABLE_TEMPLATE: 'mini_table',

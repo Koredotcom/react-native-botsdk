@@ -10,10 +10,8 @@ import {
   View,
 } from 'react-native';
 import BotText from './BotText';
-import { LazyPicker, LazyPickerItem } from '../components/lazy-loading';
 import Color from '../theme/Color';
 import {normalize} from '../utils/helpers';
-import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {isIOS} from '../utils/PlatformCheck';
 import {getBubbleTheme, getButtonTheme} from '../theme/themeHelper';
 import SelectDropdown from '../components/CustomSelectDropdown';
@@ -162,91 +160,6 @@ export default class DropdownTemplate extends BaseView<
             </View>
           </View>
         )}
-      </View>
-    );
-  }
-  private renderDropDownView(elements: any): React.ReactNode {
-    let mode = this.props.payload?.heading?.toLowerCase();
-    if (mode !== 'dialog' && mode !== 'dropdown') {
-      mode = 'dropdown';
-    }
-
-    return (
-      <View
-        pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
-        style={[styles.calendar, {}]}>
-        <LazyPicker
-          selectedValue={this.state.selectedValue}
-          mode={mode}
-          itemStyle={{
-            fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
-            color: isIOS ? Color.black : Color.white,
-            //backgroundColor: 'red',
-          }}
-          //selectionColor={'green'}
-          style={[styles.calendar, {margin: 5, backgroundColor: 'red'}]}
-          onValueChange={(itemValue: any, itemIndex: number) => {
-            if (itemIndex !== 0 && !this.state.selectedValue) {
-              itemIndex = itemIndex - 1;
-              let item = elements[itemIndex];
-              // console.log('selected item_3  --------> :', item);
-              this.setState({selectedValue: itemValue, item: item});
-
-              // this.props.onListItemClick(
-              //   this.props.payload.template_type,
-              //   {
-              //     title: item?.title,
-              //     payload: item?.value,
-              //     type: 'postback',
-              //   },
-              // );
-            } else if (itemIndex === 0 && !this.state.selectedValue) {
-              //let item = this.props.payload?.placeholder || 'Select';
-              // console.log('selected item_1  --------> :', item);
-              this.setState({selectedValue: undefined, item: undefined});
-            } else {
-              let item = elements[itemIndex];
-              //  console.log('selected item_2  --------> :', item);
-              this.setState({selectedValue: itemValue, item: item});
-              // this.props.onListItemClick(
-              //   this.props.payload.template_type,
-              //   {
-              //     title: item?.title,
-              //     payload: item?.value,
-              //     type: 'postback',
-              //   },
-              // );
-            }
-          }}>
-          {!this.state.selectedValue && (
-            <LazyPickerItem
-              key={'placeholder'}
-              label={this.props.payload?.placeholder}
-              value={this.props.payload?.placeholder}
-              style={{
-                fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
-                color: Color.black,
-                fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
-                backgroundColor: Color.white,
-              }}
-            />
-          )}
-          {elements?.map((item: any, index: any) => {
-            return (
-              <LazyPickerItem
-                key={index}
-                label={item?.title}
-                value={item?.value}
-                style={{
-                  fontSize: TEMPLATE_STYLE_VALUES.TEXT_SIZE,
-                  color: Color.text_color,
-                  fontFamily: TEMPLATE_STYLE_VALUES.FONT_FAMILY,
-                  backgroundColor: Color.white,
-                }}
-              />
-            );
-          })}
-        </LazyPicker>
       </View>
     );
   }

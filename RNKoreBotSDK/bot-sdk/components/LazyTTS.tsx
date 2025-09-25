@@ -5,7 +5,7 @@ import { LazyLoader, DefaultLoader, ErrorFallback } from '../utils/LazyLoader';
 // Type definitions for the lazy-loaded TTS - using flexible types to match react-native-tts
 export interface TTSModule {
   speak: (utterance: string, options?: any) => any;
-  stop: (onWordBoundary?: boolean) => Promise<any>;
+  stop: () => Promise<any>;
   pause: () => Promise<any>;
   resume: () => Promise<any>;
   getInitStatus: () => Promise<any>;

@@ -68,16 +68,13 @@ export class LazyPicker extends Component<LazyPickerProps, LazyPickerState> {
     this.setState({ isLoading: true, loadError: null });
 
     try {
-      // Dynamic import with fallback for different module structures
-      const PickerModule = await LazyLoader.importModule(
-        () => import('@react-native-picker/picker'),
-        'picker'
-      );
+      // Direct import without LazyLoader to handle module structure properly
+      const PickerModule = await import('@react-native-picker/picker');
 
       if (this.mounted) {
-        // Handle different export patterns
-        const PickerComponent = PickerModule?.Picker || PickerModule?.default?.Picker || null;
-        const PickerItem = PickerModule?.Picker?.Item || PickerModule?.default?.Picker?.Item || null;
+        // Handle different export patterns for @react-native-picker/picker
+        const PickerComponent = PickerModule?.Picker || PickerModule?.default || null;
+        const PickerItem = PickerModule?.Picker?.Item || PickerModule?.default?.Item || null;
 
         if (!PickerComponent) {
           throw new Error('Picker component not found in module');
@@ -197,13 +194,10 @@ export const useLazyPicker = () => {
     setState(prev => ({ ...prev, isLoading: true, loadError: null }));
 
     try {
-      const PickerModule = await LazyLoader.importModule(
-        () => import('@react-native-picker/picker'),
-        'picker'
-      );
+      const PickerModule = await import('@react-native-picker/picker');
 
-      const PickerComponent = PickerModule?.Picker || PickerModule?.default?.Picker || null;
-      const PickerItem = PickerModule?.Picker?.Item || PickerModule?.default?.Picker?.Item || null;
+      const PickerComponent = PickerModule?.Picker || PickerModule?.default || null;
+      const PickerItem = PickerModule?.Picker?.Item || PickerModule?.default?.Item || null;
 
       if (!PickerComponent) {
         throw new Error('Picker component not found in module');
