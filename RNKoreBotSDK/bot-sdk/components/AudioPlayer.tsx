@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ActivityIndicator } from "react-native";
 import { useLazySound, SoundInstance } from "./LazySound";
-import { LazyPopover } from "./lazy-loading";
-import Slider from "@react-native-community/slider";
+import { LazyPopover, LazySlider } from "./lazy-loading";
 import RNFS from "react-native-fs";
 import { SvgIcon } from "../utils/SvgIcon";
 import { normalize } from "../utils/helpers";
@@ -290,7 +289,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl }) => {
           {formatTime(position)}/{formatTime(duration)}
         </Text>
 
-        <Slider
+        <LazySlider
           style={styles.slider}
           minimumValue={0}
           maximumValue={duration}

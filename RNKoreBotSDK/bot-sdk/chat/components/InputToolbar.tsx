@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import * as React from 'react';
 import {
   StyleSheet,
@@ -20,7 +19,6 @@ import FadeInToTop from '../../animation/FadeInToTop';
 import {MIN_TOOL_BAR_HEIGHT} from '../../constants/Constant';
 import WaveFormView from '../../components/WaveFormView';
 import VoiceHelper from '../../utils/VoiceRecorder';
-// Conditional import for voice types
 type SpeechErrorEvent = any;
 import {isIOS} from '../../utils/PlatformCheck';
 
@@ -75,7 +73,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0.45,
     borderColor: 'black',
-    //marginBottom: 5,
     justifyContent: 'center',
   },
   pop_sub: {
@@ -97,19 +94,13 @@ const styles = StyleSheet.create({
   dropdown_main: {
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'green',
   },
   stt_title: {
     color: '#697586',
     fontSize: normalize(14),
-    //padding: 10,
-    //paddingBottom: 10,
     backgroundColor: Color.transparent,
     marginTop: 10,
-    // alignItems: 'flex-start',
-    // justifyContent: 'flex-start',
     textAlign: 'left',
-    //padding: 2,
   },
   stt_mic_main: {
     alignItems: 'center',
@@ -119,9 +110,7 @@ const styles = StyleSheet.create({
     width: normalize(45),
     minHeight: normalize(45),
     borderRadius: 25,
-    // margin: 5,
     backgroundColor: Color.bot_blue,
-    //marginBottom: normalize(10),
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
@@ -131,21 +120,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // marginTop: -normalize(5),
   },
   stt_main: {
-    //flex: 1,
-    //backgroundColor: 'yellow',
     alignItems: 'center',
     justifyContent: 'center',
   },
   send_container1: {
     backgroundColor: Color.bot_blue,
-
     borderRadius: 7,
-
-    // //color: '#ffffff',
-    // //fontSize: normalize(12),
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
@@ -161,9 +143,6 @@ const styles = StyleSheet.create({
     width: normalize(40),
     height: normalize(40),
     borderRadius: 6,
-
-    //color: '#ffffff',
-    //fontSize: normalize(12),
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
@@ -177,24 +156,11 @@ const styles = StyleSheet.create({
     backgroundColor: Color.red,
   },
   container: {
-    // bottom: 0,
-    // left: 0,
-    // right: 0,
-    // alignItems: 'center',
     justifyContent: 'center',
-
-    // borderTopWidth: StyleSheet.hairlineWidth,
-    // borderEndWidth: StyleSheet.hairlineWidth,
-    // borderStartWidth: StyleSheet.hairlineWidth,
-    // borderColor: Color.defaultColor,
-    // borderTopEndRadius: 2,
-    // borderTopStartRadius: 2,
   },
   primary: {
     flexDirection: 'row',
-    //alignItems: 'flex-end',
     alignItems: 'center',
-    //
   },
   accessory: {
     height: 44,
@@ -341,27 +307,13 @@ export default class InputToolbar extends React.Component<
     const height = normalize(36);
     return (
       <Send {...props}>
-        {false ? (
+        {disabled ? (
           <View
             pointerEvents={this.props.isMediaLoading ? 'none' : 'auto'}
-            //underlayColor={'#817dff'}
             style={[styles.send_container]}>
             <TouchableOpacity
               onPress={() => {
-                this.setState(
-                  {
-                    isSTTViewShow: !this.state.isSTTViewShow,
-                    recordState: RECORD_STATE.onSpeechStop,
-                  },
-                  () => {
-                    if (!this.state.isSTTViewShow) {
-                      if (this.props.onSendSTTClick) {
-                        this.props.onSendSTTClick(true);
-                      }
-                    }
-                    this.fadeInToBottomRef?.startAnimation?.();
-                  },
-                );
+                this.handleVoiceTextSwitch();
               }}>
               <SvgIcon
                 name={this.state.isSTTViewShow ? 'KeyboardIcon' : 'MicIcon'}
@@ -449,7 +401,7 @@ export default class InputToolbar extends React.Component<
     });
   };
 
-  onSpeechError = (e: SpeechErrorEvent) => {
+  onSpeechError = async (e: SpeechErrorEvent) => {
     this.setState({
       isRecordingstart: false,
       recordState:
@@ -458,6 +410,12 @@ export default class InputToolbar extends React.Component<
           : RECORD_STATE.onSpeechStop,
     });
     console.log('onSpeechError --->:', e?.error);
+    
+    try {
+      await this.voiceHelper.resetVoiceState();
+    } catch (resetError) {
+      console.warn('Failed to reset voice state after error:', String(resetError));
+    }
   };
 
   onSpeechResults = (e: any) => {
@@ -493,8 +451,43 @@ export default class InputToolbar extends React.Component<
     // this.setState({ pitch: e.value });
   };
 
-  startRecognizing = () => {
-    this.voiceHelper.startRecognizing();
+  handleVoiceTextSwitch = () => {
+    const newSTTViewState = !this.state.isSTTViewShow;
+    
+    this.setState(
+      {
+        isSTTViewShow: newSTTViewState,
+        recordState: RECORD_STATE.onSpeechStop,
+        isRecordingstart: false,
+      },
+      () => {
+        if (!this.state.isSTTViewShow) {
+          this.stopRecognizing();
+          if (this.props.onSendSTTClick) {
+            this.props.onSendSTTClick(true);
+          }
+        } else {
+          this.voiceHelper.resetVoiceState().catch(() => {
+          });
+        }
+        
+        setTimeout(() => {
+          this.fadeInToBottomRef?.startAnimation?.();
+        }, 50);
+      },
+    );
+  };
+
+  startRecognizing = async () => {
+    try {
+      await this.voiceHelper.resetVoiceState();
+      setTimeout(() => {
+        this.voiceHelper.startRecognizing();
+      }, 100);
+    } catch (error) {
+      console.warn('Failed to reset voice state before start:', String(error));
+      this.voiceHelper.startRecognizing();
+    }
   };
 
   stopRecognizing = () => {
@@ -507,6 +500,28 @@ export default class InputToolbar extends React.Component<
 
   destroyRecognizer = () => {
     this.voiceHelper.destroyRecognizer();
+  };
+
+  handleVoiceToTextSwitch = () => {
+    this.setState(
+      {
+        isSTTViewShow: false,
+        recordState: RECORD_STATE.onSpeechStop,
+        isRecordingstart: false,
+        STT_value: '',
+      },
+      () => {
+        this.stopRecognizing();
+        
+        if (this.props.onSendSTTClick) {
+          this.props.onSendSTTClick(true);
+        }
+        
+        setTimeout(() => {
+          this.fadeInToBottomRef?.startAnimation?.();
+        }, 50);
+      },
+    );
   };
 
   renderSTTView() {
@@ -612,7 +627,6 @@ export default class InputToolbar extends React.Component<
     }
 
     return null;
-    //{ this.state.recordState === RECORD_STATE. 'Listening... Tap to end':'Tap microphone to speak'}
   }
 
   renderQuickRepliesView(theme: any) {
@@ -652,7 +666,6 @@ export default class InputToolbar extends React.Component<
     if (this.state.recordState === RECORD_STATE.onSpeechEnd) {
       return false;
     }
-    // console.log('this.state.recordState --->:', this.state.recordState);
     return true;
   };
 
@@ -663,7 +676,6 @@ export default class InputToolbar extends React.Component<
       this.state.recordState === RECORD_STATE.onSpeechStop
         ? 52
         : MIN_TOOL_BAR_HEIGHT || 72;
-    // const maxHeight: number = MAX_TOOL_BAR_HEIGHT || 180;
     return (
       <View style={[styles.container, this.props.containerStyle]}>
         <View style={{flexDirection: 'column'}}>
