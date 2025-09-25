@@ -146,18 +146,19 @@ export default class MessageContainer extends PureComponent<
     return null;
   };
 
-  renderLoadEarlier = (): any => {
-    if (this.props.loadEarlier === true) {
-      const loadEarlierProps = {
-        ...this.props,
-      };
-      if (this.props.renderLoadEarlier) {
-        return this.props.renderLoadEarlier(loadEarlierProps);
-      }
-      return <LoadEarlier {...loadEarlierProps} />;
-    }
-    return null;
-  };
+  // renderLoadEarlier = (): any => {
+  //   if (this.props.loadEarlier === true) {
+  //     const loadEarlierProps = {
+  //       ...this.props,
+  //     };
+  //     if (this.props.renderLoadEarlier) {
+  //       return this.props.renderLoadEarlier(loadEarlierProps);
+  //     }
+  //     return <LoadEarlier {...loadEarlierProps} />;
+  //   }
+  //   return null;
+  // };
+  
 
   scrollTo(options: {offset: number; animated?: boolean}): void {
     if (this.props.forwardRef && this.props.forwardRef.current && options) {
@@ -393,9 +394,12 @@ export default class MessageContainer extends PureComponent<
   };
 
   loadHistory = async () => {
-    if (this.state.hasMoreHististory) {
+    if (this.state.hasMoreHististory) 
+    {
+      // this.setState({historyOffset: this.props.messages.length});
+
       const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
-      await apiService.getBotHistory(this.state.historyOffset, 10, this.props.botConfig, (response: any) => {
+      await apiService.getBotHistory(this.props.messages.length, 10, this.props.botConfig, (response: any) => {
 
         this.setState({loadingHistory: false});
         if (response == null) {
@@ -410,6 +414,24 @@ export default class MessageContainer extends PureComponent<
       this.setState({loadingHistory: false});
     }
   };
+
+  private renderLoadEarlier = () => {
+    //Show only if we already have 10+ messages
+    if (this.props.messages.length < 10) return null;
+
+      if (this.props.loadEarlier) {
+        return <ActivityIndicator size="small" style={{ padding: 10 }} />;
+      }
+      return (
+        <TouchableOpacity
+          style={{ padding: 10, alignItems: "center" }}
+          onPress={this.loadHistory}
+        >
+          <Text style={{ color: "blue" }}>Load Earlier Messages</Text>
+        </TouchableOpacity>
+      );
+    };
+  
 
   render() {
     const {inverted} = this.props;
