@@ -93,7 +93,7 @@ export class Localization {
       const intlLocale = Intl.DateTimeFormat().resolvedOptions().locale;
       if (intlLocale) {
         const langCode = intlLocale.split(/[-_]/)[0];
-        console.log('Localization: Device locale from Intl API:', intlLocale, '→', langCode);
+        // console.log('Localization: Device locale from Intl API:', intlLocale, '→', langCode);
         return langCode;
       }
     } catch (error) {
@@ -174,14 +174,14 @@ export class Localization {
    */
   public getLocalizedString(key: string, locale?: string): string {
     const targetLocale = locale || this.currentLocale;
-    console.log('Localization: Looking up key:', key, 'in locale:', targetLocale);
+    // console.log('Localization: Looking up key:', key, 'in locale:', targetLocale);
     
     const strings = LOCALIZED_STRINGS[targetLocale as keyof typeof LOCALIZED_STRINGS];
-    console.log('Localization: Found strings for locale:', targetLocale, '→', !!strings);
+    // console.log('Localization: Found strings for locale:', targetLocale, '→', !!strings);
     
     if (strings && strings[key as keyof typeof strings]) {
       const translatedString = strings[key as keyof typeof strings];
-      console.log(`Localization: Translated "${key}" to "${translatedString}" (${targetLocale})`);
+      // console.log(`Localization: Translated "${key}" to "${translatedString}" (${targetLocale})`);
       return translatedString;
     }
     
@@ -194,7 +194,7 @@ export class Localization {
       console.warn(`⚠️  Missing translation for "${key}" in locale "${targetLocale}", using English fallback: "${fallbackString}"`);
     }
     
-    console.log(`Localization: Using fallback for "${key}": "${fallbackString}"`);
+    // console.log(`Localization: Using fallback for "${key}": "${fallbackString}"`);
     return fallbackString;
   }
 

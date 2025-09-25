@@ -7,6 +7,7 @@ import {
   Text,
   Platform,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import LoadEarlier from './LoadEarlier';
 import Message, {MessageProps} from './Message';
@@ -15,6 +16,8 @@ import {ThemeType} from '../../theme/ThemeType';
 import {ThemeContext} from '../../theme/ThemeContext';
 import {IThemeType} from '../../theme/IThemeType';
 import {TEMPLATE_TYPES} from '../../constants/Constant';
+import KoreBotClient, { ApiService, BotConfigModel } from 'rn-kore-bot-socket-lib-v77';
+import { getWindowWidth } from '../../charts';
 //import {FlatList} from 'react-native-gesture-handler';
 
 //import {FlashList as FlatList} from '@shopify/flash-list';
@@ -45,11 +48,16 @@ interface MessageContainerProps {
   onDragList: any;
   position: 'right' | 'center' | 'left';
   onListItemClick: any;
+  botConfig: BotConfigModel;
+  onHistoryLoaded: (messages: any[]) => any
   onSendText?: any;
 }
 
 interface MessageContainerState {
   showScrollBottom: boolean;
+  hasMoreHististory: boolean;
+  historyOffset: number;
+  loadingHistory: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -57,7 +65,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   containerAlignTop: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
     flex: 1,
@@ -125,6 +133,9 @@ export default class MessageContainer extends PureComponent<
   };
   state: MessageContainerState = {
     showScrollBottom: false,
+    hasMoreHististory: true,
+    historyOffset: 0,
+    loadingHistory: false
   };
 
   renderFooter = (): any => {
@@ -221,7 +232,9 @@ export default class MessageContainer extends PureComponent<
             item.message[0].component.payload.payload.template_type !==
               TEMPLATE_TYPES.QUICK_REPLIES &&
             item.message[0].component.payload.payload.template_type !==
-              TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE
+              TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE &&
+              item.message[0].component.payload.payload.template_type !==
+                TEMPLATE_TYPES.SYSTEM_TEMPLATE
           ) {
             //position = 'center';
             //isDisplayTime = false;
@@ -366,20 +379,41 @@ export default class MessageContainer extends PureComponent<
   };
 
   keyExtractor = (item: any): string => {
-    if (item.itemId) {
-      return item.itemId;
-    } else {
-      const itemId = this.getItemId();
+    // if (item.itemId) {
+    //   return item.itemId;
+    // } else {
+      // const itemId = this.getItemId();
+      const itemId = item.timeMillis;
       item = {
         ...item,
         itemId,
       };
       return item.itemId;
+    // }
+  };
+
+  loadHistory = async () => {
+    if (this.state.hasMoreHististory) {
+      const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
+      await apiService.getBotHistory(this.state.historyOffset, 10, this.props.botConfig, (response: any) => {
+
+        this.setState({loadingHistory: false});
+        if (response == null) {
+          console.log('BotHistory null');
+          return;
+        }
+        this.setState({hasMoreHististory: response.data.moreAvailable});
+        this.props.onHistoryLoaded(response.data.botHistory);
+      });
+    }  else {
+      await new Promise((res) => setTimeout(res, 1000));
+      this.setState({loadingHistory: false});
     }
   };
 
   render() {
     const {inverted} = this.props;
+    // this.setState({historyOffset: this.props.messages.length});
     return (
       <View
         style={[
@@ -389,6 +423,15 @@ export default class MessageContainer extends PureComponent<
         {this.state.showScrollBottom && this.props.scrollToBottom
           ? this.renderScrollToBottomWrapper()
           : null}
+        <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#ffffff', alignSelf:'flex-end', marginEnd: 5}} 
+          onPress={(v)=>{
+            if (!this.state.loadingHistory) {
+              this.setState({loadingHistory: true});
+              this.loadHistory();
+            }
+          }}>
+          <Text style={{ fontSize: 10, color: '#000000', fontWeight:'bold', display: 'none'}}>Load history</Text>
+        </TouchableOpacity>
         <FlatList
           ref={this.props.forwardRef}
           extraData={[this.props.extraData, this.props.isTyping]}
@@ -424,6 +467,9 @@ export default class MessageContainer extends PureComponent<
           contentInsetAdjustmentBehavior="scrollableAxes"
           scrollIndicatorInsets={{top: 0, left: 20, bottom: 0, right: 0}}
         />
+        {this.state.loadingHistory ? (
+          <ActivityIndicator size="large" style={{flex:1, width:getWindowWidth(), position: 'absolute'}} />
+        ) : <></>}
       </View>
     );
   }
