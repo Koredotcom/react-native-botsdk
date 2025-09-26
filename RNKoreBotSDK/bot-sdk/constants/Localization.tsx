@@ -48,7 +48,7 @@ const LOCALIZED_STRINGS = {
     view_more: 'View More',
     answered_by_ai: 'Answered by AI',
     did_not_get_code: 'Didn\'t get a code?',
-    load_earlier_messages: 'Load Earlier Messages'
+    load_earlier_messages: 'Chat history'
   },
   es: {
     back_dialog_title: '¿Te gustaría cerrar la conversación o minimizar?',
