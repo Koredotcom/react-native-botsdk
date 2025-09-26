@@ -18,9 +18,7 @@ import {IThemeType} from '../../theme/IThemeType';
 import {TEMPLATE_TYPES} from '../../constants/Constant';
 import KoreBotClient, { ApiService, BotConfigModel } from 'rn-kore-bot-socket-lib-v77';
 import { getWindowWidth } from '../../charts';
-//import {FlatList} from 'react-native-gesture-handler';
-
-//import {FlashList as FlatList} from '@shopify/flash-list';
+import { LocalizationManager } from '../../constants/Localization';
 
 interface MessageContainerProps {
   //extends MessageProps {
@@ -58,6 +56,7 @@ interface MessageContainerState {
   hasMoreHististory: boolean;
   historyOffset: number;
   loadingHistory: boolean;
+  isListScrollable: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -108,6 +107,8 @@ export default class MessageContainer extends PureComponent<
   MessageContainerProps,
   MessageContainerState
 > {
+  private listLayoutHeight = 0;
+  private listContentHeight = 0;
   static contextType = ThemeContext;
   static defaultProps = {
     messages: [],
@@ -135,7 +136,8 @@ export default class MessageContainer extends PureComponent<
     showScrollBottom: false,
     hasMoreHististory: true,
     historyOffset: 0,
-    loadingHistory: false
+    loadingHistory: false,
+    isListScrollable: false
   };
 
   renderFooter = (): any => {
@@ -340,7 +342,12 @@ export default class MessageContainer extends PureComponent<
     );
   }
 
-  onLayoutList = (): void => {
+  onLayoutList = (e: any): void => {
+    const height = e?.nativeEvent?.layout?.height;
+    if (typeof height === 'number' && height > 0 && height !== this.listLayoutHeight) {
+      this.listLayoutHeight = height;
+      this.setState({isListScrollable: this.isListScrollable()});
+    }
     if (
       !this.props.inverted &&
       !!this.props.messages &&
@@ -351,6 +358,14 @@ export default class MessageContainer extends PureComponent<
         15 * (this.props.messages?.length || 1),
       );
     }
+  };
+
+  private isListScrollable = (): boolean => {
+    if (this.listLayoutHeight && this.listContentHeight) {
+      const canScroll = this.listContentHeight > this.listLayoutHeight + 1;
+      return canScroll;
+    }
+    return false;
   };
 
   onEndReached = (distanceFromEnd: number): void => {
@@ -417,7 +432,7 @@ export default class MessageContainer extends PureComponent<
 
   private renderLoadEarlier = () => {
     //Show only if we already have 10+ messages
-    if (this.props.messages.length < 10) return null;
+    if (!this.state.isListScrollable) return null;
 
       if (this.props.loadEarlier) {
         return <ActivityIndicator size="small" style={{ padding: 10 }} />;
@@ -427,7 +442,7 @@ export default class MessageContainer extends PureComponent<
           style={{ padding: 10, alignItems: "center" }}
           onPress={this.loadHistory}
         >
-          <Text style={{ color: "blue" }}>Load Earlier Messages</Text>
+          <Text style={{ color: "blue" }}>{LocalizationManager.getLocalizedString('load_earlier_messages')}</Text>
         </TouchableOpacity>
       );
     };
@@ -435,7 +450,6 @@ export default class MessageContainer extends PureComponent<
 
   render() {
     const {inverted} = this.props;
-    // this.setState({historyOffset: this.props.messages.length});
     return (
       <View
         style={[
@@ -488,6 +502,12 @@ export default class MessageContainer extends PureComponent<
           estimatedItemSize={100}
           contentInsetAdjustmentBehavior="scrollableAxes"
           scrollIndicatorInsets={{top: 0, left: 20, bottom: 0, right: 0}}
+          onContentSizeChange={(w, h) => {
+            if (typeof h === 'number' && h > 0 && h !== this.listContentHeight) {
+              this.listContentHeight = h;
+              this.setState({isListScrollable: this.isListScrollable()});
+            }
+          }}
         />
         {this.state.loadingHistory ? (
           <ActivityIndicator size="large" style={{flex:1, width:getWindowWidth(), position: 'absolute'}} />
