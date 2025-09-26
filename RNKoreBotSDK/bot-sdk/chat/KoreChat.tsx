@@ -442,7 +442,7 @@ export default class KoreChat extends React.Component<
       .on(RTM_EVENT.ON_OPEN, (data: any) => {
         console.log('-----> SUCCESS TO KORA BOT CONNECTED <------:', data);
         if (isMinimizedWindow) {
-          // this.loadHistory();
+          this.loadHistory();
           isMinimizedWindow = false;
         }
         this.getThemeData();

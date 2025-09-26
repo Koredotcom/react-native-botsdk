@@ -54,7 +54,6 @@ interface MessageContainerProps {
 interface MessageContainerState {
   showScrollBottom: boolean;
   hasMoreHististory: boolean;
-  historyOffset: number;
   loadingHistory: boolean;
   isListScrollable: boolean;
 }
@@ -161,7 +160,6 @@ export default class MessageContainer extends PureComponent<
   state: MessageContainerState = {
     showScrollBottom: false,
     hasMoreHististory: true,
-    historyOffset: 0,
     loadingHistory: false,
     isListScrollable: false
   };
@@ -436,8 +434,6 @@ export default class MessageContainer extends PureComponent<
 
   loadHistory = async () => {
     if (this.state.hasMoreHististory) {
-      // this.setState({historyOffset: this.props.messages.length});
-
       const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
       await apiService.getBotHistory(this.props.messages.length, 10, this.props.botConfig, (response: any) => {
 
