@@ -247,7 +247,7 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
       return <></>;
     }
 
-    const width = (windowWidth / 4) * 3;
+    const width = windowWidth * 0.80;
     return (
       <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'}>
         {cards.map((item: any, index: any) => {
