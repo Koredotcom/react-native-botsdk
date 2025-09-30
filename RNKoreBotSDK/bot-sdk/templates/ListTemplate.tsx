@@ -17,7 +17,7 @@ interface ListProps extends BaseViewProps {}
 interface ListState extends BaseViewState {}
 const windowWidth = Dimensions.get('window').width;
 
-const width = (windowWidth / 4) * 3;
+const width = windowWidth * 0.80;
 
 export const LIST_TYPES = {
   web_url: 'web_url',
