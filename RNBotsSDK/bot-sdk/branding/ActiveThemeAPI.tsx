@@ -59,15 +59,8 @@ export class ActiveThemeAPI {
     }
   }
 
-  private getAppTheme = async (
-    botConfig: BotConfigModel,
-    callback = (data?: any) => { },
-  ): Promise<void> => {
-    let themeurl =
-      botConfig.botUrl +
-      '/api/websdkthemes/' +
-      botConfig.botId +
-      '/activetheme';
+  private getAppTheme = async (botConfig: BotConfigModel, callback = (data?: any) => { },): Promise<void> => {
+    let themeurl = botConfig.botUrl + '/api/websdkthemes/' + botConfig.botId + '/activetheme';
 
     const startTime = Date.now();
     Logger.logApiRequest(themeurl, 'GET', {
@@ -92,7 +85,7 @@ export class ActiveThemeAPI {
       }, 1, 'GET');
 
       const duration = Date.now() - startTime;
-      const responseData = await response.json();
+      var responseData = await response.json();
 
       if (!response.ok) {
         const error: any = new Error(`HTTP ${response.status}`);
@@ -110,6 +103,25 @@ export class ActiveThemeAPI {
         themeName: responseData?.name
       }, duration);
 
+      if (responseData?.v3?.general?.colors?.useColorPaletteOnly) {
+        responseData.v3.header = responseData.v3.header || {};
+        responseData.v3.header.title = responseData.v3.header.title || {};
+        responseData.v3.header.sub_title = responseData.v3.header.sub_title || {};
+        responseData.v3.footer = responseData.v3.footer || {};
+        responseData.v3.footer.compose_bar = responseData.v3.footer.compose_bar || {};
+
+        responseData.v3.header.bg_color = responseData.v3.general?.colors?.secondary;
+        responseData.v3.header.avatar_bg_color = responseData.v3.general?.colors?.primary;
+        responseData.v3.header.title.color = responseData.v3.general?.colors?.primary_text;
+        responseData.v3.header.sub_title.color = responseData.v3.general?.colors?.primary_text;
+        responseData.v3.footer.compose_bar["outline-color"] = responseData.v3.general?.colors?.primary;
+        responseData.v3.footer.compose_bar["inline-color"] = responseData.v3.general?.colors?.secondaryText;
+      }
+
+      if (KoreBotClient.getLocalBranding() && responseData && responseData.v3) {
+        responseData.v3 = this.overrideWithLocalBranding(responseData.v3, KoreBotClient.getLocalBranding())
+      }
+
       callback(responseData);
       if (!this.isSocketACtive) {
         Logger.info('Theme API - Disconnecting bot client after theme retrieval');
@@ -126,4 +138,37 @@ export class ActiveThemeAPI {
       }
     }
   };
+
+  private isValidValue = (value: any): boolean => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string' && value.trim() === '') return false;
+    if (Array.isArray(value) && value.length === 0) return false;
+    if (typeof value === 'object' && Object.keys(value).length === 0) return false;
+    return true;
+  }
+
+  private overrideWithLocalBranding = (actualData: any, overrideData: any): any => {
+    // if responseData is not valid, return localData
+    if (!this.isValidValue(overrideData)) {
+      // console.log('valid data ' + localData);
+      return actualData;
+    }
+
+    // if both are objects, merge recursively
+    if (
+      typeof actualData === 'object' &&
+      actualData !== null &&
+      typeof overrideData === 'object' &&
+      !Array.isArray(overrideData)
+    ) {
+      const result: any = { ...actualData };
+      for (const key of Object.keys(overrideData)) {
+        result[key] = this.overrideWithLocalBranding(actualData[key], overrideData[key]);
+      }
+      return result;
+    }
+
+    // otherwise override
+    return overrideData;
+  }
 }
