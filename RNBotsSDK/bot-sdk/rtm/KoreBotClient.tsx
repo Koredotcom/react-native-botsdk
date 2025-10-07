@@ -3,6 +3,7 @@ import { IBotClient } from './IBotClient';
 
 export class KoreBotClient extends BotClient implements IBotClient {
   private static _instance: any;
+  private static localBrandingDictionary?: any;
 
   private constructor() {
     super();
@@ -33,6 +34,14 @@ export class KoreBotClient extends BotClient implements IBotClient {
 
   checkSocketAndReconnect() {
     super.checkSocketAndReconnect();
+  }
+
+  public static setLocalBranding(branding: any) {
+    this.localBrandingDictionary = branding;
+  }
+
+  public static getLocalBranding(): any {
+    return this.localBrandingDictionary;
   }
 
 }
