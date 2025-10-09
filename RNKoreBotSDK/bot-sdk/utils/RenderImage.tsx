@@ -98,11 +98,12 @@ class RenderImage extends Component<Props, State> {
             }}
             style={{
               ...styles.unfurlUrl4,
-              borderRadius: iconShape === ICON_SHAPE.CIRCLE_IMG ? 150 / 2 : 5,
+              borderRadius: iconShape === ICON_SHAPE.CIRCLE_IMG ? 150 / 2 : 0,
               overflow: 'hidden',
               height: normalize(height),
               width: normalize(width),
             }}
+            resizeMode={FastImage.resizeMode.contain}
             onError={() => {
               this.setState({error: true});
               console.log('Image loading error:');
