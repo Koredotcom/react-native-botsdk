@@ -36,6 +36,10 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
     let headerStyles: any;
     if (item?.cardHeading?.headerStyles) {
       headerStyles = convertToRNStyle(item?.cardHeading?.headerStyles);
+    }else{
+      if (item?.cardStyles) {
+        headerStyles = convertToRNStyle(item?.cardStyles);
+      }
     }
 
     let cardStyles: any;
@@ -67,9 +71,10 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
             style={[
               styles.sub_container_1,
               cardContentStyles,
-              item?.cardContentStyles?.['border-left'] && {
+              (item?.cardContentStyles?.['border-left'] || item?.cardStyles?.['border-left']) && {
                 borderColor:
-                  item?.cardContentStyles['border-left']?.split(' ')?.[2] ||
+                item?.cardContentStyles?.['border-left']?.split(' ')?.[2] ||
+                 item?.cardStyles?.['border-left']?.split(' ')?.[2] ||
                   BORDER.COLOR,
                 borderLeftWidth: normalize(5),
                 borderRadius: 10,
@@ -83,15 +88,15 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
                     borderWidth: StyleSheet.hairlineWidth,
                   },
                   headerStyles,
-
                   !item?.cardDescription && {
                     borderBottomEndRadius: BORDER.RADIUS,
                     borderBottomStartRadius: BORDER.RADIUS,
                     borderColor: 'transparent',
                     margin: 3,
-                  },
+                  },{flexDirection:'column'}
                 ]}>
-                {item?.cardHeading?.icon && (
+                  <View style={[styles.header_sub_container,{flexDirection:'row',backgroundColor:'transparent'}]}>
+                  {item?.cardHeading?.icon && (
                   <View
                     style={{
                       justifyContent: 'flex-start',
@@ -101,12 +106,13 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
                     {renderImage({
                       image: item?.cardHeading?.icon,
                       iconShape: undefined,
-                      iconSize: item?.cardHeading?.iconSize || 'small',
+                      iconSize: item?.cardHeading?.iconSize || 'medium',
                     })}
                   </View>
                 )}
-                <View style={{flex: 1}}>
+                <View style={{flex: 1, flexDirection: 'column'}}>
                   <Text
+                  numberOfLines={1}
                     style={[
                       styles.item_title,
                       styles.title_style,
@@ -114,17 +120,15 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
                       headerStyles,
                       {
                         paddingEnd: 10,
-
+                        fontWeight: 'bold',
+                        fontSize: normalize(12),
                         flex: 1,
                         fontFamily:
                           this.props.theme?.v3?.body?.font?.family || 'Inter',
                       },
-                      botStyles[
-                        this.props?.theme?.v3?.body?.font?.size || 'medium'
-                      ]?.size,
                     ]}>
                     {item?.cardHeading?.title}
-                  </Text>
+                  </Text> 
                   {item?.cardHeading?.description && (
                     <Text
                       style={[
@@ -138,14 +142,96 @@ export default class CardTemplate extends BaseView<CardProps, CardState> {
                             this.props.theme?.v3?.body?.font?.family || 'Inter',
                         },
                         botStyles['small']?.size,
+                        {paddingBottom:0}
                       ]}>
                       {item?.cardHeading?.description}
                     </Text>
                   )}
                 </View>
+                {item?.cardHeading?.headerExtraInfo?.title && (
+                  <Text
+                  style={[
+                    styles.item_title,
+                    styles.title_style,
+                    {
+                      letterSpacing: 0,
+                      fontWeight: 'normal',
+                      color: Color.gray,
+                      fontSize: normalize(12),
+                      fontFamily:this.props.theme?.v3?.body?.font?.family || 'Inter',
+                      paddingTop: 8,
+                      flex: 0
+                    }
+                  ]}>
+                  {item?.cardHeading?.headerExtraInfo?.title}
+                </Text>
+                )}
+                {item?.cardHeading?.headerExtraInfo?.icon && (
+                  <View
+                    style={{
+                      marginTop: 10,
+                      marginEnd: 6,
+                      marginStart: 6,
+                    }}>
+                    {renderImage({
+                      image: item?.cardHeading?.headerExtraInfo?.icon,
+                      iconShape: 'square',
+                    })}
+                  </View> 
+                )}
+              </View>
+                
+                <View style={[styles.header_sub_container,{flexDirection:'column',backgroundColor:'transparent'}]}>
+                  {item?.cardType === "list" && item?.cardDescription && ( //Horizontal list
+                  <View style={[styles.sub_view_container, {paddingBottom:5,paddingStart:5,paddingTop:0, borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || '#ff0000',flexDirection:'row',flex:1,borderWidth:0}]}>
+                    {item?.cardDescription?.map((desc: any, index: number) => {
+                      return (
+                        <View key={index + ''} style={[styles.desc_container,{flexDirection:'column',paddingBottom:0}]}>
+                          <View
+                            style={{
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            {renderImage({
+                              image: desc?.icon,
+                              iconShape: undefined,
+                              iconSize: desc?.iconSize,
+                            })}
+                          </View>
+                          <Text
+                            style={[
+                              styles.desc_text,
+                              {
+                                fontFamily:
+                                  this.props.theme?.v3?.body?.font?.family ||
+                                  'Inter',
+                              },
+                              botStyles['small']?.size,
+                            ]}>
+                            {desc.description}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.desc_text,
+                              {
+                                fontFamily:
+                                  this.props.theme?.v3?.body?.font?.family ||
+                                  'Inter',
+                                  fontWeight:'bold'
+                              },
+                              botStyles['small']?.size,{marginTop:5,marginBottom:5}
+                            ]}>
+                            {desc.title}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )} 
+                </View>
               </View>
             )}
-            {item?.cardDescription && (
+            {item?.cardType !== "list" && item?.cardDescription && ( //vertical list
               <View style={[styles.sub_view_container, {borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR || '#ff0000'}]}>
                 {item?.cardDescription?.map((desc: any, index: number) => {
                   return (
@@ -353,6 +439,9 @@ const styles = StyleSheet.create({
     borderColor: BORDER.COLOR,
     borderWidth: 1,
   },
+  header_sub_container: {
+    backgroundColor: Color.white,
+  },
   sub_container_1: {
     //flex: 1,
     // marginEnd: 10,
@@ -368,64 +457,30 @@ const styles = StyleSheet.create({
   sub_container: {
     flexDirection: 'column',
     backgroundColor: Color.white,
-    //flex: 1,
-    marginBottom: 10,
-    //marginStart: 5,
+    marginBottom: 0,
     width: '100%',
-    //flexShrink: 10,
-    // borderBottomEndRadius: BORDER.RADIUS,
-    // borderBottomStartRadius: BORDER.RADIUS,
     borderRadius: BORDER.RADIUS,
   },
 
   container: {
-    //marginTop: 5,
-    // padding:5,
     backgroundColor: 'transparent',
-    // borderWidth: BORDER.WIDTH,
-    // borderColor: BORDER.COLOR,
-    // //borderColor: '#95B6FB',
-    //flex: 1,
-    //margin: 20,
-    // borderRadius: BORDER.RADIUS,
-    //marginBottom: 10,
     paddingBottom: 10,
   },
   sub_view_container: {
-    //flex: 1,
-    // marginTop: 10,
     paddingTop: 5,
-    //backgroundColor: 'red',
-    //borderWidth: BORDER.WIDTH,
     marginEnd: BORDER.WIDTH,
-    // borderBottomWidth: BORDER.WIDTH,
-    // borderLeftWidth: BORDER.WIDTH,
-    // borderRightWidth: BORDER.WIDTH,
-    //borderColor: '#95B6FB',
-    // borderColor: '#85B7FE',
     paddingStart: 10,
-    // margin: 10,
-    // borderRadius: BORDER.RADIUS,
     borderBottomEndRadius: BORDER.RADIUS,
     borderBottomStartRadius: BORDER.RADIUS,
     paddingBottom: 10,
     borderWidth: 1
   },
   image_container: {
-    // height: 50,
-    // width: 60,
-    // alignSelf: 'flex-start',
-    // justifyContent: 'center',
-    //borderColor: '#E4E5E7',
-    //borderWidth: 1,
-    // borderRadius: 4,
-    ////flex: 1,
   },
   unfurlUrl4: {
     borderColor: 'gray',
     resizeMode: 'cover',
     alignSelf: 'center',
-    //  borderRadius: 6,
     alignContent: 'center',
     overflow: 'hidden',
     marginTop: 3,
@@ -439,10 +494,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.270833,
     color: '#202124',
     flex: 1,
-    //marginEnd: 5,
-    //backgroundColor: 'red',
-
-    //width: '100%',
   },
   item_desc: {
     fontFamily: 'Inter',
