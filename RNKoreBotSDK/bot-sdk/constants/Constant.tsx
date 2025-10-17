@@ -133,7 +133,8 @@ export const TEMPLATE_TYPES = {
   ARTICLE_TEMPLATE: 'articleTemplate',
   ANSWER_TEMPLATE: 'answerTemplate',
   OTP_TEMPLATE: 'otpValidationTemplate',
-  RESET_PIN_TEMPLATE: 'resetPinTemplate'
+  RESET_PIN_TEMPLATE: 'resetPinTemplate',
+  DIGITALFORM_TEMPLATE: 'digitalform',
 };
 
 export const RENDER_KORA_BUBBLE = 'RENDER_KORA_BUBBLE';

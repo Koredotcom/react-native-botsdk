@@ -36,6 +36,7 @@ import AnswerTemplate from './AnswerTemplate';
 import OTPTemplate from './OTPTemplate';
 import ResetPinTemplate from './ResetPinTemplate';
 import LinkTemplate from './LinkTemplate';
+import DigitalFormTemplate from './DigitalFormTemplate';
 export interface BotTemplateProps {
   templateType: string;
   textContainerStyle?: any;
@@ -178,6 +179,9 @@ export default class BotTemplate extends React.Component<
             return <ResetPinTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.LINK_MESSAGE:
               return <LinkTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
+      case TEMPLATE_TYPES.DIGITALFORM_TEMPLATE:
+          return <DigitalFormTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
+          DigitalFormTemplate
           
     }
     return (
