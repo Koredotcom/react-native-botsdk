@@ -1418,6 +1418,7 @@ export default class KoreChat extends React.Component<
       case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
       case TEMPLATE_TYPES.LISTWIDGET_TEMPLATE:
       case TEMPLATE_TYPES.IMAGE_MESSAGE:
+      case TEMPLATE_TYPES.DIGITALFORM_TEMPLATE:
         if (!isFromViewMore) {
           this.computePostBack(item, template_type);
         }
