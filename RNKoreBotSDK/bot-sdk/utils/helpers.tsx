@@ -290,6 +290,11 @@ export function getTemplateType(message: any) {
     message[0].component.payload?.payload &&
     message[0].component.payload?.payload?.template_type
   ) {
+    if (message[0].component.payload.payload.template_type === TEMPLATE_TYPES.BUTTON && 
+      message[0].component.payload.formData != null
+    ) {
+      return TEMPLATE_TYPES.DIGITALFORM_TEMPLATE;
+    }
     return message[0].component.payload?.payload?.template_type;
   }
 
