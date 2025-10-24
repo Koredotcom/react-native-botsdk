@@ -1,4 +1,4 @@
-package com.rnsocketlib77
+package com.rnsocketlib79
 
 import android.app.Application
 import com.facebook.react.PackageList
