@@ -14,7 +14,7 @@ import KoreBotClient, {
   Logger,
   LogLevel,
   ApiService
-} from 'rn-kore-bot-socket-lib-v77';
+} from 'rn-kore-bot-socket-lib-v79';
 
 const BotChatComponent = () => {
   const [connectionStatus, setConnectionStatus] = useState('Disconnected');

@@ -1,6 +1,6 @@
 # Kore.ai React Native Bot Socket Library
 
-[![npm version](https://badge.fury.io/js/rn-kore-bot-socket-lib-v77.svg)](https://badge.fury.io/js/rn-kore-bot-socket-lib-v77)
+[![npm version](https://badge.fury.io/js/rn-kore-bot-socket-lib-v79.svg)](https://badge.fury.io/js/rn-kore-bot-socket-lib-v79)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React Native](https://img.shields.io/badge/React%20Native-0.70+-blue.svg)](https://reactnative.dev/)
 
@@ -21,7 +21,7 @@ A powerful and feature-rich React Native library for integrating Kore.ai bot con
 ## 📦 Installation
 
 ```bash
-npm install rn-kore-bot-socket-lib-v77
+npm install rn-kore-bot-socket-lib-v79
 ```
 
 ### Peer Dependencies
@@ -44,8 +44,8 @@ import KoreBotClient, {
   ConnectionState,
   Logger,
   LogLevel,
-} from 'rn-kore-bot-socket-lib-v77';
-import type {BotConfigModel} from 'rn-kore-bot-socket-lib-v77';
+} from 'rn-kore-bot-socket-lib-v79';
+import type {BotConfigModel} from 'rn-kore-bot-socket-lib-v79';
 
 // Configure logging (optional)
 Logger.getInstance().setLogLevel(LogLevel.INFO);
@@ -135,7 +135,7 @@ The library emits various events that you can listen to:
 ### Connection Events
 
 ```typescript
-import {RTM_EVENT} from 'rn-kore-bot-socket-lib-v77';
+import {RTM_EVENT} from 'rn-kore-bot-socket-lib-v79';
 
 const botClient = KoreBotClient.getInstance();
 
@@ -186,7 +186,7 @@ botClient.on(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED, () => {
 Retrieve and apply bot themes dynamically:
 
 ```typescript
-import {ActiveThemeAPI} from 'rn-kore-bot-socket-lib-v77';
+import {ActiveThemeAPI} from 'rn-kore-bot-socket-lib-v79';
 
 const themeAPI = new ActiveThemeAPI();
 
@@ -205,7 +205,7 @@ themeAPI.getThemeAPI(botConfig, themeData => {
 ### Configure Logging
 
 ```typescript
-import {Logger, LogLevel} from 'rn-kore-bot-socket-lib-v77';
+import {Logger, LogLevel} from 'rn-kore-bot-socket-lib-v79';
 
 // Set log level
 Logger.getInstance().setLogLevel(LogLevel.DEBUG); // Show all logs
@@ -269,7 +269,7 @@ botClient.setAppState('ACTIVE' | 'SLEEP');
 ### Connection States
 
 ```typescript
-import {ConnectionState} from 'rn-kore-bot-socket-lib-v77';
+import {ConnectionState} from 'rn-kore-bot-socket-lib-v79';
 
 // Available states
 ConnectionState.CONNECTING; // 0
@@ -387,7 +387,7 @@ import KoreBotClient, {
   ConnectionState,
   Logger,
   LogLevel,
-} from 'rn-kore-bot-socket-lib-v77';
+} from 'rn-kore-bot-socket-lib-v79';
 
 interface State {
   connectionStatus: string;
@@ -552,7 +552,7 @@ export default BotChatComponent;
 ### Enable Debug Logging
 
 ```typescript
-import {Logger, LogLevel} from 'rn-kore-bot-socket-lib-v77';
+import {Logger, LogLevel} from 'rn-kore-bot-socket-lib-v79';
 
 // Enable verbose logging
 Logger.setLogLevel(LogLevel.DEBUG);
@@ -650,7 +650,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ## 📞 Support
 
 - **Documentation**: [Full API Documentation](https://developer.kore.com/docs/bots/kore-web-sdk/)
-- **Issues**: [GitHub Issues](https://github.com/your-org/rn-kore-bot-socket-lib-v77/issues)
+- **Issues**: [GitHub Issues](https://github.com/your-org/rn-kore-bot-socket-lib-v79/issues)
 - **Support**: [Kore.ai Support](https://support.kore.com)
 
 ## 🏢 About Kore.ai

@@ -1,6 +1,6 @@
 {
-  "name": "rn-kore-bot-socket-lib-v77",
-  "version": "0.0.4",
+  "name": "rn-kore-bot-socket-lib-v79",
+  "version": "0.0.7",
   "description": "Description of Bot Scocket SDK library",
   "author": "Kore.ai Inc",
   "license": "MIT",
@@ -22,8 +22,8 @@
     "build": "tsup"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-native": ">=0.77.0 <0.78.0"
+    "react": "^19.0.0",
+    "react-native": ">=0.79.0 <0.80.0"
   },
   "dependencies": {
     "esbuild-plugin-inline-image": "^0.0.9",
@@ -37,13 +37,13 @@
     "@react-native-community/cli": "15.0.1",
     "@react-native-community/cli-platform-android": "15.0.1",
     "@react-native-community/cli-platform-ios": "15.0.1",
-    "@react-native/babel-preset": "0.77.0",
-    "@react-native/eslint-config": "0.77.0",
-    "@react-native/metro-config": "0.77.0",
-    "@react-native/typescript-config": "0.77.0",
+    "@react-native/babel-preset": "0.79.0",
+    "@react-native/eslint-config": "0.79.0",
+    "@react-native/metro-config": "0.79.0",
+    "@react-native/typescript-config": "0.79.0",
     "@types/events": "^3.0.3",
     "@types/jest": "^30.0.0",
-    "@types/react": "^18.2.6",
+    "@types/react": "^19.0.0",
     "eslint": "^8.19.0",
     "prettier": "2.8.8",
     "typescript": "5.0.4"

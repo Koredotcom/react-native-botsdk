@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.rnsocketlib77"
+    namespace "com.rnsocketlib79"
     defaultConfig {
-        applicationId "com.rnsocketlib77"
+        applicationId "com.rnsocketlib79"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
