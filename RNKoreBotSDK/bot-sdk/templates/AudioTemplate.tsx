@@ -38,7 +38,7 @@ export default class AudioTemplate extends BaseView<AudioProps, AudioState> {
           </View>
         )}
         {url && (
-          <View style={[styles.container,{borderColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR,borderWidth: 1, borderRadius: 5}]}>
+          <View style={[styles.container]}>
             <AudioPlayer
               audioUrl={url}
             />
@@ -52,6 +52,15 @@ export default class AudioTemplate extends BaseView<AudioProps, AudioState> {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    width: windowWidth * 0.80 ,
+    width: windowWidth * 0.80,
+
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+
+    // Android shadow
+    elevation: 4,
   },
 });

@@ -442,7 +442,7 @@ export default class KoreChat extends React.Component<
       .on(RTM_EVENT.ON_OPEN, (data: any) => {
         console.log('-----> SUCCESS TO KORA BOT CONNECTED <------:', data);
         if (isMinimizedWindow) {
-          // this.loadHistory();
+          this.loadHistory();
           isMinimizedWindow = false;
         }
         this.getThemeData();
@@ -792,6 +792,11 @@ export default class KoreChat extends React.Component<
         }  
       }
     }
+
+    if (modifiedMessages && modifiedMessages[0].from === 'bot' && modifiedMessages[0].message && 
+        modifiedMessages[0].message[0].component && modifiedMessages[0].message[0].component.payload &&
+        !modifiedMessages[0].message[0].component.payload.payload && !modifiedMessages[0].message[0].component.payload.text)
+          return
     
     this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
         setTimeout(() => {
@@ -1413,6 +1418,7 @@ export default class KoreChat extends React.Component<
       case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
       case TEMPLATE_TYPES.LISTWIDGET_TEMPLATE:
       case TEMPLATE_TYPES.IMAGE_MESSAGE:
+      case TEMPLATE_TYPES.DIGITALFORM_TEMPLATE:
         if (!isFromViewMore) {
           this.computePostBack(item, template_type);
         }

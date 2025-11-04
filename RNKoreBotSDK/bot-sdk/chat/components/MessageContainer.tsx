@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {PureComponent} from 'react';
+import { PureComponent } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,17 +10,15 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import LoadEarlier from './LoadEarlier';
-import Message, {MessageProps} from './Message';
+import Message, { MessageProps } from './Message';
 import Color from '../../theme/Color';
-import {ThemeType} from '../../theme/ThemeType';
-import {ThemeContext} from '../../theme/ThemeContext';
-import {IThemeType} from '../../theme/IThemeType';
-import {TEMPLATE_TYPES} from '../../constants/Constant';
+import { ThemeType } from '../../theme/ThemeType';
+import { ThemeContext } from '../../theme/ThemeContext';
+import { IThemeType } from '../../theme/IThemeType';
+import { TEMPLATE_TYPES } from '../../constants/Constant';
 import KoreBotClient, { ApiService, BotConfigModel } from 'rn-kore-bot-socket-lib-v77';
 import { getWindowWidth } from '../../charts';
-//import {FlatList} from 'react-native-gesture-handler';
-
-//import {FlashList as FlatList} from '@shopify/flash-list';
+import { LocalizationManager } from '../../constants/Localization';
 
 interface MessageContainerProps {
   //extends MessageProps {
@@ -56,8 +54,8 @@ interface MessageContainerProps {
 interface MessageContainerState {
   showScrollBottom: boolean;
   hasMoreHististory: boolean;
-  historyOffset: number;
   loadingHistory: boolean;
+  isListScrollable: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -71,13 +69,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Color.white,
   },
+  history_container: {
+    flex: 1,
+    justifyContent: "center", // center vertically
+    alignItems: "center",     // center horizontally
+  },
+  heading: {
+    fontSize: 14,
+    fontWeight: "400",
+    color: "#000",
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    margin: 5,
+    maxWidth: "80%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shadowProp: {
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4, // Android shadow
+  },
   contentContainerStyle: {
     //flexGrow: 1,
     //justifyContent: 'flex-end',
   },
   emptyChatContainer: {
     flex: 1,
-    transform: [{scaleY: -1}],
+    transform: [{ scaleY: -1 }],
   },
   headerWrapper: {
     flex: 1,
@@ -99,7 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     shadowColor: Color.black,
     shadowOpacity: 0.5,
-    shadowOffset: {width: 0, height: 0},
+    shadowOffset: { width: 0, height: 0 },
     shadowRadius: 1,
   },
 });
@@ -108,6 +133,8 @@ export default class MessageContainer extends PureComponent<
   MessageContainerProps,
   MessageContainerState
 > {
+  private listLayoutHeight = 0;
+  private listContentHeight = 0;
   static contextType = ThemeContext;
   static defaultProps = {
     messages: [],
@@ -115,8 +142,8 @@ export default class MessageContainer extends PureComponent<
     renderChatEmpty: null,
     renderFooter: null,
     renderMessage: null,
-    onLoadEarlier: () => {},
-    onQuickReply: () => {},
+    onLoadEarlier: () => { },
+    onQuickReply: () => { },
     inverted: true,
     loadEarlier: false,
     listViewProps: {},
@@ -134,8 +161,8 @@ export default class MessageContainer extends PureComponent<
   state: MessageContainerState = {
     showScrollBottom: false,
     hasMoreHististory: true,
-    historyOffset: 0,
-    loadingHistory: false
+    loadingHistory: false,
+    isListScrollable: false
   };
 
   renderFooter = (): any => {
@@ -146,66 +173,67 @@ export default class MessageContainer extends PureComponent<
     return null;
   };
 
-  renderLoadEarlier = (): any => {
-    if (this.props.loadEarlier === true) {
-      const loadEarlierProps = {
-        ...this.props,
-      };
-      if (this.props.renderLoadEarlier) {
-        return this.props.renderLoadEarlier(loadEarlierProps);
-      }
-      return <LoadEarlier {...loadEarlierProps} />;
-    }
-    return null;
-  };
+  // renderLoadEarlier = (): any => {
+  //   if (this.props.loadEarlier === true) {
+  //     const loadEarlierProps = {
+  //       ...this.props,
+  //     };
+  //     if (this.props.renderLoadEarlier) {
+  //       return this.props.renderLoadEarlier(loadEarlierProps);
+  //     }
+  //     return <LoadEarlier {...loadEarlierProps} />;
+  //   }
+  //   return null;
+  // };
 
-  scrollTo(options: {offset: number; animated?: boolean}): void {
+
+  scrollTo(options: { offset: number; animated?: boolean }): void {
     if (this.props.forwardRef && this.props.forwardRef.current && options) {
       this.props.forwardRef.current.scrollToOffset(options);
     }
   }
 
   scrollToBottom = (animated: boolean): void => {
-    const {inverted} = this.props;
+    const { inverted } = this.props;
     if (inverted) {
-      this.scrollTo({offset: 0, animated});
+      this.scrollTo({ offset: 0, animated });
     } else if (this.props.forwardRef && this.props.forwardRef.current) {
-      this.props.forwardRef?.current?.scrollToEnd({animated});
+      this.props.forwardRef?.current?.scrollToEnd({ animated });
     }
   };
 
   handleOnScroll = (event: any): void => {
     const {
       nativeEvent: {
-        contentOffset: {y: contentOffsetY},
-        contentSize: {height: contentSizeHeight},
-        layoutMeasurement: {height: layoutMeasurementHeight},
+        contentOffset: { y: contentOffsetY },
+        contentSize: { height: contentSizeHeight },
+        layoutMeasurement: { height: layoutMeasurementHeight },
       },
     } = event;
-    const {scrollToBottomOffset} = this.props;
+    const { scrollToBottomOffset } = this.props;
     if (this.props.onDragList) {
       this.props.onDragList();
     }
     if (this.props.inverted) {
       if (contentOffsetY > scrollToBottomOffset) {
-        this.setState({showScrollBottom: true});
+        this.setState({ showScrollBottom: true });
       } else {
-        this.setState({showScrollBottom: false});
+        this.setState({ showScrollBottom: false });
       }
     } else {
       if (
         contentOffsetY < scrollToBottomOffset &&
         contentSizeHeight - layoutMeasurementHeight > scrollToBottomOffset
       ) {
-        this.setState({showScrollBottom: true});
+        this.setState({ showScrollBottom: true });
       } else {
-        this.setState({showScrollBottom: false});
+        this.setState({ showScrollBottom: false });
       }
     }
   };
 
-  renderRow = ({item, index}: {item: any; index: number}): any => {
-    const {messages, inverted, ...restProps} = this.props;
+  renderRow = ({ item, index }: { item: any; index: number }): any => {
+    const { messages, inverted, ...restProps } = this.props;
     if (messages) {
       const previousMessage =
         (inverted ? messages[index + 1] : messages[index - 1]) || {};
@@ -228,13 +256,13 @@ export default class MessageContainer extends PureComponent<
             item.message[0].component.payload.payload &&
             item.message[0].component.payload.payload.template_type &&
             item.message[0].component.payload.payload.template_type !==
-              TEMPLATE_TYPES.START_TIMER &&
+            TEMPLATE_TYPES.START_TIMER &&
             item.message[0].component.payload.payload.template_type !==
-              TEMPLATE_TYPES.QUICK_REPLIES &&
+            TEMPLATE_TYPES.QUICK_REPLIES &&
             item.message[0].component.payload.payload.template_type !==
-              TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE &&
-              item.message[0].component.payload.payload.template_type !==
-                TEMPLATE_TYPES.SYSTEM_TEMPLATE
+            TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE &&
+            item.message[0].component.payload.payload.template_type !==
+            TEMPLATE_TYPES.SYSTEM_TEMPLATE
           ) {
             //position = 'center';
             //isDisplayTime = false;
@@ -317,7 +345,7 @@ export default class MessageContainer extends PureComponent<
   );
 
   renderScrollBottomComponent(): any {
-    const {scrollToBottomComponent} = this.props;
+    const { scrollToBottomComponent } = this.props;
 
     if (scrollToBottomComponent) {
       return scrollToBottomComponent();
@@ -332,14 +360,19 @@ export default class MessageContainer extends PureComponent<
       <View style={[styles.scrollToBottomStyle, propsStyle]}>
         <TouchableOpacity
           onPress={() => this.scrollToBottom(false)}
-          hitSlop={{top: 5, left: 5, right: 5, bottom: 5}}>
+          hitSlop={{ top: 5, left: 5, right: 5, bottom: 5 }}>
           {this.renderScrollBottomComponent()}
         </TouchableOpacity>
       </View>
     );
   }
 
-  onLayoutList = (): void => {
+  onLayoutList = (e: any): void => {
+    const height = e?.nativeEvent?.layout?.height;
+    if (typeof height === 'number' && height > 0 && height !== this.listLayoutHeight) {
+      this.listLayoutHeight = height;
+      this.setState({ isListScrollable: this.isListScrollable() });
+    }
     if (
       !this.props.inverted &&
       !!this.props.messages &&
@@ -352,8 +385,16 @@ export default class MessageContainer extends PureComponent<
     }
   };
 
+  private isListScrollable = (): boolean => {
+    if (this.listLayoutHeight && this.listContentHeight) {
+      const canScroll = this.listContentHeight > this.listLayoutHeight + 1;
+      return canScroll;
+    }
+    return false;
+  };
+
   onEndReached = (distanceFromEnd: number): void => {
-    const {loadEarlier, onLoadEarlier, infiniteScroll, isLoadingEarlier} =
+    const { loadEarlier, onLoadEarlier, infiniteScroll, isLoadingEarlier } =
       this.props;
     if (
       infiniteScroll &&
@@ -382,55 +423,75 @@ export default class MessageContainer extends PureComponent<
     // if (item.itemId) {
     //   return item.itemId;
     // } else {
-      // const itemId = this.getItemId();
-      const itemId = item.timeMillis;
-      item = {
-        ...item,
-        itemId,
-      };
-      return item.itemId;
+    // const itemId = this.getItemId();
+    const itemId = item.timeMillis;
+    item = {
+      ...item,
+      itemId,
+    };
+    return item.itemId;
     // }
   };
 
   loadHistory = async () => {
     if (this.state.hasMoreHististory) {
       const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
-      await apiService.getBotHistory(this.state.historyOffset, 10, this.props.botConfig, (response: any) => {
+      await apiService.getBotHistory(this.props.messages.length, 10, this.props.botConfig, (response: any) => {
 
-        this.setState({loadingHistory: false});
+        this.setState({ loadingHistory: false });
         if (response == null) {
           console.log('BotHistory null');
           return;
         }
-        this.setState({hasMoreHististory: response.data.moreAvailable});
+        this.setState({ hasMoreHististory: response.data.moreAvailable });
         this.props.onHistoryLoaded(response.data.botHistory);
       });
-    }  else {
+    } else {
       await new Promise((res) => setTimeout(res, 1000));
-      this.setState({loadingHistory: false});
+      this.setState({ loadingHistory: false });
     }
   };
 
+  private renderLoadEarlier = () => {
+    //Show only if we already have 10+ messages
+    if (!this.state.isListScrollable) return null;
+
+    if (this.props.loadEarlier) {
+      return <ActivityIndicator size="small" style={{ padding: 10 }} />;
+    }
+    return (
+      <View style={styles.history_container}>
+        <TouchableOpacity
+          style={[styles.card, styles.shadowProp]}
+          onPress={this.loadHistory}
+        >
+          <Text style={styles.heading} >{LocalizationManager.getLocalizedString('load_earlier_messages')}</Text>
+        </TouchableOpacity>
+      </View>
+
+    );
+  };
+
+
   render() {
-    const {inverted} = this.props;
-    // this.setState({historyOffset: this.props.messages.length});
+    const { inverted } = this.props;
     return (
       <View
         style={[
           this.props.alignTop ? styles.containerAlignTop : styles.container,
-          {backgroundColor: this.getBackgroundColor()},
+          { backgroundColor: this.getBackgroundColor() },
         ]}>
         {this.state.showScrollBottom && this.props.scrollToBottom
           ? this.renderScrollToBottomWrapper()
           : null}
-        <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#ffffff', alignSelf:'flex-end', marginEnd: 5}} 
-          onPress={(v)=>{
+        <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#ffffff', alignSelf: 'flex-end', marginEnd: 5 }}
+          onPress={(v) => {
             if (!this.state.loadingHistory) {
-              this.setState({loadingHistory: true});
+              this.setState({ loadingHistory: true });
               this.loadHistory();
             }
           }}>
-          <Text style={{ fontSize: 10, color: '#000000', fontWeight:'bold', display: 'none'}}>Load history</Text>
+          <Text style={{ fontSize: 10, color: '#000000', fontWeight: 'bold', display: 'none' }}>Load history</Text>
         </TouchableOpacity>
         <FlatList
           ref={this.props.forwardRef}
@@ -465,10 +526,16 @@ export default class MessageContainer extends PureComponent<
           keyboardDismissMode="on-drag"
           estimatedItemSize={100}
           contentInsetAdjustmentBehavior="scrollableAxes"
-          scrollIndicatorInsets={{top: 0, left: 20, bottom: 0, right: 0}}
+          scrollIndicatorInsets={{ top: 0, left: 20, bottom: 0, right: 0 }}
+          onContentSizeChange={(w, h) => {
+            if (typeof h === 'number' && h > 0 && h !== this.listContentHeight) {
+              this.listContentHeight = h;
+              this.setState({ isListScrollable: this.isListScrollable() });
+            }
+          }}
         />
         {this.state.loadingHistory ? (
-          <ActivityIndicator size="large" style={{flex:1, width:getWindowWidth(), position: 'absolute'}} />
+          <ActivityIndicator size="large" style={{ flex: 1, width: getWindowWidth(), position: 'absolute' }} />
         ) : <></>}
       </View>
     );
