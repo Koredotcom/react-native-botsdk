@@ -13,7 +13,7 @@ import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 import { getBubbleTheme } from '../theme/themeHelper';
-import Base64Image from '../utils/Base64Image';
+import Base64Image from '../utils/Base64Converter';
 import { LocalizationManager } from '../constants/Localization';
 
 interface ArticleProps extends BaseViewProps {}
