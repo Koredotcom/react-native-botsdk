@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "react": "18.3.1",
-    "react-native": "0.77.1",
-    "rn-kore-bot-socket-lib-v77": "^0.0.4"
+    "react-native": "0.82.0",
+    "rn-kore-bot-socket-lib-v82": "^0.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -21,10 +21,10 @@
     "@react-native-community/cli": "15.0.1",
     "@react-native-community/cli-platform-android": "15.0.1",
     "@react-native-community/cli-platform-ios": "15.0.1",
-    "@react-native/babel-preset": "0.77.1",
-    "@react-native/eslint-config": "0.77.1",
-    "@react-native/metro-config": "0.77.1",
-    "@react-native/typescript-config": "0.77.1",
+    "@react-native/babel-preset": "0.82.0",
+    "@react-native/eslint-config": "0.82.0",
+    "@react-native/metro-config": "0.82.0",
+    "@react-native/typescript-config": "0.82.0",
     "@types/react": "^18.2.6",
     "eslint": "^8.19.0",
     "prettier": "2.8.8",
