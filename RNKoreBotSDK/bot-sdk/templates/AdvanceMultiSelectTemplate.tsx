@@ -8,12 +8,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import BotText from './BotText';
 import {normalize} from '../utils/helpers';
 import CheckBox from '../components/CustomCheckBox';
 import Color from '../theme/Color';
-import FastImage from 'react-native-fast-image';
 import {isIOS} from '../utils/PlatformCheck';
 import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
@@ -299,7 +299,7 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                     {marginLeft: normalize(7)},
                   ]}
                   source={this.placeholderImage}>
-                  <FastImage
+                  <Image
                     source={{uri: item?.image_url}}
                     style={[styles.image]}
                     resizeMode={'cover'}

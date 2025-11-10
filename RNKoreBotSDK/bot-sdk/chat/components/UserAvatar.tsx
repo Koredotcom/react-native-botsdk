@@ -1,6 +1,5 @@
 import * as React from 'react';
-import {Text, TouchableOpacity, View, StyleSheet} from 'react-native';
-import FastImage from 'react-native-fast-image';
+import {Text, TouchableOpacity, View, StyleSheet, Image} from 'react-native';
 import Color from '../../theme/Color';
 import {normalize} from '../../utils/helpers';
 import {isAndroid} from '../../utils/PlatformCheck';
@@ -104,26 +103,18 @@ export default class UserAvatar extends React.Component<UserAvatarProps> {
         return user.avatar([styles.avatarStyle, this.props.avatarStyle]);
       } else if (typeof user.avatar === 'string') {
         return (
-          <FastImage
+          <Image
             source={{
               uri: user.avatar,
-              priority: FastImage.priority.normal,
-              cache: isAndroid
-                ? FastImage.cacheControl.immutable
-                : FastImage.cacheControl.web,
             }}
             style={[styles.avatarStyle, this.props.avatarStyle]}
           />
         );
       } else if (typeof user.avatar === 'number') {
         return (
-          <FastImage
+          <Image
             source={{
               uri: user.avatar,
-              priority: FastImage.priority.normal,
-              cache: isAndroid
-                ? FastImage.cacheControl.immutable
-                : FastImage.cacheControl.web,
             }}
             style={[styles.avatarStyle, this.props.avatarStyle]}
           />

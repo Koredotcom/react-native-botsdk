@@ -2,7 +2,7 @@ import API_CONST from '../lib/services/api-constants';
 //import RNFS from 'react-native-fs';
 import MultipartData from './MultipartData';
 import axios from 'axios';
-import KoreBotClient from 'rn-kore-bot-socket-lib-v77';
+import KoreBotClient from 'rn-kore-bot-socket-lib-v79';
 import {getUserAgent} from 'react-native-user-agent';
 
 class FileUploadOnprem {

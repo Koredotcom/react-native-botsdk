@@ -61,7 +61,7 @@ export interface LazyDocumentPickerProps {
 
 /**
  * Lazy-loaded DocumentPicker component that dynamically imports 
- * react-native-document-picker only when needed
+ * @react-native-documents/picker only when needed
  */
 export class LazyDocumentPicker extends Component<LazyDocumentPickerProps, LazyDocumentPickerState> {
   private mounted = true;
@@ -95,13 +95,13 @@ export class LazyDocumentPicker extends Component<LazyDocumentPickerProps, LazyD
     try {
       // Dynamic import with fallback for different module structures
       const DocumentPickerModule = await LazyLoader.importModule(
-        () => import('react-native-document-picker'),
+        () => import('@react-native-documents/picker'),
         'documentpicker'
       );
 
       if (this.mounted) {
-        // Handle different export patterns
-        const DocumentPicker = DocumentPickerModule?.default || DocumentPickerModule || null;
+        // Handle different export patterns - @react-native-documents/picker uses named exports
+        const DocumentPicker = DocumentPickerModule || null;
 
         if (!DocumentPicker || !DocumentPicker.pick) {
           throw new Error('DocumentPicker module or required methods not found');
@@ -222,11 +222,11 @@ export const useLazyDocumentPicker = () => {
 
     try {
       const DocumentPickerModule = await LazyLoader.importModule(
-        () => import('react-native-document-picker'),
+        () => import('@react-native-documents/picker'),
         'documentpicker'
       );
 
-      const DocumentPicker = DocumentPickerModule?.default || DocumentPickerModule || null;
+      const DocumentPicker = DocumentPickerModule || null;
 
       if (!DocumentPicker || !DocumentPicker.pick) {
         throw new Error('DocumentPicker module or required methods not found');

@@ -29,7 +29,7 @@ import {ThemeType} from '../../theme/ThemeType';
 import {ThemeContext} from '../../theme/ThemeContext';
 import {IThemeType} from '../../theme/IThemeType';
 import BotTemplate from '../../templates/BotTemplate';
-import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
+import KoraBotClient from 'rn-kore-bot-socket-lib-v79';
 import CustomTemplate from '../../templates/CustomTemplate';
 import {isAndroid, isIOS} from '../../utils/PlatformCheck';
 

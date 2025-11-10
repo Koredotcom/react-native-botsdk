@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, useCallback} from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -17,7 +17,6 @@ import {
 } from '../../constants/Constant';
 import Color from '../../theme/Color';
 import {invertColor, normalize} from '../../utils/helpers';
-import {useCallbackOne} from 'use-memo-one';
 import {isAndroid, isIOS} from '../../utils/PlatformCheck';
 import {IThemeType} from '../../theme/IThemeType';
 import {SvgIcon} from '../../utils/SvgIcon';
@@ -67,7 +66,7 @@ export function Composer({
 
   const composerHeightNew: number = composerHeight || 35;
 
-  const determineInputSizeChange = useCallbackOne(
+  const determineInputSizeChange = useCallback(
     (dimensions: {width: number; height: number}) => {
       // Support earlier versions of React Native on Android.
       if (!dimensions) {

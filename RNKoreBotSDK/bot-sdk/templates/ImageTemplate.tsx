@@ -1,7 +1,6 @@
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import * as React from 'react';
-import {Text, View, StyleSheet, ImageBackground} from 'react-native';
-import FastImage from 'react-native-fast-image';
+import {Text, View, StyleSheet, ImageBackground, Image} from 'react-native';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
@@ -70,7 +69,7 @@ export default class ImageTemplate extends BaseView<ImageProps, ImageState> {
             <ImageBackground
               style={styles.image_view}
               source={this.placeholderImage}>
-              <FastImage
+              <Image
                 source={{uri: this.state.imageUri}}
                 style={styles.image}
                 onError={this.handleImageError}

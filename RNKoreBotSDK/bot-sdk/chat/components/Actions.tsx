@@ -1,4 +1,5 @@
 import * as React from 'react';
+const { useCallback } = React;
 import {
   StyleSheet,
   Text,
@@ -10,7 +11,6 @@ import {
 } from 'react-native';
 import Color from '../../theme/Color';
 import {useChatContext} from '../BotChatContext';
-import {useCallbackOne} from 'use-memo-one';
 
 export interface ActionsProps {
   options?: {[key: string]: any};
@@ -32,7 +32,7 @@ export function Actions({
   containerStyle,
 }: ActionsProps) {
   const {actionSheet} = useChatContext();
-  const onActionsPress = useCallbackOne(() => {
+  const onActionsPress = useCallback(() => {
     const optionKeys = Object.keys(options);
     const cancelButtonIndex = optionKeys.indexOf('Cancel');
     actionSheet().showActionSheetWithOptions(
@@ -50,7 +50,7 @@ export function Actions({
     );
   }, []);
 
-  const renderIcon = useCallbackOne(() => {
+  const renderIcon = useCallback(() => {
     if (icon) {
       return icon();
     }

@@ -32,25 +32,17 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to select photos.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>We need access to your microphone to record voice messages.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>We need access to your speech recognition to transcribe voice messages.</string>
-	<key>NSCameraUsageDescription</key>
 	<string>This app needs access to camera to take photos and videos for sharing in the chat.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to microphone for speech to text functionality in the chat.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app needs access to save photos to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to photo library to select and share images in the chat.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs access to save photos to your photo library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to microphone for speech to text functionality in the chat.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This app needs access to speech recognition for voice input in the chat.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

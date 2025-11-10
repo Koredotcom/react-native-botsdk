@@ -5,11 +5,10 @@ import {ThemeType} from '../../theme/ThemeType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BOT_ICON_URL} from '../../constants/Constant';
 import {normalize} from '../../utils/helpers';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Image} from 'react-native';
 import CustomLoadingDots from '../../components/CustomLoadingDots';
-import FastImage from 'react-native-fast-image';
 
-import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
+import KoraBotClient from 'rn-kore-bot-socket-lib-v79';
 import {botStyles} from '../../theme/styles';
 import {isIOS} from '../../utils/PlatformCheck';
 import Color from '../../theme/Color';
@@ -93,11 +92,9 @@ export default class TypingIndicator extends Component<
             },
           ]}>
           {url ? (
-            <FastImage
+            <Image
               source={{
                 uri: url,
-                priority: FastImage.priority.high,
-                cache: FastImage.cacheControl.immutable, // Use cache effectively
               }}
               style={[styles.bot_icon]}
             />

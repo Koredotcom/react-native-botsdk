@@ -1,6 +1,6 @@
 {
-    "name": "rn-kore-bot-sdk-v77",
-    "version": "0.0.7",
+    "name": "rn-kore-bot-sdk-v79-test",
+    "version": "0.0.9",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -19,6 +19,9 @@
     "author": "Kore.ai",
     "files": [
         "dist",
+        "android/src",
+        "react-native.config.js",
+        "react-native-rn-kore-bot-sdk.podspec",
         "README.md",
         "package.json"
     ],
@@ -33,8 +36,8 @@
         "prepublishOnly": "npm run build"
     },
     "peerDependencies": {
-        "react": ">=18.0.0",
-        "react-native": ">=0.77.0 <0.78.0"
+        "react": "19.0.0",
+        "react-native": "^0.79.0"
     },
     "dependencies": {
         "@react-native-async-storage/async-storage": "^2.2.0",
@@ -50,8 +53,7 @@
         "react-native-blob-util": "^0.22.2",
         "react-native-bootsplash": "^6.3.9",
         "react-native-communications": "^2.2.1",
-        "react-native-document-picker": "^9.3.1",
-        "react-native-fast-image": "^8.6.3",
+        "@react-native-documents/picker": "^10.1.5",
         "react-native-file-viewer": "^2.1.5",
         "react-native-fs": "^2.20.0",
         "react-native-gesture-handler": "^2.27.2",
@@ -75,8 +77,7 @@
         "react-native-vector-icons": "^10.2.0",
         "react-native-video": "^6.16.1",
         "reactotron-react-native": "^5.1.13",
-        "rn-kore-bot-socket-lib-v77": "^0.0.6",
-        "use-memo-one": "^1.1.3"
+        "rn-kore-bot-socket-lib-v79": "^0.0.7"
     },
     "devDependencies": {
         "@babel/core": "^7.25.2",
@@ -89,7 +90,7 @@
         "@react-native/eslint-config": "0.77.0",
         "@react-native/metro-config": "0.77.0",
         "@react-native/typescript-config": "0.77.0",
-        "@types/react": "^18.2.6",
+        "@types/react": "19.0.0",
         "esbuild-plugin-inline-image": "^0.0.9",
         "eslint": "^8.19.0",
         "tsup": "^7.2.0",
@@ -97,5 +98,15 @@
     },
     "engines": {
         "node": ">=18"
+    },
+    "overrides": {
+        "react": "19.0.0",
+        "@types/react": "19.0.0",
+        "react-native-renderer": "19.0.0"
+    },
+    "resolutions": {
+        "react": "19.0.0",
+        "@types/react": "19.0.0",
+        "react-native-renderer": "19.0.0"
     }
 }

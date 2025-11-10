@@ -1,37 +1,44 @@
 # Comprehensive Lazy/Dynamic Dependency Loading Guide
 
-This comprehensive guide explains how to implement lazy loading for heavy React Native dependencies to reduce bundle size and improve app performance. Our implementation covers 8 major dependencies with a total bundle size reduction of ~340KB, providing significant performance improvements for React Native applications.
+This comprehensive guide explains how to implement lazy loading for heavy React Native dependencies to reduce bundle size and improve app performance. Our implementation covers multiple major dependencies with significant bundle size reduction, providing substantial performance improvements for React Native applications.
 
 ## Overview
 
-Lazy loading allows you to dynamically import heavy components only when they're needed, rather than bundling them with your main JavaScript bundle. This can significantly reduce your app's initial bundle size by ~340KB and improve startup performance.
+Lazy loading allows you to dynamically import heavy components only when they're needed, rather than bundling them with your main JavaScript bundle. This can significantly reduce your app's initial bundle size and improve startup performance.
 
 ## Supported Dependencies
 
-### **High Impact Components (50KB+ each)**
+### **High Impact Components (40KB+ each)**
 - **react-native-video** (~60KB) - Video player component
-- ~~**react-native-image-picker** (~50KB) - Now uses direct dynamic imports in components~~
-- ~~**react-native-reanimated-carousel** (~55KB) - Now uses direct dynamic imports in components~~
 - **react-native-tts** (~45KB) - Text-to-speech functionality
 - **react-native-sound** (~40KB) - Audio playback functionality
-- **react-native-parsed-text** (~15KB) - Text parsing for links, emails, and custom patterns
+- **@react-native-voice/voice** (~40KB) - Speech recognition (Note: Android uses custom implementation)
 
-### **Medium Impact Components (20-50KB each)**
-- ~~**react-native-document-picker** (~35KB) - Now uses direct dynamic imports in components~~
+### **Medium Impact Components (20-40KB each)**
 - **@react-native-community/datetimepicker** (~30KB) - Date and time picker
 - **@react-native-picker/picker** (~25KB) - Native picker component
-- **@react-native-voice/voice** (~40KB) - Speech recognition
+- **react-native-popover-view** (~25KB) - Popover/tooltip component
+- **react-native-parsed-text** (~15KB) - Text parsing for links, emails, and custom patterns
+- **@react-native-community/slider** (~20KB) - Slider component
+- **react-native-communications** (~15KB) - Phone/SMS/Email functionality
 
-**Total Bundle Size Reduction: ~380KB** (Image Picker and Document Picker now use direct dynamic imports)
+### **Direct Dynamic Import Components**
+These components use direct dynamic imports in your code rather than lazy wrapper components:
+- **react-native-image-picker** (~50KB) - Image selection from camera/gallery
+- **@react-native-documents/picker** (~35KB) - Document selection
+- **react-native-reanimated-carousel** (~55KB) - Advanced carousel component
+
+**Total Bundle Size Reduction: ~455KB** (Varies based on which components you actually use)
 
 ## Benefits
 
-- **Massive Bundle Size Reduction**: ~380KB saved on initial app load
+- **Massive Bundle Size Reduction**: ~455KB saved on initial app load
 - **Improved Performance**: Significantly faster app startup times
 - **Better User Experience**: Progressive loading with meaningful fallbacks
 - **Error Resilience**: Graceful handling when components fail to load
 - **Intelligent Caching**: Once loaded, components are cached for subsequent uses
 - **Selective Loading**: Only load the features your users actually use
+- **Custom Speech Recognition**: Android uses optimized custom implementation for better performance
 
 ## Implementation
 
@@ -56,19 +63,22 @@ All lazy components follow the same pattern with class-based and hook-based APIs
 ```typescript
 import { 
   LazyVideo, LazyTTS, LazySound, LazyParsedText,
-  LazyDateTimePicker, LazyPicker, LazyVoice,
+  LazyDateTimePicker, LazyPicker, LazyVoice, LazySlider, LazyPopover,
+  LazyCommunications,
   // Hooks
   useLazyVideo, useLazyTTS, useLazySound, useLazyParsedText,
-  useLazyDateTimePicker, useLazyPicker, useLazyVoice,
+  useLazyDateTimePicker, useLazyPicker, useLazyVoice, useLazySlider,
+  useLazyPopover, useLazyCommunications,
   // Fallbacks
   FallbackVideo, FallbackTTS, FallbackSound, FallbackParsedText,
-  FallbackDateTimePicker, FallbackPicker, FallbackVoice
-} from './lazy-loading';
+  FallbackDateTimePicker, FallbackPicker, FallbackVoice, FallbackSlider,
+  FallbackPopover, FallbackCommunications
+} from 'rn-kore-bot-sdk-v79-test';
 
 // For Image Picker, Document Picker, and Carousel, use direct dynamic imports:
 // Example in a component:
 // const { launchCamera } = await import('react-native-image-picker');
-// const DocumentPicker = await import('react-native-document-picker');
+// const DocumentPicker = await import('@react-native-documents/picker');
 // const Carousel = await import('react-native-reanimated-carousel');
 ```
 
@@ -239,6 +249,11 @@ const { startRecognizing, stopRecognizing, isAvailable } = useLazyVoice({
     console.error('Speech error:', error);
   },
 });
+
+// Note: 
+// - Android: Uses custom native speech recognition implementation
+// - iOS: Uses @react-native-voice/voice package
+// - Both platforms handled transparently by LazyVoice
 ```
 
 ### 4. Hook-based Usage Pattern
@@ -410,18 +425,22 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 
 ### Bundle Size Impact
 
-| Component | Before (Bundled) | After (Lazy) | Savings |
-|-----------|------------------|--------------|---------|
-| Video Player | 60KB | On-demand | 60KB |
-| Image Picker | 50KB | On-demand | 50KB |
-| Carousel | 55KB | On-demand | 55KB |
-| TTS | 45KB | On-demand | 45KB |
-| Sound Player | 40KB | On-demand | 40KB |
-| Document Picker | 35KB | On-demand | 35KB |
-| DateTimePicker | 30KB | On-demand | 30KB |
-| Picker | 25KB | On-demand | 25KB |
-| Voice Recognition | 40KB | On-demand | 40KB |
-| **Total** | **380KB** | **0KB initial** | **380KB** |
+| Component | Before (Bundled) | After (Lazy) | Savings | Notes |
+|-----------|------------------|--------------|---------|-------|
+| Video Player | 60KB | On-demand | 60KB | Lazy wrapper component |
+| Image Picker | 50KB | On-demand | 50KB | Direct dynamic import |
+| Carousel | 55KB | On-demand | 55KB | Direct dynamic import |
+| TTS | 45KB | On-demand | 45KB | Lazy wrapper component |
+| Sound Player | 40KB | On-demand | 40KB | Lazy wrapper component |
+| Document Picker | 35KB | On-demand | 35KB | Direct dynamic import |
+| DateTimePicker | 30KB | On-demand | 30KB | Lazy wrapper component |
+| Picker | 25KB | On-demand | 25KB | Lazy wrapper component |
+| Voice Recognition | 40KB | On-demand | 40KB | Custom Android + iOS |
+| Popover | 25KB | On-demand | 25KB | Lazy wrapper component |
+| Slider | 20KB | On-demand | 20KB | Lazy wrapper component |
+| Communications | 15KB | On-demand | 15KB | Lazy wrapper component |
+| ParsedText | 15KB | On-demand | 15KB | Lazy wrapper component |
+| **Total** | **455KB** | **0KB initial** | **455KB** | Significant savings |
 
 ### Communications (Phone, SMS, Email)
 
@@ -716,14 +735,64 @@ if (DEBUG) {
 - Handle permission denied scenarios
 
 #### **Voice Recognition Issues**
-- Check microphone permissions
+- Check microphone permissions in AndroidManifest.xml and Info.plist
 - Test on physical devices (not simulators)
 - Handle network connectivity for cloud-based recognition
+- **Android**: Ensure Google services are installed and updated
+- **Android**: Verify VoiceRecognitionPackage is registered in MainApplication
+- **Android**: Check that native modules are properly copied and linked
+- **iOS**: Ensure @react-native-voice/voice is properly installed via CocoaPods
 
 #### **TTS Issues**
 - Verify system TTS availability
 - Test with different languages/voices
 - Handle device-specific TTS limitations
+
+## Custom Android Speech Recognition Integration
+
+For Android speech recognition to work properly, additional setup is required beyond the standard npm install. This is because Android uses a custom native implementation for better performance and reliability.
+
+### Required Steps for Android Speech Recognition:
+
+1. **Create react-native.config.js** in your project root:
+```javascript
+module.exports = {
+  dependencies: {
+    'rn-kore-bot-sdk-v79-test': {
+      platforms: {
+        android: null, // Disable Android autolinking
+        ios: {}, // Enable iOS autolinking
+      },
+    },
+  },
+};
+```
+
+2. **Copy native Android modules**:
+```bash
+mkdir -p android/app/src/main/java/com/rnkorebotsdk
+cp node_modules/rn-kore-bot-sdk-v79-test/android/src/main/java/com/rnkorebotsdk/*.java android/app/src/main/java/com/rnkorebotsdk/
+```
+
+3. **Register native modules** in MainApplication.kt:
+```kotlin
+import com.rnkorebotsdk.VoiceRecognitionPackage
+
+// In getPackages() method:
+add(VoiceRecognitionPackage())
+```
+
+4. **Add permissions** to AndroidManifest.xml:
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<queries>
+    <intent>
+        <action android:name="android.speech.RecognitionService" />
+    </intent>
+</queries>
+```
+
+For complete integration instructions, see `SPEECH_TO_TEXT_INTEGRATION_GUIDE.md`.
 
 ## Architecture Benefits
 

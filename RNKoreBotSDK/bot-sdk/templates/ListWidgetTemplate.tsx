@@ -8,9 +8,9 @@ import {
   StyleSheet,
   ImageBackground,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
-import FastImage from 'react-native-fast-image';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 import {SvgIcon} from '../utils/SvgIcon';
@@ -160,7 +160,7 @@ export default class ListWidgetTemplate extends BaseView<
       case ValueTypes.IMAGE:
         return (
           <View>
-            <FastImage
+            <Image
               source={{uri: value?.image?.image_src}}
               style={styles.value_image}
               onError={this.handleImageError}
@@ -185,7 +185,7 @@ export default class ListWidgetTemplate extends BaseView<
           return (
             <View style={{flexDirection: 'row', marginBottom: 10}}>
               <View style={{marginRight: 5}}>
-                <FastImage
+                <Image
                   source={{uri: item?.image?.image_src}}
                   style={styles.value_image}
                   onError={this.handleImageError}
@@ -226,7 +226,7 @@ export default class ListWidgetTemplate extends BaseView<
                     <ImageBackground
                       style={styles.image_view}
                       source={this.placeholderImage}>
-                      <FastImage
+                      <Image
                         source={{uri: item?.image?.image_src}}
                         style={styles.image}
                         onError={this.handleImageError}

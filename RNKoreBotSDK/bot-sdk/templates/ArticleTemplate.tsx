@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
@@ -91,10 +90,10 @@ export default class ArticleTemplate extends BaseView<ArticleProps, ArticleState
                             (
                                 <Base64Image width={14} height={14} base64String={item.icon} style={{ alignSelf: 'center'}} />
                             ):(
-                                <FastImage
+                                <Image
                                     source={{ uri: item.icon }}
                                     style={{ width: 14, height: 14, alignSelf: 'center' }}
-                                    resizeMode={FastImage.resizeMode.contain}
+                                    resizeMode={'contain'}
                                 />
                             )
                         }

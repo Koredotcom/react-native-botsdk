@@ -7,12 +7,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import {BaseViewProps, BaseViewState, WelcomeBaseView} from './WelcomeBaseView';
 import {normalize} from '../../utils/helpers';
 import Color from '../../theme/Color';
 import {SvgIcon} from '../../utils/SvgIcon';
-import FastImage from 'react-native-fast-image';
 const windowWidth = Dimensions.get('window').width;
 
 interface BodyProps extends BaseViewProps {}
@@ -111,11 +111,9 @@ export default class WelcomeBody extends WelcomeBaseView<BodyProps, BodyState> {
           },
         ]}>
         {headerIcon?.type === 'custom' ? (
-          <FastImage
+          <Image
             source={{
               uri: headerIcon?.icon_url,
-              priority: FastImage.priority.high,
-              cache: FastImage.cacheControl.immutable, // Use cache effectively
             }}
             style={styles.image}
           />
@@ -342,11 +340,9 @@ export default class WelcomeBody extends WelcomeBaseView<BodyProps, BodyState> {
                 this.itemClick(item?.action);
               }}
               style={{marginBottom: normalize(16)}}>
-              <FastImage
+              <Image
                 source={{
                   uri: item?.banner,
-                  priority: FastImage.priority.high,
-                  cache: FastImage.cacheControl.immutable, // Use cache effectively
                 }}
                 style={styles.promotion_image}
               />
