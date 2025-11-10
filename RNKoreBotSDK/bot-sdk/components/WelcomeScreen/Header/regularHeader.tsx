@@ -1,12 +1,11 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Image} from 'react-native';
 import {normalize} from '../../../utils/helpers';
 import {
   BaseViewProps,
   BaseViewState,
   WelcomeBaseView,
 } from '../WelcomeBaseView';
-import FastImage from 'react-native-fast-image';
 import Color from '../../../theme/Color';
 
 interface RegularHeaderProps extends BaseViewProps {}
@@ -33,7 +32,7 @@ export default class RegularHeader extends WelcomeBaseView<
         ]}>
         {obj?.logo?.logo_url && (
           <View style={styles.sub_container}>
-            <FastImage
+            <Image
               source={{uri: obj?.logo?.logo_url}}
               style={styles.image}
             />

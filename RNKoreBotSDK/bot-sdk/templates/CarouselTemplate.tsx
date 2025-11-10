@@ -7,8 +7,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
 
@@ -99,8 +99,6 @@ export default class CarouselTemplate extends BaseView<
     });
     let Image_Http_URL = {
       uri: item.image_url,
-      priority: FastImage.priority.high,
-      cache: FastImage.cacheControl.immutable, // Use cache effectively
     };
     const MainWrapper: any = item?.default_action ? TouchableOpacity : View;
     const bubbleTheme = getBubbleTheme(this.props?.theme);
@@ -120,7 +118,7 @@ export default class CarouselTemplate extends BaseView<
           <View style={{}}>
             {item?.image_url && (
               <View style={styles.image_con}>
-                <FastImage source={Image_Http_URL} style={styles.image} />
+                <Image source={Image_Http_URL} style={styles.image} />
               </View>
             )}
             <View>

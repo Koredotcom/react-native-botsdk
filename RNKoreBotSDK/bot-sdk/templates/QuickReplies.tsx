@@ -6,11 +6,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {normalize} from '../utils/helpers';
 
-import FastImage from 'react-native-fast-image';
 import {getBubbleTheme} from '../theme/themeHelper';
 
 interface QuickProps extends BaseViewProps {
@@ -80,7 +80,7 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
             }>
             {item?.image_url && (
               <View style={styles.image_bg}>
-                <FastImage
+                <Image
                   source={{uri: item?.image_url}}
                   style={[
                     this.props.quick_image_style

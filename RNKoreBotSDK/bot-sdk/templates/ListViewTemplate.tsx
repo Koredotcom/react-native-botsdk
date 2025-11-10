@@ -7,8 +7,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
-import FastImage from 'react-native-fast-image';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
@@ -66,7 +66,7 @@ export default class ListViewTemplate extends BaseView<ListProps, ListState> {
               <ImageBackground
                 style={[styles.image_view]}
                 source={this.placeholderImage}>
-                <FastImage source={Image_Http_URL} style={[styles.image]} />
+                <Image source={Image_Http_URL} style={[styles.image]} />
               </ImageBackground>
             </View>
           )}

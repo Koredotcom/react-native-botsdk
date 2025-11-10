@@ -8,10 +8,10 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import Color from '../theme/Color';
 import {normalize} from '../utils/helpers';
-import FastImage from 'react-native-fast-image';
 import {image_size} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
 const windowWidth = Dimensions.get('window').width;
@@ -96,7 +96,7 @@ export default class TableListTemplate extends BaseView<
                       image_size[item?.title?.image?.size || 'medium'],
                   ]}
                   source={this.placeholderImage}>
-                  <FastImage
+                  <Image
                     source={{uri: item?.title?.image?.image_src}}
                     style={[
                       styles.image,

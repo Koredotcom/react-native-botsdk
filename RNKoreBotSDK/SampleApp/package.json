@@ -12,11 +12,11 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-documents/picker": "^10.1.5",
+    "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/elements": "^2.5.2",
     "@react-navigation/stack": "^7.4.2",
     "react-native-bootsplash": "^6.3.9",
-    "react-native-document-picker": "^9.3.1",
-    "react-native-fast-image": "^8.6.3",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.26.0",
     "react-native-permissions": "^5.4.1",
@@ -24,11 +24,11 @@
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.11.1",
     "react-native-svg": "^15.12.1",
-    "rn-kore-bot-sdk-v77": "^0.0.7"
+    "rn-kore-bot-sdk-v79-test": "^0.0.9"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-native": ">=0.77.0 <0.78.0"
+    "react": "19.0.0",
+    "react-native": "^0.79.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -41,12 +41,22 @@
     "@react-native/eslint-config": "0.77.0",
     "@react-native/metro-config": "0.77.0",
     "@react-native/typescript-config": "0.77.0",
-    "@types/react": "^18.2.6",
+    "@types/react": "19.0.0",
     "eslint": "^8.19.0",
     "prettier": "2.8.8",
     "typescript": "5.0.4"
   },
   "engines": {
     "node": ">=18"
+  },
+  "overrides": {
+    "react": "19.0.0",
+    "@types/react": "19.0.0",
+    "react-native-renderer": "19.0.0"
+  },
+  "resolutions": {
+    "react": "19.0.0",
+    "@types/react": "19.0.0",
+    "react-native-renderer": "19.0.0"
   }
 }

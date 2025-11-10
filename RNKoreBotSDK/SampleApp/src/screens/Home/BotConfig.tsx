@@ -1,5 +1,5 @@
-import {uuid} from 'rn-kore-bot-sdk-v77';
-import {BotConfigModel} from 'rn-kore-bot-socket-lib-v77';
+import {uuid} from 'rn-kore-bot-sdk-v79-test';
+import {BotConfigModel} from 'rn-kore-bot-socket-lib-v79';
 
 export const botConfig_b: BotConfigModel = {
   botName: 'PLEASE_ENTER_BOT_NAME',

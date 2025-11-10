@@ -1,8 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {Component} from 'react';
-import {View} from 'react-native';
+import {View, Image} from 'react-native';
 import {SvgCssUri} from 'react-native-svg/css';
-import FastImage from 'react-native-fast-image';
 import {normalize} from './helpers';
 
 interface Props {
@@ -90,11 +89,9 @@ class RenderImage extends Component<Props, State> {
         ) : this.state.error ? (
           <></>
         ) : (
-          <FastImage
+          <Image
             source={{
               uri: image,
-              priority: FastImage.priority.high,
-              cache: FastImage.cacheControl.immutable, // Use cache effectively
             }}
             style={{
               ...styles.unfurlUrl4,
@@ -103,7 +100,7 @@ class RenderImage extends Component<Props, State> {
               height: normalize(height),
               width: normalize(width),
             }}
-            resizeMode={FastImage.resizeMode.contain}
+            resizeMode={'contain'}
             onError={() => {
               this.setState({error: true});
               console.log('Image loading error:');

@@ -49,7 +49,7 @@ import KoreBotClient, {
   APP_STATE,
   ActiveThemeAPI,
   ApiService,
-} from 'rn-kore-bot-socket-lib-v77';
+} from 'rn-kore-bot-socket-lib-v79';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {
   getDrawableByExt,
@@ -339,8 +339,8 @@ export default class KoreChat extends React.Component<
 
   private lazyDocumentPicker = async () => {
     try {
-      const DocumentPickerModule = await import('react-native-document-picker');
-      return DocumentPickerModule.default || DocumentPickerModule;
+      const DocumentPickerModule = await import('@react-native-documents/picker');
+      return DocumentPickerModule;
     } catch (error) {
       console.warn('Failed to load DocumentPicker:', error);
       return null;
@@ -349,8 +349,8 @@ export default class KoreChat extends React.Component<
 
   private getDocumentPickerTypes = async () => {
     try {
-      const DocumentPickerModule = await import('react-native-document-picker');
-      const DocumentPicker = DocumentPickerModule.default || DocumentPickerModule;
+      const DocumentPickerModule = await import('@react-native-documents/picker');
+      const DocumentPicker = DocumentPickerModule;
       return DocumentPicker?.types || {};
     } catch (error) {
       console.warn('Failed to load DocumentPicker types:', error);

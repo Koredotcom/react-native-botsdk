@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -18,7 +19,7 @@ import FadeInToBottom from '../../animation/FadeInToBottom';
 import FadeInToTop from '../../animation/FadeInToTop';
 import {MIN_TOOL_BAR_HEIGHT} from '../../constants/Constant';
 import WaveFormView from '../../components/WaveFormView';
-import VoiceHelper from '../../utils/VoiceRecorder';
+import VoiceHelper from '../../utils/VoiceRecorderV2';
 type SpeechErrorEvent = any;
 import {isIOS} from '../../utils/PlatformCheck';
 
@@ -427,7 +428,7 @@ export default class InputToolbar extends React.Component<
       }
       this.setState({
         isRecordingstart: false,
-        recordState: RECORD_STATE.onSpeechStop,
+        recordState: RECORD_STATE.onSpeechEnd,
         STT_value: e.value?.[0],
       });
       this.stopRecognizing();
@@ -443,7 +444,10 @@ export default class InputToolbar extends React.Component<
   onSpeechPartialResults = (e: any) => {
     this.voiceHelper.resetCounter();
     if (e?.value?.length > 0) {
-      this.props?.onSTTValue?.(e.value[0] + ' ...');
+      if (Platform.OS !== 'android')
+        this.props?.onSTTValue?.(e.value[0]);
+      else
+        this.props?.onSTTValue?.(e.value[0] + ' ...');
     }
   };
 
@@ -480,6 +484,11 @@ export default class InputToolbar extends React.Component<
 
   startRecognizing = async () => {
     try {
+      // Debug voice recognition on Android
+      if (!isIOS) {
+        await this.voiceHelper.debugVoiceRecognition();
+      }
+      
       await this.voiceHelper.resetVoiceState();
       setTimeout(() => {
         this.voiceHelper.startRecognizing();

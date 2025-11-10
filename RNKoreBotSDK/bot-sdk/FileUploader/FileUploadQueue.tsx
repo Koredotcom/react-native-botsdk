@@ -1,5 +1,5 @@
 import FileUploadOnprem from './FileUploadOnprem';
-import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
+import KoraBotClient from 'rn-kore-bot-socket-lib-v79';
 import {FILE_CONTEXT} from '../constants/Constant';
 
 class FileUploadQueue {

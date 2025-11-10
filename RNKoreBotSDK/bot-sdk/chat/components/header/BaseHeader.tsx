@@ -13,7 +13,7 @@ import {
 } from '../../../constants/Constant';
 import {IThemeType} from '../../../theme/IThemeType';
 import Color from '../../../theme/Color';
-import KoraBotClient from 'rn-kore-bot-socket-lib-v77';
+import KoraBotClient from 'rn-kore-bot-socket-lib-v79';
 
 export interface BaseHeaderProps {
   theme?: IThemeType;
