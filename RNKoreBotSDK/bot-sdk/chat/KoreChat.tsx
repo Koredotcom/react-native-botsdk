@@ -644,6 +644,7 @@ export default class KoreChat extends React.Component<
   };
 
   componentWillUnmount() {
+    this._unsubscribeConn?.();
     this.setisChatMounted(false);
     const botClient = KoreBotClient.getInstance();
     botClient.removeAllListeners(RTM_EVENT.CONNECTING);

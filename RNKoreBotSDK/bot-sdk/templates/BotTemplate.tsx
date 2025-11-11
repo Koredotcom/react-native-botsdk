@@ -180,7 +180,7 @@ export default class BotTemplate extends React.Component<
       case TEMPLATE_TYPES.LINK_MESSAGE:
               return <LinkTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
       case TEMPLATE_TYPES.DIGITALFORM_TEMPLATE:
-          return <DigitalFormTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;    
+          return <DigitalFormTemplate payload={payload} theme={theme} onListItemClick={this.props.onListItemClick} />;
     }
     return (
       <Text style={{padding: 10}}>
