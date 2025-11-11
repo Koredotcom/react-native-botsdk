@@ -8,9 +8,7 @@ interface WaveState {}
 
 const dotAnimations = Array.from({length: 4}).map(() => new Animated.Value(1));
 const keyframes1 = [0.0, 1, 0.8, 0.5, 0.0, 0.5, 0.8, 1, 0.0];
-const keyframes2 = [1, 0.8, 0.5, 0.2, 0.5, 0.8, 1];
 const keyframes3 = [0.0, 1, 0.5, 0.2, 0.0, 0.2, 0.5, 0.8, 1, 0.0];
-const keyframes4 = [0.0, 1, 0.2, 0.5, 0.8, 1, 0.0];
 
 const keyFramesList = [keyframes3, keyframes1];
 

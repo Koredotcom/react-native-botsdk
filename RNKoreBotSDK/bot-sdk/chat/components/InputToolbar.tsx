@@ -19,7 +19,7 @@ import FadeInToBottom from '../../animation/FadeInToBottom';
 import FadeInToTop from '../../animation/FadeInToTop';
 import {MIN_TOOL_BAR_HEIGHT} from '../../constants/Constant';
 import WaveFormView from '../../components/WaveFormView';
-import VoiceHelper from '../../utils/VoiceRecorderV2';
+import VoiceHelper from '../../utils/VoiceRecorder';
 type SpeechErrorEvent = any;
 import {isIOS} from '../../utils/PlatformCheck';
 
@@ -368,8 +368,6 @@ export default class InputToolbar extends React.Component<
       <View
         style={{
           flex: 1,
-          marginTop: normalize(17),
-          marginBottom: normalize(17),
         }}>
         <FadeInToBottom
           getRef={(ref: any) => {
@@ -550,7 +548,7 @@ export default class InputToolbar extends React.Component<
 
                         this.setState(
                           {
-                            isSTTViewShow: false,
+                            // isSTTViewShow: false,
                             recordState: RECORD_STATE.onSpeechStop,
                             STT_value: '',
                           },
