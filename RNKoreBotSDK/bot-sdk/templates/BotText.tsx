@@ -8,7 +8,7 @@ import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {ThemeContext} from '../theme/ThemeContext';
 import {botStyles} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
-import { LazyParsedText } from '../components/LazyParsedText';
+import ParsedText from 'react-native-parsed-text';
 import {getParseList} from '../utils/ParseList';
 
 const WWW_URL_PATTERN = /^www\./i;
@@ -154,7 +154,7 @@ export default class BotText extends BaseView<BotTextProps, BotTextState> {
               this.props?.theme?.v3?.body?.bubble_style || 'balloon'
             ].bubble_style,
           ]}>
-          <LazyParsedText
+          <ParsedText
             style={[
               styles.text,
               {
@@ -171,7 +171,7 @@ export default class BotText extends BaseView<BotTextProps, BotTextState> {
             {this.props.isFilterApply
               ? text.toString().replace(/\s\s+/g, '\n').trim()
               : text.trim()}
-          </LazyParsedText>
+          </ParsedText>
         </View>
       </View>
     ) : (

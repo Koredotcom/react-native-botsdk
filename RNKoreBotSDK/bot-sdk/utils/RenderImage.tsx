@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import {View, Image} from 'react-native';
 import {SvgCssUri} from 'react-native-svg/css';
 import {normalize} from './helpers';
+import {placeholder} from '../assets';
 
 interface Props {
   image: string;
@@ -76,7 +77,7 @@ class RenderImage extends Component<Props, State> {
         }}>
         {fileExtension === 'svg' ? (
           <SvgCssUri
-            uri={error ? require('../assets/placehoder/image.png') : image}
+            uri={error ? placeholder.image : image}
             height={normalize(height)}
             width={normalize(width)}
             style={{

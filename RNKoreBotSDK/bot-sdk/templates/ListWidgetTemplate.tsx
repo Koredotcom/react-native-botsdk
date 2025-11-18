@@ -19,7 +19,7 @@ import {ButtonTheme} from '../constants/Constant';
 import LazyPopover from '../components/LazyPopover';
 import ListWidgetButtonsView from '../components/ListWidgetButtonsView';
 const windowWidth = Dimensions.get('window').width;
-
+import {placeholder} from '../assets';
 interface listWidgetTemplateProps extends BaseViewProps {}
 interface listWidgetTemplateState extends BaseViewState {
   showPopover?: boolean;
@@ -48,7 +48,7 @@ export default class ListWidgetTemplate extends BaseView<
       showBtnPopover: false,
     };
     this.btheme = getButtonTheme(this.props?.theme);
-    this.placeholderImage = require('../assets/placehoder/image.png');
+    this.placeholderImage = placeholder.image;
   }
 
   private renderValueTypeComponent = (

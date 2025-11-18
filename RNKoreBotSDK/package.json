@@ -1,6 +1,6 @@
 {
     "name": "rn-kore-bot-sdk-v79-test",
-    "version": "0.0.9",
+    "version": "0.0.11",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -15,6 +15,7 @@
         "type": "git",
         "url": "https://github.com/Koredotcom/react-native-botsdk/tree/master/RNKoreBotSDK"
     },
+    "homepage": "https://github.com/Koredotcom/react-native-botsdk/tree/master/RNKoreBotSDK",
     "license": "MIT",
     "author": "Kore.ai",
     "files": [
@@ -23,7 +24,8 @@
         "react-native.config.js",
         "react-native-rn-kore-bot-sdk.podspec",
         "README.md",
-        "package.json"
+        "package.json",
+        "bot-sdk/assets"
     ],
     "scripts": {
         "android": "react-native run-android",
@@ -32,7 +34,7 @@
         "start": "react-native start",
         "clean": "react-native clean",
         "test": "jest",
-        "build": "tsup",
+        "build": "tsup && cp -r bot-sdk/assets/images dist/ && cp -r bot-sdk/assets/placeholder dist/",
         "prepublishOnly": "npm run build"
     },
     "peerDependencies": {
@@ -44,6 +46,7 @@
         "@react-native-community/datetimepicker": "^8.4.4",
         "@react-native-community/netinfo": "^11.4.1",
         "@react-native-community/slider": "^5.0.1",
+        "@react-native-documents/picker": "^10.1.5",
         "@react-native-picker/picker": "^2.11.0",
         "@react-native-voice/voice": "^3.2.4",
         "@react-navigation/native": "^7.1.14",
@@ -53,13 +56,11 @@
         "react-native-blob-util": "^0.22.2",
         "react-native-bootsplash": "^6.3.9",
         "react-native-communications": "^2.2.1",
-        "@react-native-documents/picker": "^10.1.5",
         "react-native-file-viewer": "^2.1.5",
         "react-native-fs": "^2.20.0",
         "react-native-gesture-handler": "^2.27.2",
         "react-native-image-picker": "^8.2.1",
         "react-native-linear-gradient": "^2.8.3",
-        "react-native-paper": "^5.14.5",
         "react-native-parsed-text": "^0.0.22",
         "react-native-permissions": "^5.4.2",
         "react-native-popover-view": "^6.1.0",
