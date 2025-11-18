@@ -23,7 +23,7 @@
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.11.1",
     "react-native-svg": "^15.12.1",
-    "rn-kore-bot-sdk-v79-test": "^0.0.9"
+    "rn-kore-bot-sdk-v79-test": "^0.0.11"
   },
   "peerDependencies": {
     "react": "19.0.0",

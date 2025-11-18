@@ -70,13 +70,6 @@ export {
   FallbackSoundAPI
 } from '../LazySound';
 
-// Lazy ParsedText components
-export { 
-  LazyParsedText,
-  useLazyParsedText,
-  FallbackParsedText
-} from '../LazyParsedText';
-
 // Lazy Slider components
 export { 
   LazySlider,
@@ -110,10 +103,6 @@ export type {
   VideoProps,
 } from '../LazyVideo';
 
-// LazyImagePicker types removed
-
-// LazyCarousel types removed
-
 export type {
   LazyTTSProps,
   TTSModule,
@@ -131,12 +120,6 @@ export type {
   LazyCommunicationsProps,
   CommunicationsModule,
 } from '../LazyCommunications';
-
-export type {
-  LazyParsedTextProps,
-  ParsedTextProps,
-  ParsedTextModule,
-} from '../LazyParsedText';
 
 export type {
   LazySliderProps,

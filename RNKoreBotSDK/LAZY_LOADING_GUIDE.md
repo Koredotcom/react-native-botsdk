@@ -18,7 +18,6 @@ Lazy loading allows you to dynamically import heavy components only when they're
 - **@react-native-community/datetimepicker** (~30KB) - Date and time picker
 - **@react-native-picker/picker** (~25KB) - Native picker component
 - **react-native-popover-view** (~25KB) - Popover/tooltip component
-- **react-native-parsed-text** (~15KB) - Text parsing for links, emails, and custom patterns
 - **@react-native-community/slider** (~20KB) - Slider component
 - **react-native-communications** (~15KB) - Phone/SMS/Email functionality
 
@@ -28,7 +27,7 @@ These components use direct dynamic imports in your code rather than lazy wrappe
 - **@react-native-documents/picker** (~35KB) - Document selection
 - **react-native-reanimated-carousel** (~55KB) - Advanced carousel component
 
-**Total Bundle Size Reduction: ~455KB** (Varies based on which components you actually use)
+**Total Bundle Size Reduction: ~440KB** (Varies based on which components you actually use)
 
 ## Benefits
 
@@ -62,15 +61,15 @@ All lazy components follow the same pattern with class-based and hook-based APIs
 
 ```typescript
 import { 
-  LazyVideo, LazyTTS, LazySound, LazyParsedText,
+  LazyVideo, LazyTTS, LazySound,
   LazyDateTimePicker, LazyPicker, LazyVoice, LazySlider, LazyPopover,
   LazyCommunications,
   // Hooks
-  useLazyVideo, useLazyTTS, useLazySound, useLazyParsedText,
+  useLazyVideo, useLazyTTS, useLazySound,
   useLazyDateTimePicker, useLazyPicker, useLazyVoice, useLazySlider,
   useLazyPopover, useLazyCommunications,
   // Fallbacks
-  FallbackVideo, FallbackTTS, FallbackSound, FallbackParsedText,
+  FallbackVideo, FallbackTTS, FallbackSound,
   FallbackDateTimePicker, FallbackPicker, FallbackVoice, FallbackSlider,
   FallbackPopover, FallbackCommunications
 } from 'rn-kore-bot-sdk-v79-test';
@@ -439,8 +438,8 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 | Popover | 25KB | On-demand | 25KB | Lazy wrapper component |
 | Slider | 20KB | On-demand | 20KB | Lazy wrapper component |
 | Communications | 15KB | On-demand | 15KB | Lazy wrapper component |
-| ParsedText | 15KB | On-demand | 15KB | Lazy wrapper component |
-| **Total** | **455KB** | **0KB initial** | **455KB** | Significant savings |
+| **Total** | **440KB** | **0KB initial** | **440KB** | Significant savings |
+
 
 ### Communications (Phone, SMS, Email)
 

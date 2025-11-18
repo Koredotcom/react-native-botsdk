@@ -15,7 +15,8 @@ import Toast from "react-native-toast-message";
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
 import RNFS from 'react-native-fs';
-import { saveBase64File } from '../utils/Base64Converter'
+import { saveBase64File } from '../utils/Base64Converter';
+import { placeholder } from '../assets';
 
 const windowWidth = Dimensions.get('window').width;
 let window = windowWidth * 0.8;
@@ -116,14 +117,14 @@ export default class LinkTemplate extends BaseView<LinkTemplateProps, LinkTempla
     let borderColor = this.props.onBottomSheetClose ? Color.transparent : bubbleTheme?.BUBBLE_LEFT_BG_COLOR
     return (
       <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'} style={[styles.main_Container, { width: window, borderColor: borderColor }]}>
-        {<Image source={require('../assets/placehoder/pdf.png')} style={[styles.image,{position: 'absolute',marginStart: 8,marginTop: 10}]}
+        {<Image source={placeholder.pdf} style={[styles.image,{position: 'absolute',marginStart: 8,marginTop: 10}]}
                 />}
         <Text style={[styles.label,{fontSize: 16, marginTop:5, marginLeft: 55}]}>{payload.fileName}</Text>
         <TouchableOpacity
             onPress={() => { downloadFile(payload.url.trim(), payload.fileName); }}
                 style={[styles.button, { backgroundColor: Color.white }]}>
             <Image 
-                source={require('../assets/placehoder/download.png')} style={styles.buttonImage} />
+                source={placeholder.download} style={styles.buttonImage} />
         </TouchableOpacity>
         <Toast/>
       </View>
