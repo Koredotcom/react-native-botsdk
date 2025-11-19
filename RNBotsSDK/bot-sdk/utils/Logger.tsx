@@ -19,8 +19,9 @@ export class Logger {
   private logLevel: LogLevel = LogLevel.INFO;
   private logs: LogEntry[] = [];
   private maxLogs: number = 1000;
+  private isLoggingEnabled: boolean = true;
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): Logger {
     if (!Logger.instance) {
@@ -33,8 +34,20 @@ export class Logger {
     this.logLevel = level;
   }
 
+  enableLogging() {
+    this.isLoggingEnabled = true;
+  }
+
+  disableLogging() {
+    this.isLoggingEnabled = false;
+  }
+
+  isLoggingEnabledFlag(): boolean {
+    return this.isLoggingEnabled;
+  }
+
   private log(level: LogLevel, category: string, message: string, data?: any, error?: any) {
-    if (level < this.logLevel) {
+    if (!this.isLoggingEnabled || level < this.logLevel) {
       return;
     }
 
@@ -57,7 +70,7 @@ export class Logger {
     // Console output with color coding
     const levelName = LogLevel[level];
     const formattedMessage = `[${logEntry.timestamp}] [${levelName}] [${category}] ${message}`;
-    
+
     switch (level) {
       case LogLevel.DEBUG:
         console.debug(formattedMessage, data || '');
@@ -82,20 +95,20 @@ export class Logger {
   }
 
   logApiSuccess(endpoint: string, method: string, responseData?: any, duration?: number) {
-    const message = duration 
+    const message = duration
       ? `${method} ${endpoint} - Success (${duration}ms)`
       : `${method} ${endpoint} - Success`;
     this.log(LogLevel.INFO, 'API_SUCCESS', message, responseData);
   }
 
   logApiError(endpoint: string, method: string, error: any, duration?: number) {
-    const message = duration 
+    const message = duration
       ? `${method} ${endpoint} - Error (${duration}ms)`
       : `${method} ${endpoint} - Error`;
-    this.log(LogLevel.ERROR, 'API_ERROR', message, { 
+    this.log(LogLevel.ERROR, 'API_ERROR', message, {
       status: error?.response?.status,
       statusText: error?.response?.statusText,
-      message: error?.message 
+      message: error?.message
     }, error);
   }
 

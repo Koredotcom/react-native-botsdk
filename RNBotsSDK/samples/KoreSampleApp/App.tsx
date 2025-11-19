@@ -21,11 +21,21 @@ const BotChatComponent = () => {
   const [connectionColor, setConnectionColor] = useState('#dc3545');
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
+  const [isLoggingEnabled, setIsLoggingEnabled] = useState(true);
 
   const botClient = useRef<any>(null);
 
   useEffect(() => {
     setupBotClient();
+
+    // Initialize logging based on development mode using BotClient
+    if (__DEV__) {
+      botClient.current?.enableLogger();
+      setIsLoggingEnabled(true);
+    } else {
+      botClient.current?.disableLogger();
+      setIsLoggingEnabled(false);
+    }
 
     // Cleanup function
     return () => {
@@ -102,6 +112,24 @@ const BotChatComponent = () => {
     }, 500);
   };
 
+  const toggleLogging = () => {
+    // Toggle logging using BotClient methods
+    if (isLoggingEnabled) {
+      botClient.current?.disableLogger();
+      setIsLoggingEnabled(false);
+      Alert.alert('Logging Disabled', 'All SDK logging has been disabled via BotClient');
+    } else {
+      botClient.current?.enableLogger();
+      setIsLoggingEnabled(true);
+      Alert.alert('Logging Enabled', 'SDK logging has been enabled via BotClient');
+    }
+  };
+
+  const checkLoggerStatus = () => {
+    const status = botClient.current?.isLoggerEnabled() ?? false;
+    Alert.alert('Logger Status', `Logging is currently ${status ? 'ENABLED' : 'DISABLED'}`);
+  };
+
   const sendMessage = () => {
     if (inputText.trim() === '') {
       Alert.alert('Error', 'Please enter a message');
@@ -146,6 +174,25 @@ const BotChatComponent = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.disconnectButton} onPress={disconnect}>
           <Text style={styles.buttonText}>Disconnect</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.loggingControls}>
+        <TouchableOpacity
+          style={[styles.loggingButton, { backgroundColor: isLoggingEnabled ? '#28a745' : '#6c757d' }]}
+          onPress={toggleLogging}
+        >
+          <Text style={styles.buttonText}>
+            Logging: {isLoggingEnabled ? 'ON' : 'OFF'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.loggingButton, { backgroundColor: '#17a2b8', marginTop: 10 }]}
+          onPress={checkLoggerStatus}
+        >
+          <Text style={styles.buttonText}>
+            Check Logger Status
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -195,6 +242,17 @@ const styles = StyleSheet.create({
   controls: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  loggingControls: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  loggingButton: {
+    padding: 12,
+    borderRadius: 8,
+    minWidth: 150,
+    alignItems: 'center',
   },
   connectButton: {
     backgroundColor: '#007bff',

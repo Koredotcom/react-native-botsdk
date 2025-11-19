@@ -22,4 +22,7 @@ export interface IBotClient {
   getAuthorization(): string | undefined;
   getAppState(): string | undefined;
   sendEvent(eventName: any, isZenDeskEvent?: any): void;
+  enableLogger(): void;
+  disableLogger(): void;
+  isLoggerEnabled(): boolean;
 }

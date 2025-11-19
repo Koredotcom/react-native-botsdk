@@ -30,17 +30,13 @@ const BotConnection: React.FC = () => {
     });
 
     botClient.on(RTM_EVENT.ON_OPEN, () => {
-      //setTypingIndicator(false);
-      // const interval = setTimeout(() => {
-      //   botClient.sendMessage('Help');
-      // }, 5000);
       console.log('RTM_EVENT.ON_OPEN   ---->:', RTM_EVENT.ON_OPEN);
       const apiService = new ApiService(botConfig.botUrl, botClient);
       apiService.subscribePushNotifications("12345");
       updateConnectionStatus('Connected', '#28a745'); // Green
-      const intervalUnsub = setTimeout(() => {
-        apiService.unsubscribePushNotifications("12345");
-      }, 5000);
+      // const intervalUnsub = setTimeout(() => {
+      //   apiService.unsubscribePushNotifications("12345");
+      // }, 5000);
     });
 
     botClient.on(RTM_EVENT.ON_DISCONNECT, () => {
@@ -68,7 +64,6 @@ const BotConnection: React.FC = () => {
     });
 
     botClient.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
-      //setTypingIndicator(false);
       console.log('RTM_EVENT.ON_MESSAGE   ---->:', data);
       // Keep connection status as Connected when receiving messages
       if (connectionStatus !== 'Connected') {
@@ -76,6 +71,7 @@ const BotConnection: React.FC = () => {
       }
     });
 
+    botClient.enableLogger();
     botClient.initializeBotClient(botConfig, false);
     //botClient.initSocketConnection();
   }, [connectionStatus, updateConnectionStatus]);

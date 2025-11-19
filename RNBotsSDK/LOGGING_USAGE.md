@@ -10,11 +10,26 @@ The Bot SDK now includes comprehensive logging for all important API calls and W
 - **WebSocket Events**: Connection, message, and error logging
 - **In-Memory Storage**: Access logs programmatically for debugging
 - **Configurable**: Set log levels to control verbosity
+- **Enable/Disable Flag**: Completely enable or disable all logging output
 
 ## Quick Start
 
 ```typescript
 import KoreBotClient, { Logger, LogLevel } from 'rn-socketlib-test';
+
+// Method 1: Control logging through BotClient (Recommended)
+const botClient = KoreBotClient.getInstance();
+
+// Enable/disable logging via BotClient
+botClient.enableLogger();  // Enable all logging
+botClient.disableLogger(); // Disable all logging completely
+
+// Check logging status via BotClient
+console.log('Logging enabled:', botClient.isLoggerEnabled());
+
+// Method 2: Direct Logger control (Alternative)
+Logger.enableLogging(); // Enable all logging
+// Logger.disableLogging(); // Disable all logging completely
 
 // Set log level (optional - defaults to INFO)
 Logger.setLogLevel(LogLevel.DEBUG); // Show all logs
@@ -61,6 +76,98 @@ botClient.initializeBotClient(botConfig);
 [2024-01-15T10:30:01.000Z] [INFO] [CONNECTION] Bot Disconnect Called
 [2024-01-15T10:30:02.000Z] [ERROR] [CONNECTION_ERROR] Maximum Reconnection Limit Reached
 ```
+
+## Enable/Disable Logging
+
+The Logger provides a global flag to completely enable or disable all logging functionality:
+
+### Basic Usage
+
+**Method 1: Through BotClient (Recommended)**
+```typescript
+import KoreBotClient from 'rn-socketlib-test';
+
+const botClient = KoreBotClient.getInstance();
+
+// Disable all logging (no console output, no log storage)
+botClient.disableLogger();
+
+// Enable logging again
+botClient.enableLogger();
+
+// Check current status
+if (botClient.isLoggerEnabled()) {
+  console.log('Logging is currently enabled');
+} else {
+  console.log('Logging is currently disabled');
+}
+```
+
+**Method 2: Direct Logger Control**
+```typescript
+import { Logger } from 'rn-socketlib-test';
+
+// Disable all logging (no console output, no log storage)
+Logger.disableLogging();
+
+// Enable logging again
+Logger.enableLogging();
+
+// Check current status
+if (Logger.isLoggingEnabledFlag()) {
+  console.log('Logging is currently enabled');
+} else {
+  console.log('Logging is currently disabled');
+}
+```
+
+### Use Cases
+
+**Production Builds**: Disable logging to improve performance and reduce console noise
+```typescript
+// In your app initialization - using BotClient
+const botClient = KoreBotClient.getInstance();
+
+if (__DEV__) {
+  botClient.enableLogger();
+  Logger.setLogLevel(LogLevel.DEBUG);
+} else {
+  botClient.disableLogger(); // No logging in production
+}
+```
+
+**Conditional Debugging**: Enable logging only when needed
+```typescript
+// Enable logging for specific debugging sessions - using BotClient
+const botClient = KoreBotClient.getInstance();
+const enableDebugLogging = false; // Set to true when debugging
+
+if (enableDebugLogging) {
+  botClient.enableLogger();
+  Logger.setLogLevel(LogLevel.DEBUG);
+} else {
+  botClient.disableLogger();
+}
+```
+
+**Runtime Toggle**: Enable/disable logging during app runtime
+```typescript
+// Toggle logging based on user action or app state
+const botClient = KoreBotClient.getInstance();
+
+// In response to user action
+const handleToggleLogging = () => {
+  if (botClient.isLoggerEnabled()) {
+    botClient.disableLogger();
+    console.log('Logging disabled');
+  } else {
+    botClient.enableLogger();
+    console.log('Logging enabled');
+  }
+};
+```
+
+**Note**: When logging is disabled, no logs are written to console or stored in memory, providing optimal performance.
 
 ## Programmatic Access
 
