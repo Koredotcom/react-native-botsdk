@@ -126,7 +126,6 @@ export class BotClient extends EventEmitter implements IBotClient {
   };
 
   private async connectToBot(config: BotConfigModel, isFirstTime: boolean = true) {
-    const _this = this;
     if (
       this.connectionState == ConnectionState.CONNECTED ||
       this.isConnecting
@@ -230,9 +229,9 @@ export class BotClient extends EventEmitter implements IBotClient {
 
   private async connectWithJwToken(jwtToken: String, isReconnectionAttempt: boolean) {
     if (this.isConnecting) {
-      Logger.warn('JWT Token Connection already in progress', {
+      Logger.warn('JWT Token Connection already in progress', JSON.stringify({
         isConnecting: this.isConnecting
-      });
+      }));
       return false;
     }
 
@@ -249,10 +248,10 @@ export class BotClient extends EventEmitter implements IBotClient {
         this.userInfo = response.userInfo;
         this.authorization = response.authorization;
 
-        Logger.logConnectionEvent('JWT Token Authorization Success', {
+        Logger.logConnectionEvent('JWT Token Authorization Success', JSON.stringify({
           userId: this.userInfo?.userId,
           tokenType: this.authorization?.token_type
-        });
+        }));
 
         this.emit(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED);
         if (this.appState === APP_STATE.ACTIVE) {
@@ -309,11 +308,11 @@ export class BotClient extends EventEmitter implements IBotClient {
 
     ws.onopen = () => {
       this.isConnectAtleastOnce = true;
-      Logger.logWebSocketEvent('Connected', {
+      Logger.logWebSocketEvent('Connected', JSON.stringify({
         url: wssUrl.substring(0, 100) + '...',
         isReconnectionAttempt,
         readyState: ws.readyState
-      });
+      }));
 
       _this.connectionState = ConnectionState.CONNECTED;
       _this.emit(RTM_EVENT.ON_OPEN, {
@@ -324,20 +323,20 @@ export class BotClient extends EventEmitter implements IBotClient {
       _this.reconnectAttemptCount = 0;
     };
     ws.onclose = e => {
-      Logger.logWebSocketEvent('Closed', {
+      Logger.logWebSocketEvent('Closed', JSON.stringify({
         code: e?.code,
         reason: e?.reason,
         isManualClose,
         wasCleanClose: e?.code === 1000
-      });
+      }));
 
       _this.emit(RTM_EVENT.ON_CLOSE, 'Bot socket closed:' + e);
 
       if (isManualClose || e?.code === 1000) {
-        Logger.info('WebSocket closed normally (manual or clean close)', {
+        Logger.info('WebSocket closed normally (manual or clean close)', JSON.stringify({
           code: e?.code,
           isManualClose
-        });
+        }));
         return;
       }
 
@@ -355,18 +354,12 @@ export class BotClient extends EventEmitter implements IBotClient {
       switch (data.type) {
         case 'pong':
           _this.receivedLastPong = true;
-          Logger.debug('WebSocket Pong received', {
+          Logger.debug('WebSocket Pong received', JSON.stringify({
             timestamp: new Date().toISOString(),
             dataLength: e.data.length
-          });
+          }));
           break;
         default:
-          Logger.logWebSocketEvent('Message Received', {
-            type: data.type,
-            from: data.from,
-            messageLength: e.data.length,
-            hasMessage: !!data.message
-          });
           _this.onMessage(e.data, false);
           break;
       }
@@ -483,12 +476,12 @@ export class BotClient extends EventEmitter implements IBotClient {
   }
 
   disconnect() {
-    Logger.logConnectionEvent('Bot Disconnect Called', {
+    Logger.logConnectionEvent('Bot Disconnect Called', JSON.stringify({
       connectionState: this.connectionState,
       isConnecting: this.isConnecting,
       hasWebSocket: !!this.webSocket,
       reconnectAttemptCount: this.reconnectAttemptCount
-    });
+    }));
 
     if (this.reconnectTimer) {
       this.reconnectAttemptCount = 0;
@@ -514,9 +507,9 @@ export class BotClient extends EventEmitter implements IBotClient {
     this.webSocket = undefined;
     this.removeAllListeners();
 
-    Logger.logConnectionEvent('Bot Disconnected Successfully', {
+    Logger.logConnectionEvent('Bot Disconnected Successfully', JSON.stringify({
       connectionState: this.connectionState
-    });
+    }));
   }
 
   private async initSocketConnection(isReconnectionAttempt: boolean) {
@@ -538,12 +531,12 @@ export class BotClient extends EventEmitter implements IBotClient {
     resetReconnectAttemptCount?: boolean,
   ) {
     if (this.isReconnectAttemptRequired && this.reconnectAttemptCount < RECONNECT_ATTEMPT_LIMIT) {
-      Logger.logConnectionEvent('Reconnection Attempt', {
+      Logger.logConnectionEvent('Reconnection Attempt', JSON.stringify({
         attemptCount: this.reconnectAttemptCount,
         maxAttempts: RECONNECT_ATTEMPT_LIMIT,
         isReconnectionAttempt,
         resetReconnectAttemptCount
-      });
+      }));
 
       if (this.reconnectTimer) {
         clearInterval(this.reconnectTimer);
@@ -558,21 +551,21 @@ export class BotClient extends EventEmitter implements IBotClient {
       );
     }
     else {
-      Logger.logConnectionError('Maximum Reconnection Limit Reached', {
+      Logger.logConnectionError('Maximum Reconnection Limit Reached', JSON.stringify({
         attemptCount: this.reconnectAttemptCount,
         maxAttempts: RECONNECT_ATTEMPT_LIMIT,
         isReconnectAttemptRequired: this.isReconnectAttemptRequired
-      });
+      }));
     }
   }
 
   private async refreshTokenAndReconnect(isReconnectionAttempt?: boolean) {
-    Logger.logConnectionEvent('Refresh Token and Reconnect Started', {
+    Logger.logConnectionEvent('Refresh Token and Reconnect Started', JSON.stringify({
       isReconnectionAttempt,
       reconnectAttemptCount: this.reconnectAttemptCount,
       connectionState: this.connectionState,
       hasWebSocket: !!this.webSocket
-    });
+    }));
 
     if (this.reconnectTimer) {
       this.reconnectAttemptCount = 0;
@@ -599,9 +592,9 @@ export class BotClient extends EventEmitter implements IBotClient {
     setTimeout(async () => {
       this.reconnectAttemptCount = 0;
       if (this.botConfig) {
-        Logger.logConnectionEvent('Initiating Fresh Connection After Token Refresh', {
+        Logger.logConnectionEvent('Initiating Fresh Connection After Token Refresh', JSON.stringify({
           hasBotConfig: !!this.botConfig
-        });
+        }));
         await this.connectToBot(this.botConfig, isReconnectionAttempt);
       }
     }, 500);
@@ -658,26 +651,26 @@ export class BotClient extends EventEmitter implements IBotClient {
     }, 1000);
   }
 
-  private setTimer() {
-    let ws = this.webSocket;
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+  // private setTimer() {
+  //   let ws = this.webSocket;
+  //   if (this.timer) {
+  //     clearInterval(this.timer);
+  //   }
 
-    this.timer = setTimeout(() => {
-      if (ws?.readyState == WebSocket.OPEN) {
-        this.receivedLastPong = false;
-        this.send({ type: 'ping' });
-        this.setTimer();
-      } else if (
-        ws?.readyState == WebSocket.CLOSED ||
-        ws?.readyState == WebSocket.CLOSING ||
-        this.receivedLastPong == false
-      ) {
-        clearInterval(this.timer);
-      }
-    }, this.pingInterval);
-  }
+  //   this.timer = setTimeout(() => {
+  //     if (ws?.readyState == WebSocket.OPEN) {
+  //       this.receivedLastPong = false;
+  //       this.send({ type: 'ping' });
+  //       this.setTimer();
+  //     } else if (
+  //       ws?.readyState == WebSocket.CLOSED ||
+  //       ws?.readyState == WebSocket.CLOSING ||
+  //       this.receivedLastPong == false
+  //     ) {
+  //       clearInterval(this.timer);
+  //     }
+  //   }, this.pingInterval);
+  // }
 
   private send = (message: {
     type?: string;
@@ -694,13 +687,8 @@ export class BotClient extends EventEmitter implements IBotClient {
           let jsonString = JSON.stringify(message);
           this.webSocket.send(jsonString);
 
-          Logger.logWebSocketEvent('Message Sent', {
-            type: message.type,
-            clientMessageId: message.clientMessageId,
-            resourceid: message.resourceid,
-            messageLength: jsonString.length,
-            client: message.client
-          });
+          Logger.logWebSocketEvent('Message Sent', JSON.stringify({ type: message.type, clientMessageId: message.clientMessageId, resourceid: message.resourceid, messageLength: jsonString.length, client: message.client }));
+
         } catch (error) {
           Logger.logWebSocketError('Send Failed', error);
         }
@@ -736,13 +724,14 @@ export class BotClient extends EventEmitter implements IBotClient {
   sendMessage(message: any, payload?: any, attachments?: any): any {
     var clientMessageId = new Date().getTime();
 
-    Logger.info('Sending message to bot', {
+    Logger.info('Sending message to bot', JSON.stringify({
       clientMessageId,
       messageLength: message?.length,
       hasPayload: !!payload,
+      message: JSON.stringify(message),
       hasAttachments: !!attachments,
       platform: Platform.OS
-    });
+    }));
 
     var msgData = {
       type: 'user_message',
@@ -808,12 +797,12 @@ export class BotClient extends EventEmitter implements IBotClient {
 
   sendEvent(eventName: any, isZenDeskEvent?: any) {
     var clientMessageId = new Date().getTime();
-    Logger.info('Sending Event to bot', {
+    Logger.info('Sending Event to bot', JSON.stringify({
       clientMessageId,
       eventName: eventName,
       isZenDeskEvent: isZenDeskEvent,
       platform: Platform.OS
-    });
+    }));
 
     var eventToBot = {
       clientMessageId: clientMessageId,
@@ -832,5 +821,18 @@ export class BotClient extends EventEmitter implements IBotClient {
       client: Platform.OS,
     };
     this.send(eventToBot);
+  }
+
+  // Logger control methods
+  enableLogger(): void {
+    Logger.enableLogging();
+  }
+
+  disableLogger(): void {
+    Logger.disableLogging();
+  }
+
+  isLoggerEnabled(): boolean {
+    return Logger.isLoggingEnabledFlag();
   }
 }
