@@ -9,11 +9,14 @@ export default defineConfig({
   clean: true,
   loader: {
     '.js': 'jsx',
-    '.png': 'dataurl', // Convert PNG images to data URLs
-    '.jpg': 'dataurl',
-    '.jpeg': 'dataurl',
-    '.gif': 'dataurl',
-    '.svg': 'text', // Keep SVG as text for react-native-svg
   },
-  // Remove inlineImage plugin as we're using built-in loaders
+  // Don't bundle images and assets index - keep require() statements as-is
+  // This allows Metro bundler to resolve them at runtime
+  external: [
+    /\.png$/,
+    /\.jpg$/,
+    /\.jpeg$/,
+    /\.gif$/,
+    /bot-sdk\/assets/, // Don't compile the assets folder
+  ],
 });

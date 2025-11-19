@@ -1,13 +1,12 @@
 import React from 'react';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
-import Svg, {Defs, G, Image, Path, Pattern, Rect, Use} from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
 
 export interface SvgProps {
   width: number;
   height: number;
   color: string;
-  style?: any;
 }
 
 const WIDTH = 17;
@@ -17,7 +16,6 @@ export const Play = (props: SvgProps) => {
   let width = props.width || normalize(WIDTH);
   let height = props.height || normalize(HEIGHT);
   let strokeColor = props.color || Color.black;
-  let style = props.style;
   return (
     <Svg width={width} height={height} viewBox="0 0 512 512">
       <Path
@@ -32,7 +30,6 @@ export const Pause = (props: SvgProps) => {
   let width = props.width || normalize(WIDTH);
   let height = props.height || normalize(HEIGHT);
   let strokeColor = props.color || Color.black;
-  let style = props.style;
   return (
     <Svg width={width} height={height} viewBox="0 0 512 512">
       <Path
