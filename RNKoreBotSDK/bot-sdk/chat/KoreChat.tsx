@@ -644,6 +644,7 @@ export default class KoreChat extends React.Component<
   };
 
   componentWillUnmount() {
+    this._unsubscribeConn?.();
     this.setisChatMounted(false);
     const botClient = KoreBotClient.getInstance();
     botClient.removeAllListeners(RTM_EVENT.CONNECTING);
@@ -741,7 +742,7 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
-    
+    console.log('processMessage ------->:', JSON.stringify(newMessages, null, 2));
     let modifiedMessages: any = null;
     const itemId = getItemId();
 

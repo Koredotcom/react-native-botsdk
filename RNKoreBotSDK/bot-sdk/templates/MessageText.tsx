@@ -8,7 +8,7 @@ import {
   StyleProp,
 } from 'react-native';
 
-import { LazyParsedText } from '../components/LazyParsedText';
+import ParsedText from 'react-native-parsed-text';
 import { FallbackCommunicationsAPI } from '../components/LazyCommunications';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {
@@ -307,7 +307,7 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
                 },
               ]
         }>
-        <LazyParsedText
+        <ParsedText
           style={[
             styles[position!]?.text,
             this.props.textStyle && this.props.textStyle[position!],
@@ -332,7 +332,7 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
           parse={isPassword ? [] : [...parseList, ...getParseList()]}
           childrenProps={{...this.props.textProps}}>
           {this.parseTextWithIcons(text?.trim?.())?.trim()}
-        </LazyParsedText>
+        </ParsedText>
       </View>
     ) : (
       <View />

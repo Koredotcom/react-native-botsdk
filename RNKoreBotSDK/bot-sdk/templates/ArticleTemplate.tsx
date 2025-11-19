@@ -14,8 +14,12 @@ import Color from '../theme/Color';
 import { getBubbleTheme } from '../theme/themeHelper';
 import Base64Image from '../utils/Base64Converter';
 import { LocalizationManager } from '../constants/Localization';
-
-interface ArticleProps extends BaseViewProps {}
+import {images} from '../assets';
+interface ArticleProps extends BaseViewProps {
+  payload?: any;
+  onListItemClick?: any;
+  onBottomSheetClose?: any;
+}
 interface ArticleState extends BaseViewState {}
 const windowWidth = Dimensions.get('window').width;
 
@@ -112,7 +116,7 @@ export default class ArticleTemplate extends BaseView<ArticleProps, ArticleState
                                             Linking.openURL(item.button.url);
                                         }}
                                     >
-                                        <Image style={{tintColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR, width: 10, height: 10, alignSelf:'center'}} source={require('../assets/images/article.png')}/>
+                                        <Image style={{tintColor: bubbleTheme.BUBBLE_RIGHT_BG_COLOR, width: 10, height: 10, alignSelf:'center'}} source={images.article}/>
                                         <Text style={{flexShrink:1, fontSize: 12, color: bubbleTheme.BUBBLE_RIGHT_BG_COLOR,  marginStart: normalize(3)}}>{item.button.title}</Text>
                                     </TouchableOpacity>
                                 </View>
