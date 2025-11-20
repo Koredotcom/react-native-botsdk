@@ -689,9 +689,6 @@ export default class KoreChat extends React.Component<
       });
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
-        // if (data) {
-        //   console.log('Bot Response Data ------->:', JSON.stringify(data, null, 2));
-        // }
         if (data.type === 'ack') {
           console.log('Received ACK message, setting loading state');
           this.setIsBotResponseLoading(true);

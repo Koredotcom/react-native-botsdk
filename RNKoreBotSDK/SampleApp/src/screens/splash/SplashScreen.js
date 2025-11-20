@@ -1,15 +1,8 @@
 import React from 'react';
 import {SafeAreaView, View, Text} from 'react-native';
-// import {connect} from 'react-redux';
-// import KoraIcon from '../../assets/KoraIcon.svg';
-//import {initializeAccount} from '../../actions/auth.action';
 import styles from './styles';
 import RNBootSplash from 'react-native-bootsplash';
 import {ROUTE_NAMES} from '../../navigation/RouteNames';
-
-// interface SplashScreenProps {
-//   navigation: any;
-// }
 
 class SplashScreen extends React.Component {
   constructor(props) {
