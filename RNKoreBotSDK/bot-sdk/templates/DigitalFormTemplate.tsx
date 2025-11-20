@@ -4,20 +4,16 @@ import {
   Dimensions,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   Image,
   Keyboard
 } from 'react-native';
 import Color from '../theme/Color';
-import Toast from "react-native-toast-message";
 import {botStyles, TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
-import * as FileSystem from "expo-file-system";
-import { saveBase64File } from '../utils/Base64Converter'
 import { BubbleTheme, TEMPLATE_TYPES } from '../constants/Constant';
-
+import { placeholder } from '../assets';
 const windowWidth = Dimensions.get('window').width;
 let window = windowWidth * 0.8;
 
@@ -64,7 +60,7 @@ export default class DigitalFormTemplate extends BaseView<DigitalFormTemplatePro
                 })}
             </View>
         </View>
-        <Image source={require('../assets/placehoder/digitalForm.png')} style={[styles.image,{borderColor: borderColor, position: 'absolute',marginStart: 20}]}/>
+        <Image source={placeholder.digitalForm} style={[styles.image,{borderColor: borderColor, position: 'absolute',marginStart: 20}]}/>
       </View>
     );
   }

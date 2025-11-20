@@ -1,12 +1,6 @@
 import * as React from 'react';
 
-// import DownSolid from '../assets/down_solid.svg';
-// import UpSolid from '../assets/up_solid.svg';
-// import ThreeDots from '../assets/three_dots.svg';
-// import Left from '../assets/left.svg';
-// import HeaderAvatar from '../assets/header/avatar.svg';
 import {Play, Pause} from '../../assets/audio';
-
 import {
   UpSolid,
   ThreeDots,
@@ -68,18 +62,11 @@ import {
 } from '../../assets/welcome';
 
 import {Like, UnLike} from '../../assets/thumbsup';
-//import Unlike from '../assets/Unlike.svg';
 
 import Color from './Color';
 
 //LinkRecord
 export class SvgIcon extends React.Component {
-  // shouldComponentUpdate(nextProps) {
-  //   const differentName = this.props.name !== nextProps.name;
-  //   const differentWidth = this.props.width !== [];
-  //   const differentHeight = this.props.height !== [];
-  //   return differentName || differentWidth || differentHeight;
-  // }
 
   render() {
     const {name, width, height, color = 'black', style = {}} = this.props;

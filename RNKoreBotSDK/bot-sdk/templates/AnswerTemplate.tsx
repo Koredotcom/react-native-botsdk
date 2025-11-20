@@ -12,6 +12,7 @@ import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
 import Color from '../theme/Color';
 import { LocalizationManager } from '../constants/Localization';
+import { images } from '../assets';
 
 interface AnswerProps extends BaseViewProps {}
 interface AnswerState extends BaseViewState {}
@@ -70,7 +71,7 @@ export default class AnswerTemplate extends BaseView<AnswerProps, AnswerState> {
                     } : <></>
                     <View style={{flexDirection: 'row', marginTop: 4}}>
                         <Image style={styles.image_container1}/>
-                        <Image style={styles.image_container2} source={require('../assets/images/ic_automation_ai.png')}/>
+                        <Image style={styles.image_container2} source={images.ic_automation_ai}/>
                         <Text style={{color:'#6938EF', fontSize: normalize(10), alignSelf:'center', marginStart: 4}}>{this.getLocalizedString('answered_by_ai')}</Text>
                     </View>
                 </View>
