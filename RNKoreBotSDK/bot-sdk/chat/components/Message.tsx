@@ -12,6 +12,7 @@ import {IThemeType} from '../../theme/IThemeType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BOT_ICON_URL} from '../../constants/Constant';
 import Color from '../../theme/Color';
+import { placeholder } from '../../assets';
 
 export interface MessageProps {
   renderAvatar?: (props: AvatarProps) => any | null;
@@ -205,7 +206,7 @@ export default class Message extends React.Component<MessageProps> {
             <FastImage
               source={
                 this.state.imageLoadFailed || !currentMessage.icon
-                  ? require('../../assets/placehoder/default_bot_icon.png')
+                  ? placeholder.default_bot_icon
                   : {
                       uri: currentMessage.icon,
                       priority: FastImage.priority.high,

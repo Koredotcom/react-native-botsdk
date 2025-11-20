@@ -1,6 +1,6 @@
 {
     "name": "rn-kore-bot-sdk-v77",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -20,7 +20,8 @@
     "files": [
         "dist",
         "README.md",
-        "package.json"
+        "package.json",
+        "bot-sdk/assets"
     ],
     "scripts": {
         "android": "react-native run-android",
@@ -29,7 +30,7 @@
         "start": "react-native start",
         "clean": "react-native clean",
         "test": "jest",
-        "build": "tsup",
+        "build": "tsup && cp -r bot-sdk/assets/images dist/ && cp -r bot-sdk/assets/placeholder dist/",
         "prepublishOnly": "npm run build"
     },
     "peerDependencies": {
@@ -75,7 +76,7 @@
         "react-native-vector-icons": "^10.2.0",
         "react-native-video": "^6.16.1",
         "reactotron-react-native": "^5.1.13",
-        "rn-kore-bot-socket-lib-v77": "^0.0.6",
+        "rn-kore-bot-socket-lib-v77": "^0.0.7",
         "use-memo-one": "^1.1.3"
     },
     "devDependencies": {

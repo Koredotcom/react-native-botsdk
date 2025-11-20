@@ -1,12 +1,6 @@
 import * as React from 'react';
 
-// import DownSolid from '../assets/down_solid.svg';
-// import UpSolid from '../assets/up_solid.svg';
-// import ThreeDots from '../assets/three_dots.svg';
-// import Left from '../assets/left.svg';
-// import HeaderAvatar from '../assets/header/avatar.svg';
 import {Play, Pause} from '../assets/audio';
-
 import {
   UpSolid,
   ThreeDots,
