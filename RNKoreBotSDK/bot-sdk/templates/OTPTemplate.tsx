@@ -19,7 +19,7 @@ import { normalize } from '../utils/helpers';
 import { isIOS } from '../utils/PlatformCheck';
 const windowWidth = Dimensions.get('window').width;
 let width = windowWidth * 0.8 ;
-
+import { placeholder } from '../assets';
 interface OTPProps extends BaseViewProps {}
 interface OTPState extends BaseViewState {
   inputText?: string;
@@ -75,7 +75,7 @@ export default class OTPTemplate extends BaseView<OTPProps, OTPState> {
               {/* Mobile Number */}
               <View style={[styles.mobileNo_Circle_Container, { backgroundColor: 'transparent', flexDirection: 'row', marginBottom: 10}]}>
                 <View style={[styles.circle_Container, { backgroundColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR }]} />
-                { <Image source={require('../assets/placehoder/mobile.png')} style={[styles.image,{position: 'absolute',marginStart: 8,marginTop: 8}]}
+                { <Image source={placeholder.mobile} style={[styles.image,{position: 'absolute',marginStart: 8,marginTop: 8}]}
                 />}
                 <Text style={[styles.label, { fontSize: 14, alignSelf: 'center', marginStart: 5 }]}>
                   {payload.mobileNumber}

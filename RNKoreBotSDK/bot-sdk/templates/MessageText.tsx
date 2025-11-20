@@ -265,16 +265,7 @@ class MessageText extends BaseView<MessageTextProps, MessageTextState> {
       }
     }
 
-    // console.log('📄 MessageText - Processing payload:', JSON.stringify(payload, null, 2));
-    // console.log('📄 MessageText - Extracted message:', message);
-
     let text: string | undefined = message;
-    // console.log('========================');
-    // console.log(
-    //   'this.props?.theme?.v3?.body?.bubble_style ---->:',
-    //   this.props?.theme?.v3?.body?.bubble_style,
-    // );
-    // console.log('========================');
     let parseList: any = [];
     if (this.props.parsePatterns && this.props.parsePatterns(linkStyle)) {
       parseList = {...this.props.parsePatterns(linkStyle)};

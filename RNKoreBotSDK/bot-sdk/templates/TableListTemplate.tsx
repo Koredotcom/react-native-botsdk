@@ -27,8 +27,6 @@ export default class TableListTemplate extends BaseView<
   private placeholderImage: any;
   constructor(props: any) {
     super(props);
-
-    // this.placeholderImage = require('../assets/placehoder/image.png');
   }
 
   private renderElements(elements: any) {
