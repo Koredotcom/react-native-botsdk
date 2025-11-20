@@ -8,6 +8,7 @@ import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {getBubbleTheme} from '../theme/themeHelper';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {TEMPLATE_TYPES} from '../constants/Constant';
+import { placeholder } from '../assets';
 //const windowWidth = Dimensions.get('window').width;
 
 interface ImageProps extends BaseViewProps {
@@ -20,7 +21,9 @@ interface ImageState extends BaseViewState {
 
 export default class ImageTemplate extends BaseView<ImageProps, ImageState> {
   static propTypes: {
-    payload: any;
+    payload: any; onListItemClick: any;
+    onBottomSheetClose: any;
+    theme: any;
   };
   placeholderImage: any;
 
@@ -29,7 +32,7 @@ export default class ImageTemplate extends BaseView<ImageProps, ImageState> {
     this.state = {
       imageUri: this.props.payload?.url,
     };
-    this.placeholderImage = require('../assets/placehoder/image.png');
+    this.placeholderImage = placeholder.image;
   }
 
   componentDidMount(): void {}
