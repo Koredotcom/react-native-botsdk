@@ -1,4 +1,4 @@
-import {uuid} from 'rn-kore-bot-sdk-v79-test';
+import {uuid} from 'rn-kore-bot-sdk-v79';
 import {BotConfigModel} from 'rn-kore-bot-socket-lib-v79';
 
 export const botConfig_b: BotConfigModel = {

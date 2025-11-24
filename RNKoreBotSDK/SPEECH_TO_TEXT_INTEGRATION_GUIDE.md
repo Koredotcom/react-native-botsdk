@@ -1,6 +1,6 @@
-# Speech-to-Text Integration Guide for rn-kore-bot-sdk-v79-test
+# Speech-to-Text Integration Guide for rn-kore-bot-sdk-v79
 
-This guide provides step-by-step instructions for integrating the `rn-kore-bot-sdk-v79-test` package with **custom Android speech recognition** functionality in your React Native application.
+This guide provides step-by-step instructions for integrating the `rn-kore-bot-sdk-v79` package with **custom Android speech recognition** functionality in your React Native application.
 
 ## 📋 Prerequisites
 
@@ -15,7 +15,7 @@ This guide provides step-by-step instructions for integrating the `rn-kore-bot-s
 ### Step 1: Install the Package
 
 ```bash
-npm install rn-kore-bot-sdk-v79-test
+npm install rn-kore-bot-sdk-v79
 ```
 
 ### Step 2: Install Required Dependencies
@@ -44,7 +44,7 @@ Create a `react-native.config.js` file in your project root:
 ```javascript
 module.exports = {
   dependencies: {
-    'rn-kore-bot-sdk-v79-test': {
+    'rn-kore-bot-sdk-v79': {
       platforms: {
         android: null, // Disable Android autolinking - we'll integrate manually
         ios: {
@@ -104,8 +104,8 @@ Create the directory structure and copy the native modules:
 mkdir -p android/app/src/main/java/com/rnkorebotsdk
 
 # Copy the native modules from node_modules
-cp node_modules/rn-kore-bot-sdk-v79-test/android/src/main/java/com/rnkorebotsdk/VoiceRecognitionModule.java android/app/src/main/java/com/rnkorebotsdk/
-cp node_modules/rn-kore-bot-sdk-v79-test/android/src/main/java/com/rnkorebotsdk/VoiceRecognitionPackage.java android/app/src/main/java/com/rnkorebotsdk/
+cp node_modules/rn-kore-bot-sdk-v79/android/src/main/java/com/rnkorebotsdk/VoiceRecognitionModule.java android/app/src/main/java/com/rnkorebotsdk/
+cp node_modules/rn-kore-bot-sdk-v79/android/src/main/java/com/rnkorebotsdk/VoiceRecognitionPackage.java android/app/src/main/java/com/rnkorebotsdk/
 ```
 
 #### 4.3 Register Native Modules in MainApplication
@@ -251,7 +251,7 @@ Import and use the bot SDK in your components:
 ```javascript
 import React from 'react';
 import { View } from 'react-native';
-import KoreChat from 'rn-kore-bot-sdk-v79-test';
+import KoreChat from 'rn-kore-bot-sdk-v79';
 
 const YourChatScreen = () => {
   const botConfig = {
@@ -356,7 +356,7 @@ The package includes only **one** podspec file: `react-native-rn-kore-bot-sdk.po
 
 Before considering the integration complete, verify:
 
-- [ ] Package is installed: `npm list rn-kore-bot-sdk-v79-test`
+- [ ] Package is installed: `npm list rn-kore-bot-sdk-v79`
 - [ ] All peer dependencies are installed
 - [ ] `react-native.config.js` is created and configured
 - [ ] Android permissions are added to AndroidManifest.xml
@@ -380,7 +380,7 @@ If you encounter issues not covered in this guide:
 
 When updating the package:
 
-1. Update the npm package: `npm update rn-kore-bot-sdk-v79-test`
+1. Update the npm package: `npm update rn-kore-bot-sdk-v79`
 2. Re-copy the Android native modules (they may have changed)
 3. Run `cd ios && pod install` for iOS updates
 4. Clean and rebuild your project

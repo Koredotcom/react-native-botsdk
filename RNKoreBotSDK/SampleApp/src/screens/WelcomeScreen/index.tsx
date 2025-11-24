@@ -21,7 +21,7 @@ import {
 
 import { BotConfigModel } from 'rn-kore-bot-socket-lib-v79';
 import { ROUTE_NAMES } from '../../navigation/RouteNames';
-import Color from 'rn-kore-bot-sdk-v79-test';
+import Color from 'rn-kore-bot-sdk-v79';
 import WAKeyboardAvoidingView from '../../components/WAKeyboardAvoidingView';
 
 interface State {
