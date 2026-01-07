@@ -277,6 +277,134 @@ export default App;
 
 ---
 
+## 🤖 Android (Native): Integrate BotSdk UI via Gradle
+
+Use this when you want to launch the **native UI chat screen** from your Android app via Gradle dependency.
+
+### 1) Add JitPack repository
+
+In your **project-level** `build.gradle`, add JitPack under `repositories`:
+
+```gradle
+maven { url 'https://www.jitpack.io' }
+```
+
+> If your project uses `dependencyResolutionManagement` (newer Gradle), add JitPack in `settings.gradle` instead.
+
+### 2) Add the UI SDK dependency
+
+In your **app-level** `build.gradle`, under `dependencies`:
+
+```gradle
+implementation 'com.github.DocsInternal-Kore:kore-ui-v2:0.3.7'
+```
+
+### 3) Initialize the Bot SDK (SDKConfig)
+
+Initialize once (commonly in your `Application` class or the first screen before launching chat).
+
+```java
+// If jwtToken is empty, SDK token generation will happen.
+// If not empty, we will use this token for bot connection.
+String jwtToken = "";
+
+// Set clientId. If jwtToken is empty, this value is mandatory.
+String clientId = "PLEASE_ENTER_CLIENT_ID";
+
+// Set clientSecret. If jwtToken is empty, this value is mandatory.
+String clientSecret = "PLEASE_ENTER_CLIENT_SECRET";
+
+// Set botId. This value is mandatory.
+String botId = "PLEASE_ENTER_BOT_ID";
+
+// Set identity. This value is mandatory.
+String identity = "PLEASE_ENTER_IDENTITY";
+
+// Set botName. This value is mandatory.
+String botName = "PLEASE_ENTER_BOT_NAME";
+
+// Set serverUrl. This value is mandatory.
+String serverUrl = "PLEASE_ENTER_SERVER_URL";
+
+// Set brandingUrl. This value is mandatory.
+String brandingUrl = "PLEASE_ENTER_BRANDING_SERVER_URL";
+
+// Set jwtServerUrl. This value is mandatory.
+String jwtServerUrl = "PLEASE_ENTER_JWT_SERVER_URL";
+
+// Set isWebHook
+SDKConfig.isWebHook(false);
+
+// Initialize the bot with bot config
+// You can pass client id and client secret as empty when you pass jwt token
+SDKConfig.initialize(
+        botId,
+        botName,
+        clientId,
+        clientSecret,
+        identity,
+        jwtToken,
+        serverUrl,
+        brandingUrl,
+        jwtServerUrl
+);
+
+// You can set query parameters to the socket url by using this method.
+// Can get sample format from the mentioned method
+SDKConfig.setQueryParams(getQueryParams());
+
+// Inject the custom template like below
+SDKConfig.setCustomTemplateViewHolder("link", LinkTemplateHolder.class);
+
+// Flag to show the bot icon beside the bot response
+SDKConfig.setIsShowIcon(true);
+
+// Flag to show the bot icon in top position or bottom of the bot response
+SDKConfig.setIsShowIconTop(false);
+
+// Flag to show timestamp of each bot and user messages
+SDKConfig.setIsTimeStampsRequired(true);
+
+// Flag to show bot header or hide the header
+SDKConfig.setIsShowHeader(true);
+
+// Flag to show bot header minimize icon or hide
+SDKConfig.showHeaderMinimize(true);
+
+// Set local branding model by overriding the branding api response
+SDKConfig.setLocalBranding(false, getLocalBrandingModel());
+
+// Flag to set status bar color as header background color
+SDKConfig.setIsUpdateStatusBarColor(false);
+
+// Method to reset the bot connection and start a new session by overriding the previous state
+// SDKConfig.disconnectBotSession(MainActivity.this);
+
+SDKConfiguration.OverrideKoreConfig.showAttachment = true;
+SDKConfiguration.OverrideKoreConfig.showASRMicroPhone = true;
+SDKConfiguration.OverrideKoreConfig.showTextToSpeech = true;
+
+// Enable the flag if the bot needs to support Emoji short cuts decryption
+SDKConfiguration.OverrideKoreConfig.isEmojiShortcutEnable = false;
+
+// You can pass custom data to the bot by using this method.
+// Can get sample format from the mentioned method
+RestResponse.BotCustomData customData = new RestResponse.BotCustomData();
+customData.put("key", "value");
+SDKConfig.setCustomData(customData);
+```
+
+### 4) Launch the chat screen
+
+Navigate to the bot chat window via `Intent`:
+
+```java
+Intent intent = new Intent(MainActivity.this, NewBotChatActivity.class);
+startActivity(intent);
+```
+
+---
+
 ## 🎨 Customization
 
 ### Theme Customization
