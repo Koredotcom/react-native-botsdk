@@ -8,5 +8,11 @@ module.exports = {
         },
       },
     },
+    'rn-kore-bot-sdk-v79-test': {
+      platforms: {
+        android: null, // Disable Android autolinking - SDK android/ is an app, not a library; native code is integrated manually
+        ios: {},
+      },
+    },
   },
 };

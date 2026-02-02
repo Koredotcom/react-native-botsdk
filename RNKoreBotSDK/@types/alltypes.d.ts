@@ -1,4 +1,4 @@
-declare module 'rn-kore-bot-sdk-v77' {
+declare module 'rn-kore-bot-sdk-v79' {
   import { ComponentType, ReactNode } from 'react';
   import { ViewStyle, TextStyle } from 'react-native';
 
@@ -171,4 +171,50 @@ declare module '*.jpg' {
 declare module '*.jpeg' {
   const content: any;
   export default content;
+}
+
+// react-native-communications has no types
+declare module 'react-native-communications' {
+  const Communications: {
+    phonecall: (phoneNumber: string, prompt?: boolean) => void;
+    email: (to?: string[], cc?: string[], bcc?: string[], subject?: string, body?: string) => void;
+    text: (phoneNumber?: string, body?: string) => void;
+    web: (url: string) => void;
+  };
+  export default Communications;
+}
+
+// Augment rn-kore-bot-socket-lib-v79 KoreBotClient with EventEmitter-style methods and full API
+declare module 'rn-kore-bot-socket-lib-v79' {
+  interface KoreBotClientInstance {
+    getInstance(): KoreBotClientInstance;
+    setAppState(state: any): void;
+    sendEvent(event: string, ...args: any[]): void;
+    sendMessage(text: any, data?: any, dataType?: any): any;
+    disconnect(): void;
+    getBotUrl?(): string;
+    getAuthorization?(): string;
+    on(event: string, listener: (...args: any[]) => void): this;
+    once(event: string, listener: (...args: any[]) => void): this;
+    removeAllListeners(event?: string): this;
+    initializeBotClient(config: any, flag?: boolean): void;
+    setIsNetworkAvailable(available: boolean): void;
+    checkSocketAndReconnect(): void;
+    setSessionActive(active: boolean): void;
+    reconnect(...args: any[]): void;
+  }
+  const KoreBotClient: KoreBotClientInstance;
+  export default KoreBotClient;
+  export const RTM_EVENT: Record<string, string>;
+  export const APP_STATE: Record<string, string>;
+  export class ActiveThemeAPI {
+    getThemeAPI(...args: any[]): any;
+  }
+  export const ApiService: any;
+  export interface BotConfigModel {
+    botId?: string;
+    chatBotName?: string;
+    serverUrl?: string;
+    [key: string]: any;
+  }
 }

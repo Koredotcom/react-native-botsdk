@@ -1,6 +1,6 @@
 {
     "name": "rn-kore-bot-sdk-v79",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -91,6 +91,8 @@
         "@react-native/eslint-config": "0.77.0",
         "@react-native/metro-config": "0.77.0",
         "@react-native/typescript-config": "0.77.0",
+        "@types/jest": "^30.0.0",
+        "@types/node": "^25.1.0",
         "@types/react": "19.0.0",
         "esbuild-plugin-inline-image": "^0.0.9",
         "eslint": "^8.19.0",

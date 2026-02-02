@@ -45,7 +45,7 @@ export interface SelectDropdownProps {
   buttonLayout: { x: number; y: number; width: number; height: number };
 }
 
-class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDropdownState> {
+class CustomSelectDropdown extends React.Component<SelectDropdownProps, any> {
   private fadeAnim: Animated.Value;
   private scaleAnim: Animated.Value;
   private buttonRef: React.RefObject<View>;
