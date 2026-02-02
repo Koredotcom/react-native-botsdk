@@ -72,7 +72,7 @@ import {
   FallbackVideo, FallbackTTS, FallbackSound,
   FallbackDateTimePicker, FallbackPicker, FallbackVoice, FallbackSlider,
   FallbackPopover, FallbackCommunications
-} from 'rn-kore-bot-sdk-v79-test';
+} from 'rn-kore-bot-sdk-v79';
 
 // For Image Picker, Document Picker, and Carousel, use direct dynamic imports:
 // Example in a component:
@@ -757,7 +757,7 @@ For Android speech recognition to work properly, additional setup is required be
 ```javascript
 module.exports = {
   dependencies: {
-    'rn-kore-bot-sdk-v79-test': {
+    'rn-kore-bot-sdk-v79': {
       platforms: {
         android: null, // Disable Android autolinking
         ios: {}, // Enable iOS autolinking
@@ -770,7 +770,7 @@ module.exports = {
 2. **Copy native Android modules**:
 ```bash
 mkdir -p android/app/src/main/java/com/rnkorebotsdk
-cp node_modules/rn-kore-bot-sdk-v79-test/android/src/main/java/com/rnkorebotsdk/*.java android/app/src/main/java/com/rnkorebotsdk/
+cp node_modules/rn-kore-bot-sdk-v79/android/src/main/java/com/rnkorebotsdk/*.java android/app/src/main/java/com/rnkorebotsdk/
 ```
 
 3. **Register native modules** in MainApplication.kt:

@@ -139,7 +139,7 @@ npm install \
   "react-native-screens@^4.13.1" \
   "react-native-svg@^15.12.1" \
   "react-native-vector-icons@^10.2.0" \
-  "rn-kore-bot-socket-lib-v77@^0.0.3"
+  "rn-kore-bot-socket-lib-v79@^0.0.7"
 ```
 
 ## ⚡ **Optional Dependencies (Lazy-Loaded)**
@@ -691,7 +691,7 @@ npm run example       # Run example app
 | `react-native-screens` | `^4.13.1` | Native screen optimization | Required |
 | `react-native-svg` | `^15.12.1` | SVG icon rendering | Required |
 | `react-native-vector-icons` | `^10.2.0` | Icon library | Required |
-| `rn-kore-bot-socket-lib-v77` | `^0.0.3` | WebSocket communication | Required |
+| `rn-kore-bot-socket-lib-v79` | `^0.0.7` | WebSocket communication | Required |
 
 ### ⚡ **Optional Dependencies** (Lazy-Loaded)
 | Package | Version | Bundle Size | Features Enabled | Fallback Behavior |

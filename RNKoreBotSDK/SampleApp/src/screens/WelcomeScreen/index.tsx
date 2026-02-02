@@ -21,7 +21,7 @@ import {
 
 import { BotConfigModel } from 'rn-kore-bot-socket-lib-v79';
 import { ROUTE_NAMES } from '../../navigation/RouteNames';
-import Color from 'rn-kore-bot-sdk-v79-test';
+import Color from 'rn-kore-bot-sdk-v79';
 import WAKeyboardAvoidingView from '../../components/WAKeyboardAvoidingView';
 
 interface State {
@@ -48,7 +48,7 @@ class WelcomeScreen extends Component<any, State> {
       clientId: 'PLEASE_ENTER_CLIENT_ID',,
       clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
       botUrl: 'https://bots.kore.ai',
-      jwtServerUrl: 'https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/',
+      jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
       permissionsGranted: {
         camera: false,
         microphone: false,

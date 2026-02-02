@@ -21,6 +21,8 @@ class CustomTemplate<
   static contextType = ThemeContext;
   static propTypes: {
     payload: {};
+    onListItemClick: undefined;
+    onBottomSheetClose: undefined;
   };
 
   constructor(props: T) {

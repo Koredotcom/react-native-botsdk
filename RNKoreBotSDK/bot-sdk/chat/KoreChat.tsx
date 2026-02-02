@@ -794,10 +794,10 @@ export default class KoreChat extends React.Component<
       }
     }
 
-    if (modifiedMessages && modifiedMessages[0].from === 'bot' && modifiedMessages[0].message && 
-        modifiedMessages[0].message[0].component && modifiedMessages[0].message[0].component.payload &&
-        !modifiedMessages[0].message[0].component.payload.payload && !modifiedMessages[0].message[0].component.payload.text)
-          return
+    // if (modifiedMessages && modifiedMessages[0].from === 'bot' && modifiedMessages[0].message && 
+    //     modifiedMessages[0].message[0].component && modifiedMessages[0].message[0].component.payload &&
+    //     !modifiedMessages[0].message[0].component.payload.payload && !modifiedMessages[0].message[0].component.payload.text)
+    //       return
     
     this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
         setTimeout(() => {

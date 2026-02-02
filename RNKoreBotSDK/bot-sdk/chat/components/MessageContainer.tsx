@@ -247,32 +247,10 @@ export default class MessageContainer extends PureComponent<
           position = 'left';
 
           if (
-            item.message &&
-            item.message[0] &&
-            item.message[0].component &&
-            item.message[0].component.payload &&
-            item.message[0].component.payload.type &&
-            item.message[0].component.type === 'template' &&
-            item.message[0].component.payload.payload &&
-            item.message[0].component.payload.payload.template_type &&
-            item.message[0].component.payload.payload.template_type !==
-            TEMPLATE_TYPES.START_TIMER &&
-            item.message[0].component.payload.payload.template_type !==
-            TEMPLATE_TYPES.QUICK_REPLIES &&
-            item.message[0].component.payload.payload.template_type !==
-            TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE &&
-            item.message[0].component.payload.payload.template_type !==
-            TEMPLATE_TYPES.SYSTEM_TEMPLATE
-          ) {
-            //position = 'center';
-            //isDisplayTime = false;
-          }
-          if (
             item?.message?.[0]?.component?.type === 'template' &&
             item?.message?.[0]?.component?.payload?.type === 'image' &&
             item.message[0].component.payload?.payload
           ) {
-            //position = 'center';
             isDisplayTime = false;
           }
 

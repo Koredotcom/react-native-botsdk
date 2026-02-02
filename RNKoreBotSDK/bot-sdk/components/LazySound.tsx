@@ -111,17 +111,17 @@ export class LazySound extends Component<LazySoundProps, LazySoundState> {
         }
 
         this.setState({
-          SoundModule: Sound,
+          SoundModule: Sound as unknown as SoundModule,
           isLoading: false,
           loadError: null,
         });
 
         // Notify parent components
         if (this.props.onModuleLoaded) {
-          this.props.onModuleLoaded(Sound);
+          this.props.onModuleLoaded(Sound as unknown as SoundModule);
         }
 
-        return Sound;
+        return Sound as unknown as SoundModule;
       }
     } catch (error) {
       console.warn('Failed to load Sound:', error);
@@ -157,7 +157,7 @@ export class LazySound extends Component<LazySoundProps, LazySoundState> {
     if (!Sound || !Sound.setCategory) {
       throw new Error('Sound setCategory not available');
     }
-    return Sound.setCategory(category, mixWithOthers);
+    return Sound.setCategory(category as any, mixWithOthers);
   }
 
   public async getCategory(callback: (category: string, mixWithOthers: boolean) => void) {
@@ -173,7 +173,7 @@ export class LazySound extends Component<LazySoundProps, LazySoundState> {
     if (!Sound || !Sound.setMode) {
       throw new Error('Sound setMode not available');
     }
-    return Sound.setMode(mode);
+    return Sound.setMode(mode as any);
   }
 
   public async getMode(callback: (mode: string) => void) {
@@ -264,7 +264,7 @@ export const useLazySound = () => {
     loadError: null,
   });
 
-  const loadSound = React.useCallback(async () => {
+  const loadSound = React.useCallback(async (): Promise<SoundModule | null> => {
     if (state.SoundModule || state.isLoading) {
       return state.SoundModule;
     }
@@ -293,12 +293,12 @@ export const useLazySound = () => {
       }
 
       setState({
-        SoundModule: Sound,
+        SoundModule: Sound as unknown as SoundModule,
         isLoading: false,
         loadError: null,
       });
 
-      return Sound;
+      return Sound as unknown as SoundModule;
     } catch (error) {
       console.warn('Failed to load Sound:', error);
       setState({
@@ -323,7 +323,7 @@ export const useLazySound = () => {
     if (!Sound || !Sound.setCategory) {
       throw new Error('Sound setCategory not available');
     }
-    return Sound.setCategory(category, mixWithOthers);
+    return Sound.setCategory(category as any, mixWithOthers);
   }, [loadSound]);
 
   const getCategory = React.useCallback(async (callback: (category: string, mixWithOthers: boolean) => void) => {
@@ -339,7 +339,7 @@ export const useLazySound = () => {
     if (!Sound || !Sound.setMode) {
       throw new Error('Sound setMode not available');
     }
-    return Sound.setMode(mode);
+    return Sound.setMode(mode as any);
   }, [loadSound]);
 
   const getMode = React.useCallback(async (callback: (mode: string) => void) => {

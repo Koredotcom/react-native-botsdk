@@ -152,7 +152,7 @@ export default class PieChartTemplate extends BaseView<
         ]}>
         <PieChart
           data={dataSet}
-          radius={145}           // Adjusts the size of the pie chart
+          radius={normalize(140)}           // Adjusts the size of the pie chart
           innerCircleColor="white" // Color of the inner circle (for donut effect)
           innerRadius={60}   // Radius of the inner circle (for donut effect)
           showText
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   legendContainer: {
-    marginTop: 20,
+    marginTop: normalize(10),
     width: '80%',
     flexDirection: 'row'
   },

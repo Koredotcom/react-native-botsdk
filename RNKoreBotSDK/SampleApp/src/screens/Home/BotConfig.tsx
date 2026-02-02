@@ -1,4 +1,3 @@
-import {uuid} from 'rn-kore-bot-sdk-v79-test';
 import {BotConfigModel} from 'rn-kore-bot-socket-lib-v79';
 
 export const botConfig_b: BotConfigModel = {
@@ -8,7 +7,7 @@ export const botConfig_b: BotConfigModel = {
   clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
   botUrl: 'PLEASE_ENTER_SERVER_URL', // Should not end with '/', Example :  https://your.server.url
   jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
-  identity: uuid.v4(),
+  identity: '1234567890',
   isWebHook: false,
   value_aud: 'https://idproxy.kore.com/authorize',
   isHeaderVisible: true,
@@ -22,7 +21,7 @@ export const botConfig: BotConfigModel = {
   clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
   botUrl: 'PLEASE_ENTER_SERVER_URL', // Should not end with '/', Example :  https://your.server.url
   jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
-  identity: uuid.v4(),
+  identity: '1234567890',
   isWebHook: false,
   value_aud: 'https://idproxy.kore.com/authorize',
   isHeaderVisible: true,
@@ -36,7 +35,7 @@ export const botConfig_sit: BotConfigModel = {
   clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
   botUrl: 'PLEASE_ENTER_SERVER_URL', // Should not end with '/', Example :  https://your.server.url
   jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
-  identity: uuid.v4(),
+  identity: '1234567890',
   isWebHook: false,
   value_aud: 'https://idproxy.kore.com/authorize',
   isHeaderVisible: true,

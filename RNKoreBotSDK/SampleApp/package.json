@@ -12,18 +12,23 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-community/slider": "^5.1.1",
     "@react-native-documents/picker": "^10.1.5",
+    "@react-native-picker/picker": "^2.11.4",
     "@react-navigation/elements": "^2.5.2",
     "@react-navigation/stack": "^7.4.2",
+    "axios": "^1.13.2",
     "react-native-bootsplash": "^6.3.9",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.26.0",
     "react-native-permissions": "^5.4.1",
     "react-native-reanimated": "3.18.0",
     "react-native-safe-area-context": "^5.5.2",
-    "react-native-screens": "^4.11.1",
+    "react-native-screens": "4.18.0",
+    "react-native-sound": "^0.13.0",
     "react-native-svg": "^15.12.1",
-    "rn-kore-bot-sdk-v79-test": "^0.0.11"
+    "react-native-video": "^6.18.0",
+    "rn-kore-bot-sdk-v79": "^0.0.5"
   },
   "peerDependencies": {
     "react": "19.0.0",
