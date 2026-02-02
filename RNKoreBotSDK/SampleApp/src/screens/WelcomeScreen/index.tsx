@@ -44,11 +44,11 @@ class WelcomeScreen extends Component<any, State> {
     super(props);
     this.state = {
       botName: 'Kore.ai Bot',
-      botId: 'st-b9889c46-218c-58f7-838f-73ae9203488c',
-      clientId: 'cs-1e845b00-81ad-5757-a1e7-d0f6fea227e9',
-      clientSecret: '5OcBSQtH/k6Q/S6A3bseYfOee02YjjLLTNoT1qZDBso=',
+      botId: 'PLEASE_ENTER_BOT_ID',
+      clientId: 'PLEASE_ENTER_CLIENT_ID',,
+      clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
       botUrl: 'https://bots.kore.ai',
-      jwtServerUrl: 'https://mk2r2rmj21.execute-api.us-east-1.amazonaws.com/dev/',
+      jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
       permissionsGranted: {
         camera: false,
         microphone: false,
