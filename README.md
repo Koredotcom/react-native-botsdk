@@ -1,121 +1,84 @@
-<div align="center">
+# React Native Kore Bot SDK – Integration Guide
 
-# 🤖 React Native Kore Bot SDK - Sample App
-
-[![NPM Version](https://img.shields.io/npm/v/rn-kore-bot-sdk-v77.svg?style=flat-square)](https://www.npmjs.com/package/rn-kore-bot-sdk-v77)
-[![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android-lightgrey.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk/blob/main/LICENSE)
-[![TypeScript](https://img.shields.io/badge/language-TypeScript-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
-
-*Complete sample implementation demonstrating Kore.ai chatbot integration with selective feature loading*
-
-## 🎯 **What's This?**
-This sample app showcases how to integrate the Kore Bot SDK with **selective dependency installation**, allowing you to choose only the features you need and save significant bundle size.
-
-</div>
+Step-by-step guide to integrate the Kore Bot SDK (rn-kore-bot-sdk-v79) into your React Native 0.79 app. **Install all required packages first** (recommended); you can remove packages later if you don’t need that feature. Alternatively, install by feature tier (Minimal / Voice / Full).
 
 ---
 
-## 📋 Table of Contents
+## What you need
 
-- [✨ Features](#-features)
-- [🚀 Quick Start](#-quick-start)
-- [📦 Installation](#-installation)
-- [🎯 Basic Usage](#-basic-usage)
-- [🎨 Customization](#-customization)
-- [📚 API Reference](#-api-reference)
-- [🛠️ Advanced Configuration](#️-advanced-configuration)
-- [🔐 Permissions Setup](#-permissions-setup)
-- [📱 Examples](#-examples)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [💬 Support](#-support)
+- React Native **0.79.x** and React **19.0.0**
+- Node.js **18+**
+- A new or existing React Native project
 
 ---
 
-## ✨ Features
+## Step 1: Install packages
 
-<table>
-<tr>
-<td>
+Add the Kore SDK and supporting packages to **package.json** → **dependencies**. Install everything first so chat, carousel, camera, voice, and file upload work.
 
-### 🎯 **Core Features**
-- 🤖 Complete chatbot UI components
-- 💬 Rich messaging templates
-- 🎨 Fully customizable themes
-- 📱 Cross-platform (iOS & Android)
-- 🔧 Full TypeScript support
+**Add (merge with existing):**
 
-</td>
-<td>
-
-### 🚀 **Advanced Features**
-- 🎵 Voice recognition & TTS
-- 📁 File upload/download
-- 📊 Charts & data visualization
-- 🔄 Real-time messaging
-- 🎭 Custom template injection
-
-</td>
-</tr>
-</table>
-
----
-
-## 🚀 Quick Start
-
-Get up and running in minutes:
-
-```tsx
-import React from 'react';
-import { View } from 'react-native';
-import KoreChat, { BotConfigModel } from 'rn-kore-bot-sdk-v77';
-
-const App = () => {
-  const botConfig: BotConfigModel = {
-    botId: 'your-bot-id',
-    chatBotName: 'Assistant',
-    serverUrl: 'https://your.server.url',
-    brandingAPIUrl: 'https://your.branding.url',
-  };
-
-  return (
-    <View style={{ flex: 1 }}>
-      <KoreChat
-        botConfig={botConfig}
-        onListItemClick={(item) => console.log('📋 Item clicked:', item)}
-        onHeaderActionsClick={(action) => console.log('⚡ Action:', action)}
-      />
-    </View>
-  );
-};
-
-export default App;
+```json
+"dependencies": {
+  "@react-native-async-storage/async-storage": "^2.2.0",
+  "@react-native-community/netinfo": "^11.4.1",
+  "@react-native-community/slider": "^5.1.1",
+  "@react-native-documents/picker": "^10.1.5",
+  "@react-native-picker/picker": "^2.11.4",
+  "@react-navigation/elements": "^2.5.2",
+  "@react-navigation/native": "^7.1.28",
+  "@react-navigation/stack": "^7.4.2",
+  "axios": "^1.13.2",
+  "dayjs": "^1.11.19",
+  "react-native-blob-util": "^0.22.2",
+  "react-native-bootsplash": "^6.3.9",
+  "react-native-fs": "^2.20.0",
+  "react-native-gesture-handler": "^2.26.0",
+  "react-native-image-picker": "^8.2.1",
+  "react-native-linear-gradient": "^2.8.3",
+  "react-native-permissions": "^5.4.1",
+  "react-native-reanimated": "3.18.0",
+  "react-native-reanimated-carousel": "^4.0.3",
+  "react-native-safe-area-context": "^5.5.2",
+  "react-native-screens": "4.18.0",
+  "react-native-sound": "^0.13.0",
+  "react-native-svg": "^15.12.1",
+  "react-native-vector-icons": "^10.3.0",
+  "react-native-video": "^6.18.0",
+  "rn-kore-bot-sdk-v79": "^0.0.5"
+}
 ```
 
----
-
-## 📦 Sample App Installation
-
-### Step 1: Clone & Install Base
+Then run:
 
 ```bash
-git clone <repository-url>
-cd SampleApp
 npm install
 ```
 
-### Step 2: Choose Your Features
+Ensure **peerDependencies** match (React 19.0.0, React Native ^0.79.0). Optional: `"engines": { "node": ">=18" }`.
 
-This sample app demonstrates **3 different installation approaches**:
+### Removing packages later (optional)
 
-## 🎯 **Installation Options**
+| If you don't need | You can remove |
+|-------------------|----------------|
+| Carousel / slider cards | `react-native-reanimated-carousel` |
+| Take photo (camera) | `react-native-image-picker` |
+| Upload photo / video / file | `@react-native-documents/picker` |
+| Video in messages | `react-native-video` |
+| Audio in messages | `react-native-sound` |
+| Permission prompts | `react-native-permissions` |
+| Boot splash | `react-native-bootsplash` |
+| Date/time | `dayjs` |
+| File access | `react-native-fs`, `react-native-blob-util` |
+| Gradients / Icons | `react-native-linear-gradient`, `react-native-vector-icons` |
 
-### Option A: 🚀 **Minimal Chat** (~380KB saved)
-*Perfect for basic chat functionality*
+**Do not remove:** `rn-kore-bot-sdk-v79`, `react-native-reanimated`, `react-native-gesture-handler`, `react-native-safe-area-context`, `react-native-screens`, `@react-navigation/*`, `axios`, `react-native-svg`.
+
+### Alternative: Install by feature tier
+
+**Option A – Minimal Chat** (~380KB saved):
 
 ```bash
-# Only install required dependencies
 npm install \
   "@react-native-async-storage/async-storage@^2.2.0" \
   "@react-native-community/netinfo@^11.4.1" \
@@ -123,85 +86,137 @@ npm install \
   "@react-navigation/stack@^7.4.2" \
   "react-native-gesture-handler@^2.27.2" \
   "react-native-safe-area-context@^5.4.1" \
-  "react-native-screens@^4.13.1"
+  "react-native-screens@^4.13.1" \
+  "rn-kore-bot-sdk-v79@^0.0.5"
 ```
 
-**Features Available:**
-- ✅ Basic chat interface  
-- ✅ Text messaging
-- ✅ Simple templates
-- ❌ Voice features (buttons hidden)
-- ❌ Audio playback (silent mode)
-- ❌ Video content (static thumbnails)
+**Option B – Chat + Voice** (add after A): `npm install @react-native-voice/voice@^3.2.4 react-native-tts@^4.1.1 react-native-permissions@^5.4.1`
 
-### Option B: 🎤 **Chat + Voice** (~300KB saved)
-*Adds voice recognition and TTS*
+**Option C – Full** – use the full dependency list in Step 1 above.
 
-```bash
-# Install minimal + voice features
-npm install \
-  "@react-native-voice/voice@^3.2.4" \
-  "react-native-tts@^4.1.1" \
-  "react-native-permissions@^5.4.1"
-```
-
-**Additional Features:**
-- ✅ Voice-to-text input
-- ✅ Text-to-speech playback
-- ✅ Microphone permissions handling
-
-### Option C: 📱 **Full Experience** (Complete features)
-*Install all optional dependencies*
-
-```bash
-# Complete feature set
-npm install \
-  "@react-native-picker/picker@^2.11.0" \
-  "@react-native-voice/voice@^3.2.4" \
-  "@react-native-community/datetimepicker@^8.4.4" \
-  "react-native-communications@^2.2.1" \
-  "react-native-document-picker@^9.3.1" \
-  "react-native-fast-image@^8.6.3" \
-  "react-native-image-picker@^8.2.1" \
-  "react-native-parsed-text@^0.0.22" \
-  "react-native-popover-view@^6.1.0" \
-  "react-native-reanimated-carousel@^4.0.3" \
-  "react-native-sound@^0.12.0" \
-  "react-native-tts@^4.1.1" \
-  "react-native-video@^6.16.1"
-```
-
-**All Features:**
-- ✅ Everything from Options A & B
-- ✅ Rich media support (images, videos, audio)
-- ✅ Advanced templates (carousels, pickers)
-- ✅ File attachments
-- ✅ Enhanced UI components
-
-## 📊 **Feature Comparison**
+### Feature comparison
 
 | Feature | Minimal | Voice | Full |
-|---------|---------|-------|------|
-| **Bundle Size** | Base | Base + 80KB | Base + 380KB |
-| **Savings** | 380KB | 300KB | 0KB |
-| **Chat Interface** | ✅ | ✅ | ✅ |
-| **Voice Input** | ❌ | ✅ | ✅ |
-| **Audio Playback** | ❌ | ✅ | ✅ |
-| **Video Messages** | 📷 Thumbnail | 📷 Thumbnail | ▶️ Full Player |
-| **File Uploads** | ❌ | ❌ | ✅ |
-| **Rich Templates** | Basic | Basic | Advanced |
-| **Phone/Email Actions** | Basic | Basic | Native |
+|--------|---------|-------|------|
+| Bundle size | Base | Base + ~80KB | Base + ~380KB |
+| Chat | ✅ | ✅ | ✅ |
+| Voice input | ❌ | ✅ | ✅ |
+| Audio playback | ❌ | ✅ | ✅ |
+| Video | Thumbnail | Thumbnail | Full player |
+| File uploads | ❌ | ❌ | ✅ |
+| Rich templates | Basic | Basic | Advanced |
 
-### Step 3: Platform Setup
+---
 
-<details>
-<summary><strong>🍎 iOS Setup</strong></summary>
+## Step 2: React Native config
+
+Create **react-native.config.js** in the project root:
+
+```javascript
+module.exports = {
+  dependencies: {
+    'rn-kore-bot-sdk-v79': { platforms: { android: null, ios: {} } },
+  },
+};
+```
+
+Adjust package names if different in your project.
+
+---
+
+## Step 3: Babel (required for Carousel)
+
+In **babel.config.js**, add the Reanimated plugin **last**:
+
+```javascript
+module.exports = {
+  presets: ['module:@react-native/babel-preset'],
+  plugins: ['react-native-reanimated/plugin'],
+};
+```
+
+Without this, Carousel won’t work. Then: `npx react-native start --reset-cache` and rebuild.
+
+---
+
+## Step 4: iOS (CocoaPods)
 
 ```bash
 cd ios && pod install && cd ..
 ```
 
-Add to `ios/YourProject/Info.plist`:
+If using **react-native-permissions** (Camera, PhotoLibrary, Microphone, SpeechRecognition), ensure the Podfile calls `setup_permissions([...])` before `pod install`.
+
+---
+
+## Step 5: Add Kore Chat and register app
+
+**1. Create `src/index.tsx`** (or `src/index.js`) with your app and Kore Chat. Replace `botConfig` with your Kore.ai values.
+
+```tsx
+// src/index.tsx
+import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import KoreChat from 'rn-kore-bot-sdk-v79';
+
+const botConfig = {
+  botName: 'YourBot',
+  botId: 'your-bot-id',
+  clientId: 'your-client-id',
+  clientSecret: 'your-client-secret',
+  botUrl: 'https://bots.kore.ai',
+  identity: 'your-user-identity',
+  isWebHook: false,
+  value_aud: 'https://idproxy.kore.com/authorize',
+  jwtServerUrl: 'your-jwt-server-url-if-needed',
+  isHeaderVisible: true,
+  isFooterVisible: true,
+};
+
+export default function App() {
+  const chatContent = (
+    <SafeAreaView style={{ flex: 1 }}>
+      <KoreChat botConfig={botConfig} alwaysShowSend={true} />
+    </SafeAreaView>
+  );
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {Platform.OS === 'ios' ? (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={0}>
+          {chatContent}
+        </KeyboardAvoidingView>
+      ) : (
+        chatContent
+      )}
+    </GestureHandlerRootView>
+  );
+}
+```
+
+**2. Register in `index.js`** (project root):
+
+```javascript
+// index.js
+import { AppRegistry } from 'react-native';
+import App from './src/index';
+import { name as appName } from './app.json';
+
+AppRegistry.registerComponent(appName, () => App);
+```
+
+Optional: move `botConfig` to **src/config/BotConfig.tsx** and use env vars for secrets. Optional: request microphone (or other) permissions at startup with **react-native-permissions**.
+
+---
+
+## Step 6: Permissions
+
+<details>
+<summary><strong>🍎 iOS</strong></summary>
+
+In **ios/YourAppName/Info.plist** (inside the main `<dict>`):
+
 ```xml
 <key>NSMicrophoneUsageDescription</key>
 <string>This app needs microphone access for voice messages</string>
@@ -216,9 +231,10 @@ Add to `ios/YourProject/Info.plist`:
 </details>
 
 <details>
-<summary><strong>🤖 Android Setup</strong></summary>
+<summary><strong>🤖 Android</strong></summary>
 
-Add to `android/app/src/main/AndroidManifest.xml`:
+In **android/app/src/main/AndroidManifest.xml** (inside `<manifest>`):
+
 ```xml
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.INTERNET" />
@@ -229,60 +245,54 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 
 ---
 
-## 🎯 Basic Usage
+## Step 7: Build and run
 
-### Simple Integration
+- **iOS:** `npm run ios` (or open **.xcworkspace** in Xcode).
+- **Android:** `npm run android`.
 
-```tsx
-import React from 'react';
-import { SafeAreaView, StatusBar } from 'react-native';
-import KoreChat, { BotConfigModel, ThemeProvider } from 'rn-kore-bot-sdk-v77';
-
-const App = () => {
-  const botConfig: BotConfigModel = {
-    botId: 'st-12345678-1234-1234-1234-123456789012',
-    chatBotName: 'My Assistant',
-    serverUrl: 'https://bots.kore.ai',
-    brandingAPIUrl: 'https://bots.kore.ai',
-    customerId: 'your-customer-id',
-    clientId: 'your-client-id',
-    clientSecret: 'your-client-secret',
-    identity: 'your-user-identity',
-    isAnonymous: false,
-    isPlatform: true,
-  };
-
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      <KoreChat
-        botConfig={botConfig}
-        onListItemClick={handleListItemClick}
-        onHeaderActionsClick={handleHeaderAction}
-      />
-    </SafeAreaView>
-  );
-};
-
-const handleListItemClick = (item: any) => {
-  console.log('📋 List item selected:', item);
-};
-
-const handleHeaderAction = (action: any) => {
-  console.log('⚡ Header action triggered:', action);
-};
-
-export default App;
-```
+After Babel or native changes: `npx react-native start --reset-cache`, then build again.
 
 ---
 
-## 🎨 Customization
+## Quick checklist
 
-### Theme Customization
+1. Step 1: Add dependencies → `npm install`
+2. Step 2: Add **react-native.config.js**
+3. Step 3: Add **react-native-reanimated/plugin** to **babel.config.js**
+4. Step 4: `cd ios && pod install && cd ..`
+5. Step 5: Add **src/index.tsx** and **index.js** (Kore Chat + registration)
+6. Step 6: Add iOS/Android permissions
+7. Step 7: Build and run
+
+---
+
+## Usage and reference
+
+### Alternative botConfig (serverUrl, customerId, etc.)
+
+Your SDK may accept different keys. Example with `serverUrl`, `brandingAPIUrl`, `customerId`:
 
 ```tsx
-import { ThemeProvider } from 'rn-kore-bot-sdk-v77';
+const botConfig = {
+  botId: 'st-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+  chatBotName: 'My Assistant',
+  serverUrl: 'https://bots.kore.ai',
+  brandingAPIUrl: 'https://bots.kore.ai',
+  customerId: 'your-customer-id',
+  clientId: 'your-client-id',
+  clientSecret: 'your-client-secret',
+  identity: 'your-user-identity',
+  isAnonymous: false,
+  isPlatform: true,
+};
+```
+
+### Customization (if supported by SDK)
+
+**Theme:**
+
+```tsx
+import { ThemeProvider } from 'rn-kore-bot-sdk-v79';
 
 const customTheme = {
   primaryColor: '#007AFF',
@@ -290,97 +300,52 @@ const customTheme = {
   backgroundColor: '#F2F2F7',
   textColor: '#000000',
   borderColor: '#C7C7CC',
-  // Add more theme properties
 };
 
-const App = () => (
-  <ThemeProvider theme={customTheme}>
-    <KoreChat botConfig={botConfig} />
-  </ThemeProvider>
-);
+<ThemeProvider theme={customTheme}>
+  <KoreChat botConfig={botConfig} />
+</ThemeProvider>
 ```
 
-### Custom Templates
+**Custom templates:**
 
 ```tsx
-import { CustomTemplate } from 'rn-kore-bot-sdk-v77';
+import { CustomTemplate } from 'rn-kore-bot-sdk-v79';
 
 const MyCustomButton = new CustomTemplate({
   templateType: 'custom-button',
   render: (data, onAction) => (
-    <TouchableOpacity
-      style={styles.customButton}
-      onPress={() => onAction(data.action)}
-    >
+    <TouchableOpacity onPress={() => onAction(data.action)}>
       <Text>{data.title}</Text>
     </TouchableOpacity>
   ),
 });
 
-<KoreChat
-  botConfig={botConfig}
-  templateInjection={new Map([
-    ['custom-button', MyCustomButton]
-  ])}
-/>
+<KoreChat botConfig={botConfig} templateInjection={new Map([['custom-button', MyCustomButton]])} />
 ```
 
----
+### API reference
 
-## 📚 API Reference
-
-### KoreChat Component Props
+**KoreChat props**
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `botConfig` | `BotConfigModel` | ✅ | Bot configuration object |
-| `onListItemClick` | `(item: any) => void` | ❌ | Callback for list item interactions |
-| `onHeaderActionsClick` | `(action: any) => void` | ❌ | Callback for header action buttons |
-| `templateInjection` | `Map<string, CustomTemplate>` | ❌ | Custom template injection map |
-| `themeConfig` | `ThemeConfig` | ❌ | Custom theme configuration |
+| `botConfig` | `BotConfigModel` | ✅ | Bot configuration |
+| `onListItemClick` | `(item: any) => void` | ❌ | List item callback |
+| `onHeaderActionsClick` | `(action: any) => void` | ❌ | Header action callback |
+| `templateInjection` | `Map<string, CustomTemplate>` | ❌ | Custom templates |
+| `themeConfig` | `ThemeConfig` | ❌ | Theme overrides |
 
-### BotConfigModel Interface
+**BotConfigModel (main fields)**
 
-```tsx
-interface BotConfigModel {
-  // Required fields
-  botId: string;              // Bot identifier
-  chatBotName: string;        // Display name for the bot
-  serverUrl: string;          // Server URL (without trailing slash)
-  brandingAPIUrl: string;     // Branding API URL (without trailing slash)
-  
-  // Authentication
-  customerId?: string;        // Customer identifier
-  clientId?: string;          // OAuth client ID
-  clientSecret?: string;      // OAuth client secret
-  identity?: string;          // User identity
-  
-  // Configuration
-  isAnonymous?: boolean;      // Anonymous user mode
-  isPlatform?: boolean;       // Platform integration mode
-  enableHistory?: boolean;    // Chat history feature
-  allowAttachments?: boolean; // File attachment feature
-}
-```
+- Required: `botId`, `chatBotName` (or `botName`), `serverUrl` (or `botUrl`), optional `brandingAPIUrl`
+- Auth: `customerId`, `clientId`, `clientSecret`, `identity`
+- Config: `isAnonymous`, `isPlatform`, `enableHistory`, `allowAttachments`
 
----
-
-## 🛠️ Advanced Configuration
-
-### Conditional Native Module Loading
-
-The library implements graceful degradation for native modules:
+### Error handling
 
 ```tsx
-// ✅ Automatic fallback when modules are unavailable
-// ⚠️ Logs appropriate warnings for missing features
-// 🔄 Continues functioning with reduced capabilities
-```
-
-### Error Handling
-
-```tsx
-import { BotException } from 'rn-kore-bot-sdk-v77';
+import { BotException } from 'rn-kore-bot-sdk-v79';
 
 try {
   // Bot operations
@@ -391,186 +356,42 @@ try {
 }
 ```
 
----
-
-## 🔐 Permissions Setup
-
-### 🎤 Voice Features
-
-The SDK includes voice recognition and text-to-speech capabilities:
-
-#### Permission Status Indicators
-
-| Status | Description | Action Required |
-|--------|-------------|-----------------|
-| ✅ **Granted** | Voice features available | None |
-| ⚠️ **Denied** | Voice button hidden | Check app settings |
-| 🔄 **Not Requested** | Will prompt on first use | None |
-
-#### Troubleshooting Voice Issues
-
-<details>
-<summary><strong>🔧 Common Voice Problems</strong></summary>
-
-**Problem:** "Microphone permission denied"
-**Solution:** 
-1. Check Info.plist/AndroidManifest.xml permissions
-2. Reset app permissions in device settings
-3. Reinstall app to re-trigger permission prompts
-
-**Problem:** Voice button not appearing
-**Solution:**
-1. Verify `@react-native-voice/voice` installation
-2. Check native module linking
-3. Rebuild project after adding permissions
-
-</details>
-
-### 📱 Console Logs for Debugging
-
-```javascript
-// ✅ Success logs
-"Voice module loaded successfully"
-"Microphone permission granted"
-
-// ⚠️ Warning logs  
-"Voice module not available"
-"Microphone permission denied"
-"Permissions module not available"
-```
+The SDK may degrade gracefully when optional native modules are missing (fallbacks, console warnings).
 
 ---
 
-## 📱 Testing Different Configurations
+## Troubleshooting
 
-### 🧪 **How to Test Each Configuration**
+| Issue | What to do |
+|-------|------------|
+| Carousel stuck on "Loading carousel…" | Add `react-native-reanimated/plugin` as the **last** plugin in **babel.config.js**, then `npx react-native start --reset-cache` and rebuild. |
+| Take photo / Upload photo not working | Add **react-native-image-picker**. On iOS: Podfile `setup_permissions` (Camera, PhotoLibrary) and Info.plist usage descriptions. |
+| iOS: "No iOS permission microphone permission handler detected" | Podfile: `setup_permissions([..., 'Microphone', 'SpeechRecognition'])`, then `cd ios && pod install`. |
+| iOS keyboard covers input | Wrap chat in **KeyboardAvoidingView** with `behavior="padding"` (see Step 5). |
+| White screen or no chat | Check **botConfig** (URLs, credentials) and that the component using **KoreChat** is the one registered in **index.js**. |
 
-1. **Start with Minimal Installation:**
-```bash
-# Install only required dependencies
-npm install # (just the minimal set)
-npx react-native run-ios
-```
+**Voice:** Granted → features on. Denied → voice button hidden; check app settings. Not requested → will prompt on first use. If voice button missing: ensure voice/TTS packages are installed and linked, then rebuild.
 
-2. **Test Lazy Loading Behavior:**
-```bash
-# Try using features without dependencies installed
-# - Tap voice button → See "Voice not available" message
-# - Play audio → See silent mode
-# - Open video → See static thumbnail
-```
-
-3. **Add Features Incrementally:**
-```bash
-# Add voice features
-npm install @react-native-voice/voice react-native-tts
-npx react-native run-ios
-
-# Now voice buttons should appear and work
-```
-
-### 🔍 **Debugging Lazy Loading**
-
-**Check Console Logs:**
-```javascript
-// Look for these messages in your console:
-"LazySound: react-native-sound not installed, using fallback"
-"LazyVoice: Voice module loaded successfully"  
-"LazyVideo: Loading video player..."
-```
-
-**Visual Indicators:**
-- 🔄 Loading spinners when modules are loading
-- ⚠️ Warning messages for missing dependencies
-- ✅ Success indicators when features are ready
-
-### 📋 **Key Sample Files**
-
-- `src/config/BotConfig.tsx` - Configuration setup
-- `src/screens/Home/index.tsx` - Integration example  
-- `src/screens/TestFeatures.tsx` - Feature testing screen
-- `src/components/LazyComponents/` - Lazy loading examples
-
-### 🎯 **Sample Application**
-
-Run the complete sample:
-
-```bash
-cd SampleApp
-npm install
-npx react-native run-ios    # or run-android
-```
+**Console:** Success – e.g. "Voice module loaded successfully". Warnings – e.g. "Voice module not available", "Microphone permission denied".
 
 ---
 
-## 🤝 Contributing
+## Testing and pro tips
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### Development Setup
-
-```bash
-git clone https://github.com/your-repo/react-native-kore-bot-sdk.git
-cd react-native-kore-bot-sdk
-npm install
-```
-
-### 🚀 Quick Commands
-
-```bash
-npm run test          # Run tests
-npm run lint          # Lint code
-npm run build         # Build library
-npm run example       # Run example app
-```
+- Install all deps first, then run `npm install` and `npx react-native run-ios` (or `run-android`).
+- Test without optional deps to see fallbacks (e.g. "Voice not available", silent audio).
+- Add voice/full packages incrementally and rebuild.
+- Start minimal; check console for lazy loading; test on device for bundle size.
 
 ---
 
-## 📄 License
+## Version reference
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+| Item | Version |
+|------|---------|
+| React Native | ^0.79.0 |
+| React | 19.0.0 |
+| rn-kore-bot-sdk-v79 | ^0.0.5 |
+| Node | >= 18 |
 
----
-
-## 💬 Support
-
-<div align="center">
-
-### Need Help?
-
-[![GitHub Issues](https://img.shields.io/badge/GitHub-Issues-red?style=for-the-badge&logo=github)](https://github.com/your-repo/react-native-kore-bot-sdk/issues)
-[![Documentation](https://img.shields.io/badge/Docs-Read%20More-blue?style=for-the-badge&logo=gitbook)](https://docs.kore.ai)
-[![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-Ask%20Question-orange?style=for-the-badge&logo=stackoverflow)](https://stackoverflow.com/questions/tagged/kore-ai)
-
-**Found a bug?** [Open an issue](https://github.com/your-repo/react-native-kore-bot-sdk/issues/new)
-**Have a question?** [Start a discussion](https://github.com/your-repo/react-native-kore-bot-sdk/discussions)
-**Need enterprise support?** [Contact Kore.ai](https://kore.ai/contact)
-
-</div>
-
----
-
-<div align="center">
-
-## 🎯 **Quick Start Guide**
-
-1. **Choose your approach** from the 3 installation options above
-2. **Install dependencies** for your chosen features
-3. **Run the app**: `npx react-native run-ios`
-4. **Test lazy loading** by trying features without dependencies
-5. **Add more features** incrementally as needed
-
-## 💡 **Pro Tips**
-
-- **Start minimal** and add features as you need them
-- **Check console logs** to see lazy loading in action
-- **Test on device** for realistic bundle size impact
-- **Use fallback components** to handle missing dependencies gracefully
-
----
-
-**Made with ❤️ by the Kore.ai Team**
-
-[![Star this repo](https://img.shields.io/github/stars/your-repo/react-native-kore-bot-sdk?style=social)](https://github.com/your-repo/react-native-kore-bot-sdk)
-
-</div>
+Check the SDK **peerDependencies** and release notes for current versions.
