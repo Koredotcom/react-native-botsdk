@@ -21,7 +21,7 @@ A powerful and feature-rich React Native library for integrating Kore.ai bot con
 ## 📦 Installation
 
 ```bash
-npm install rn-kore-bot-socket-lib-v77
+npm install rn-kore-bot-socket-lib-v79
 ```
 
 ### Peer Dependencies
@@ -52,8 +52,8 @@ import KoreBotClient, {
   ConnectionState, 
   Logger, 
   LogLevel 
-} from 'rn-kore-bot-socket-lib-v77';
-import type { BotConfigModel } from 'rn-kore-bot-socket-lib-v77';
+} from 'rn-kore-bot-socket-lib-v79';
+import type { BotConfigModel } from 'rn-kore-bot-socket-lib-v79';
 
 // Configure logging (optional)
 Logger.getInstance().setLogLevel(LogLevel.INFO);
@@ -143,7 +143,7 @@ The library emits various events that you can listen to:
 ### Connection Events
 
 ```typescript
-import { RTM_EVENT } from 'rn-kore-bot-socket-lib-v77';
+import { RTM_EVENT } from 'rn-kore-bot-socket-lib-v79';
 
 const botClient = KoreBotClient.getInstance();
 
@@ -194,7 +194,7 @@ botClient.on(RTM_EVENT.ON_JWT_TOKEN_AUTHORIZED, () => {
 Retrieve and apply bot themes dynamically:
 
 ```typescript
-import { ActiveThemeAPI } from 'rn-kore-bot-socket-lib-v77';
+import { ActiveThemeAPI } from 'rn-kore-bot-socket-lib-v79';
 
 const themeAPI = new ActiveThemeAPI();
 
@@ -213,7 +213,7 @@ themeAPI.getThemeAPI(botConfig, (themeData) => {
 ### Configure Logging
 
 ```typescript
-import { Logger, LogLevel } from 'rn-kore-bot-socket-lib-v77';
+import { Logger, LogLevel } from 'rn-kore-bot-socket-lib-v79';
 
 // Set log level
 Logger.getInstance().setLogLevel(LogLevel.DEBUG); // Show all logs
@@ -277,7 +277,7 @@ botClient.setAppState('ACTIVE' | 'SLEEP');
 ### Connection States
 
 ```typescript
-import { ConnectionState } from 'rn-kore-bot-socket-lib-v77';
+import { ConnectionState } from 'rn-kore-bot-socket-lib-v79';
 
 // Available states
 ConnectionState.CONNECTING    // 0
@@ -395,7 +395,7 @@ import KoreBotClient, {
   ConnectionState,
   Logger,
   LogLevel
-} from 'rn-kore-bot-socket-lib-v77';
+} from 'rn-kore-bot-socket-lib-v79';
 
 interface State {
   connectionStatus: string;
@@ -554,7 +554,7 @@ export default BotChatComponent;
 ### Enable Debug Logging
 
 ```typescript
-import { Logger, LogLevel } from 'rn-kore-bot-socket-lib-v77';
+import { Logger, LogLevel } from 'rn-kore-bot-socket-lib-v79';
 
 // Enable verbose logging
 Logger.setLogLevel(LogLevel.DEBUG);
