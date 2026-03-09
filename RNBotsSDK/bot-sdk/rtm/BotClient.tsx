@@ -537,33 +537,38 @@ export class BotClient extends EventEmitter implements IBotClient {
     isReconnectionAttempt: boolean,
     resetReconnectAttemptCount?: boolean,
   ) {
-    if (this.isReconnectAttemptRequired && this.reconnectAttemptCount < RECONNECT_ATTEMPT_LIMIT) {
-      Logger.logConnectionEvent('Reconnection Attempt', {
-        attemptCount: this.reconnectAttemptCount,
-        maxAttempts: RECONNECT_ATTEMPT_LIMIT,
-        isReconnectionAttempt,
-        resetReconnectAttemptCount
-      });
-
-      if (this.reconnectTimer) {
-        clearInterval(this.reconnectTimer);
-      }
-
-      this.reconnectTimer = setTimeout(
-        async () => {
-          this.isConnecting = false;
-          await this.initSocketConnection(isReconnectionAttempt);
-        },
-        this.getReconnectDelay(),
-      );
+    // Reconnection not required (e.g. user disconnected, or checkSocketAndReconnect with no prior connection)
+    if (!this.isReconnectAttemptRequired) {
+      return;
     }
-    else {
+    // Actually exceeded max reconnection attempts
+    if (this.reconnectAttemptCount >= RECONNECT_ATTEMPT_LIMIT) {
       Logger.logConnectionError('Maximum Reconnection Limit Reached', {
         attemptCount: this.reconnectAttemptCount,
         maxAttempts: RECONNECT_ATTEMPT_LIMIT,
         isReconnectAttemptRequired: this.isReconnectAttemptRequired
       });
+      return;
     }
+
+    Logger.logConnectionEvent('Reconnection Attempt', {
+      attemptCount: this.reconnectAttemptCount,
+      maxAttempts: RECONNECT_ATTEMPT_LIMIT,
+      isReconnectionAttempt,
+      resetReconnectAttemptCount
+    });
+
+    if (this.reconnectTimer) {
+      clearInterval(this.reconnectTimer);
+    }
+
+    this.reconnectTimer = setTimeout(
+      async () => {
+        this.isConnecting = false;
+        await this.initSocketConnection(isReconnectionAttempt);
+      },
+      this.getReconnectDelay(),
+    );
   }
 
   private async refreshTokenAndReconnect(isReconnectionAttempt?: boolean) {

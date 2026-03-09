@@ -2,6 +2,7 @@ package com.rnsocketlib79
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
+import com.facebook.react.ReactApplication
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 
@@ -19,4 +20,15 @@ class MainActivity : ReactActivity() {
    */
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    if (fabricEnabled) {
+      val host = (application as? ReactApplication)?.reactHost
+      if (host?.currentReactContext != null) {
+        super.onWindowFocusChanged(hasFocus)
+      }
+    } else {
+      super.onWindowFocusChanged(hasFocus)
+    }
+  }
 }
