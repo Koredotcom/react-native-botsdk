@@ -727,7 +727,7 @@ export class BotClient extends EventEmitter implements IBotClient {
   getResultViewSettings() {
     return this.resultViewSettings;
   }
-  //{"accountId": "60a4179424c895fef482f57c", "identity": "cs-1e38e7d9-20bd-579a-9a7c-9ec6777a39e2/42438ffd-b473-42d1-bd5f-66bd16715ad6", "managedBy": "60a4179424c895fef482f57c", "userId": "u-822d2104-c94e-5dc9-876b-b858b45d065d"}
+  //{"accountId": "60a4179424c895fef482f57c", "identity": "PLEASE_ENTER_CLIENT_ID/42438ffd-b473-42d1-bd5f-66bd16715ad6", "managedBy": "60a4179424c895fef482f57c", "userId": "u-822d2104-c94e-5dc9-876b-b858b45d065d"}
   getBotUserId() {
     return this.userInfo?.userId;
   }
