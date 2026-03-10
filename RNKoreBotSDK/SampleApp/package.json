@@ -28,7 +28,7 @@
     "react-native-sound": "^0.13.0",
     "react-native-svg": "^15.12.1",
     "react-native-video": "^6.18.0",
-    "rn-kore-bot-sdk-v79": "^0.0.5"
+    "rn-kore-bot-sdk-v79": "^0.0.6"
   },
   "peerDependencies": {
     "react": "19.0.0",
