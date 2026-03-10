@@ -1300,6 +1300,13 @@ export default class KoreChat extends React.Component<
           if (item?.renderMsg) {
             message = item?.renderMsg;
           }
+
+          if (item?.payload !== undefined && item?.payload !== null) {
+            message =
+              typeof item.payload === 'string'
+                ? item.payload
+                : (item.payload?.name ?? message);
+          }
         }
 
         let data_type = '';

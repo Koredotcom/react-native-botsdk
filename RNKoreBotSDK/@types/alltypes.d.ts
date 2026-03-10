@@ -1,6 +1,6 @@
 declare module 'rn-kore-bot-sdk-v79' {
-  import { ComponentType, ReactNode } from 'react';
-  import { ViewStyle, TextStyle } from 'react-native';
+  import { ReactNode } from 'react';
+  import { ViewStyle } from 'react-native';
 
   // Bot Configuration
   export interface BotConfigModel {
@@ -184,25 +184,43 @@ declare module 'react-native-communications' {
   export default Communications;
 }
 
-// Augment rn-kore-bot-socket-lib-v79 KoreBotClient with EventEmitter-style methods and full API
+// KoreBotClient interface with EventEmitter-style methods (shared by both socket lib modules)
+interface KoreBotClientInstance {
+  getInstance(): KoreBotClientInstance;
+  setAppState(state: any): void;
+  sendEvent(event: string, ...args: any[]): void;
+  sendMessage(text: any, data?: any, dataType?: any): any;
+  disconnect(): void;
+  getBotUrl?(): string;
+  getAuthorization?(): string;
+  on(event: string, listener: (...args: any[]) => void): this;
+  once(event: string, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string): this;
+  initializeBotClient(config: any, flag?: boolean): void;
+  setIsNetworkAvailable(available: boolean): void;
+  checkSocketAndReconnect(): void;
+  setSessionActive(active: boolean): void;
+  reconnect(...args: any[]): void;
+}
+
 declare module 'rn-kore-bot-socket-lib-v79' {
-  interface KoreBotClientInstance {
-    getInstance(): KoreBotClientInstance;
-    setAppState(state: any): void;
-    sendEvent(event: string, ...args: any[]): void;
-    sendMessage(text: any, data?: any, dataType?: any): any;
-    disconnect(): void;
-    getBotUrl?(): string;
-    getAuthorization?(): string;
-    on(event: string, listener: (...args: any[]) => void): this;
-    once(event: string, listener: (...args: any[]) => void): this;
-    removeAllListeners(event?: string): this;
-    initializeBotClient(config: any, flag?: boolean): void;
-    setIsNetworkAvailable(available: boolean): void;
-    checkSocketAndReconnect(): void;
-    setSessionActive(active: boolean): void;
-    reconnect(...args: any[]): void;
+  const KoreBotClient: KoreBotClientInstance;
+  export default KoreBotClient;
+  export const RTM_EVENT: Record<string, string>;
+  export const APP_STATE: Record<string, string>;
+  export class ActiveThemeAPI {
+    getThemeAPI(...args: any[]): any;
   }
+  export const ApiService: any;
+  export interface BotConfigModel {
+    botId?: string;
+    chatBotName?: string;
+    serverUrl?: string;
+    [key: string]: any;
+  }
+}
+
+declare module 'rn-kore-bot-socket-lib-v79-test' {
   const KoreBotClient: KoreBotClientInstance;
   export default KoreBotClient;
   export const RTM_EVENT: Record<string, string>;

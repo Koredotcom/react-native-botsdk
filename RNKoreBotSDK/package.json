@@ -1,6 +1,6 @@
 {
     "name": "rn-kore-bot-sdk-v79",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "React Native Kore Bot SDK for building chatbot interfaces",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -78,7 +78,7 @@
         "react-native-vector-icons": "^10.2.0",
         "react-native-video": "^6.16.1",
         "reactotron-react-native": "^5.1.13",
-        "rn-kore-bot-socket-lib-v79": "^0.0.7"
+        "rn-kore-bot-socket-lib-v79": "^0.0.8"
     },
     "devDependencies": {
         "@babel/core": "^7.25.2",
