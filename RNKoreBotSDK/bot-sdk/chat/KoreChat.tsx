@@ -762,8 +762,10 @@ export default class KoreChat extends React.Component<
           const nextMessage = { ...prev };
           const nextMsgEntry = nextMessage.message?.[0] ? { ...nextMessage.message[0] } : null;
           if (nextMsgEntry?.component?.payload) {
-            nextMsgEntry.component = { ...nextMsgEntry.component, payload: { ...nextMsgEntry.component.payload, text: prevText + (streamText ?? '') } };
-            if (nextMsgEntry.cInfo) nextMsgEntry.cInfo = { ...nextMsgEntry.cInfo, body: prevBody + (streamText ?? '') };
+            const finalText = (endChunk && completeResponse != null) ? completeResponse : prevText + (streamText ?? '');
+            const finalBody = (endChunk && completeResponse != null) ? completeResponse : prevBody + (streamText ?? '');
+            nextMsgEntry.component = { ...nextMsgEntry.component, payload: { ...nextMsgEntry.component.payload, text: finalText } };
+            if (nextMsgEntry.cInfo) nextMsgEntry.cInfo = { ...nextMsgEntry.cInfo, body: finalBody };
             nextMessage.message = [nextMsgEntry];
             nextMessages[idx] = nextMessage;
             return nextMessages;
@@ -833,7 +835,7 @@ export default class KoreChat extends React.Component<
     //     !modifiedMessages[0].message[0].component.payload.payload && !modifiedMessages[0].message[0].component.payload.text)
     //       return
     
-    this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
+    this.setMessages((prevMessages) => KoreChat.append(prevMessages, modifiedMessages))
         if (!isStreamChunk) {
           setTimeout(() => {
             this.textToSpeech(newMessages);
