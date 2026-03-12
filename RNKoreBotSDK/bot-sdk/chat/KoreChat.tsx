@@ -690,9 +690,6 @@ export default class KoreChat extends React.Component<
       });
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
-        // if (data) {
-        //   console.log('Bot Response Data ------->:', JSON.stringify(data, null, 2));
-        // }
         if (data.type === 'ack') {
           console.log('Received ACK message, setting loading state');
           this.setIsBotResponseLoading(true);
@@ -745,6 +742,43 @@ export default class KoreChat extends React.Component<
     console.log('processMessage ------->:', JSON.stringify(newMessages, null, 2));
     let modifiedMessages: any = null;
     const itemId = getItemId();
+
+    const isStreamChunk = newMessages?.sM === true && newMessages?.type === 'bot_response';
+    const streamText = isStreamChunk && newMessages?.message?.[0]?.component?.payload?.text;
+    const endChunk = isStreamChunk && newMessages?.endChunk === true;
+    const completeResponse = newMessages?.completeResponse;
+    if (isStreamChunk && (streamText != null || endChunk)) {
+      const messageId = newMessages.messageId;
+      this.setMessages((prevMessages) => {
+        const messages = prevMessages || [];
+        const idx = messages.findIndex((m: any) => m.messageId === messageId && m.type === 'bot_response');
+        if (idx >= 0) {
+          const prev = messages[idx];
+          const prevPayload = prev?.message?.[0]?.component?.payload;
+          const prevText = (prevPayload?.text ?? '') || '';
+          const prevCInfo = prev?.message?.[0]?.cInfo;
+          const prevBody = (prevCInfo?.body ?? '') || '';
+          const nextMessages = messages.slice();
+          const nextMessage = { ...prev };
+          const nextMsgEntry = nextMessage.message?.[0] ? { ...nextMessage.message[0] } : null;
+          if (nextMsgEntry?.component?.payload) {
+            nextMsgEntry.component = { ...nextMsgEntry.component, payload: { ...nextMsgEntry.component.payload, text: prevText + (streamText ?? '') } };
+            if (nextMsgEntry.cInfo) nextMsgEntry.cInfo = { ...nextMsgEntry.cInfo, body: prevBody + (streamText ?? '') };
+            nextMessage.message = [nextMsgEntry];
+            nextMessages[idx] = nextMessage;
+            return nextMessages;
+          }
+        }
+
+        const modifiedMessages = [{ ...newMessages, itemId }];
+        return KoreChat.append(messages, modifiedMessages);
+      });
+      if (endChunk && completeResponse != null) {
+        const ttsPayload = { ...newMessages, message: [{ component: { payload: { payload: { text: completeResponse }, text: completeResponse } } }] };
+        setTimeout(() => this.textToSpeech(ttsPayload), 1000);
+      }
+      return;
+    }
 
     const hasRealAttachments = newMessages?.message?.[0]?.component?.payload?.attachments && 
                               newMessages?.message?.[0]?.component?.payload?.attachments !== "attachments" &&
@@ -800,9 +834,11 @@ export default class KoreChat extends React.Component<
     //       return
     
     this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
-        setTimeout(() => {
-          this.textToSpeech(newMessages);
-        }, 1000);
+        if (!isStreamChunk) {
+          setTimeout(() => {
+            this.textToSpeech(newMessages);
+          }, 1000);
+        }
   };
   private stopTTS = async () => {
     if (!this.ttsModule || !this.isTTSAvailable) {
@@ -969,9 +1005,15 @@ export default class KoreChat extends React.Component<
     return this.props.text;
   };
 
-  private setMessages = (messages: any[]) => {
-    historyMessages = messages.length;
-    this.setState({messages});
+  private setMessages = (messagesOrUpdater: any[] | ((prev: any[]) => any[])) => {
+    this.setState((prevState: KoraChatState) => {
+      const nextMessages =
+        typeof messagesOrUpdater === 'function'
+          ? messagesOrUpdater(prevState.messages || [])
+          : messagesOrUpdater;
+      historyMessages = nextMessages.length;
+      return { messages: nextMessages };
+    });
   };
 
   private getMessages = () => {
@@ -1299,6 +1341,13 @@ export default class KoreChat extends React.Component<
         if (template_type === TEMPLATE_TYPES.QUICK_REPLIES) {
           if (item?.renderMsg) {
             message = item?.renderMsg;
+          }
+
+          if (item?.payload !== undefined && item?.payload !== null) {
+            message =
+              typeof item.payload === 'string'
+                ? item.payload
+                : (item.payload?.name ?? message);
           }
         }
 
