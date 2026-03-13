@@ -21,7 +21,8 @@
         "dist",
         "README.md",
         "package.json",
-        "bot-sdk/assets"
+        "bot-sdk/assets",
+        "patch-community-cli.js"
     ],
     "scripts": {
         "android": "react-native run-android",
@@ -32,7 +33,7 @@
         "test": "jest",
         "build": "tsup && cp -r bot-sdk/assets/images dist/ && cp -r bot-sdk/assets/placeholder dist/",
         "prepublishOnly": "npm run build",
-        "postinstall": "patch-package"
+        "postinstall": "patch-package && node patch-community-cli.js"
     },
     "peerDependencies": {
         "react": ">=18.0.0",
@@ -67,10 +68,10 @@
         "react-native-reanimated": "3.18.0",
         "react-native-reanimated-carousel": "^4.0.3",
         "react-native-safe-area-context": "^5.4.1",
-        "react-native-screens": "^4.13.1",
+        "react-native-screens": "4.13.1",
         "react-native-shadow-2": "^7.1.0",
         "react-native-sound": "^0.12.0",
-        "react-native-svg": "^15.13.0",
+        "react-native-svg": "15.13.0",
         "react-native-toast-message": "^2.3.0",
         "react-native-tts": "^4.1.1",
         "react-native-user-agent": "^2.3.1",
