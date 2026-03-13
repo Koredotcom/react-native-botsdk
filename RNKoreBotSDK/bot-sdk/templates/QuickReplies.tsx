@@ -125,9 +125,9 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
           alignItems: 'flex-start',
         }}
         style={{
-          groundColor:
+          backgroundColor:
             this.props?.theme?.v3?.body?.background?.color || '#FFFFFF',
-        }}back
+        }}
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={true}
         keyboardShouldPersistTaps={'handled'}

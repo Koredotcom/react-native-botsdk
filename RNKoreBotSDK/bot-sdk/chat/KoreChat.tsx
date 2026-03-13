@@ -741,7 +741,7 @@ export default class KoreChat extends React.Component<
     
     let modifiedMessages: any = null;
     const itemId = getItemId();
-
+    console.log('newMessages', JSON.stringify(newMessages, null, 2));
     const isStreamChunk = newMessages?.sM === true && newMessages?.type === 'bot_response';
     const streamText = isStreamChunk && newMessages?.message?.[0]?.component?.payload?.text;
     const endChunk = isStreamChunk && newMessages?.endChunk === true;

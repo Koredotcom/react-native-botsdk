@@ -1,0 +1,16 @@
+diff --git a/node_modules/@react-native/community-cli-plugin/dist/commands/start/middleware.js b/node_modules/@react-native/community-cli-plugin/dist/commands/start/middleware.js
+index 0000000..1111111 100644
+--- a/node_modules/@react-native/community-cli-plugin/dist/commands/start/middleware.js
++++ b/node_modules/@react-native/community-cli-plugin/dist/commands/start/middleware.js
+@@ -35,8 +35,9 @@ try {
+  const communityCliServerApi = require(communityCliServerApiPath);
+  communityMiddlewareFallback.createDevServerMiddleware =
+    communityCliServerApi.createDevServerMiddleware;
+-  communityMiddlewareFallback.indexPageMiddleware =
+-    communityCliServerApi.indexPageMiddleware;
++  // cli-server-api does not export indexPageMiddleware; keep fallback if undefined
++  communityMiddlewareFallback.indexPageMiddleware =
++    communityCliServerApi.indexPageMiddleware ?? noopNextHandle;
+ } catch {
+   debug(`⚠️ Unable to find @react-native-community/cli-server-api
+ Starting the server without the community middleware.`);
