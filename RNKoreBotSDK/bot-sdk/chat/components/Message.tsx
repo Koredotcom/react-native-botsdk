@@ -39,6 +39,7 @@ export interface MessageProps {
   onSendText: any;
   isDisplayTime: boolean;
   theme: IThemeType;
+  fallbackBotIcon?: string | null;
 }
 
 const styles = {
@@ -182,7 +183,13 @@ export default class Message extends React.Component<MessageProps> {
       currentMessage?.type === 'bot_response' &&
       this.props?.theme?.v3?.body?.icon?.show
     ) {
-      this.setBotIconUrl(currentMessage.icon);
+      // Use current message icon, or fallback from any bot message in the list (e.g. streaming chunks omit icon; previous message may be user)
+      const iconUrl =
+        currentMessage.icon || this.props.fallbackBotIcon || null;
+
+      if (iconUrl) {
+        this.setBotIconUrl(iconUrl);
+      }
       const isShowBotIcon = this.props?.theme?.v3?.body?.icon?.bot_icon || false;
 
       if (!isShowBotIcon) {
@@ -205,10 +212,10 @@ export default class Message extends React.Component<MessageProps> {
             ]}>
             <FastImage
               source={
-                this.state.imageLoadFailed || !currentMessage.icon
+                this.state.imageLoadFailed || !iconUrl
                   ? placeholder.default_bot_icon
                   : {
-                      uri: currentMessage.icon,
+                      uri: iconUrl,
                       priority: FastImage.priority.high,
                       cache: FastImage.cacheControl.immutable,
                     }

@@ -232,6 +232,16 @@ export default class MessageContainer extends PureComponent<
     }
   };
 
+  /** Most recent bot_response in the list that has an icon (for streaming chunks that omit icon). */
+  private getFallbackBotIcon = (messages: any[]): string | null => {
+    if (!messages?.length) return null;
+    for (let i = 0; i < messages.length; i++) {
+      const m = messages[i];
+      if (m?.type === 'bot_response' && m?.icon) return m.icon;
+    }
+    return null;
+  };
+
   renderRow = ({ item, index }: { item: any; index: number }): any => {
     const { messages, inverted, ...restProps } = this.props;
     if (messages) {
@@ -239,6 +249,7 @@ export default class MessageContainer extends PureComponent<
         (inverted ? messages[index + 1] : messages[index - 1]) || {};
       const nextMessage =
         (inverted ? messages[index - 1] : messages[index + 1]) || {};
+      const fallbackBotIcon = this.getFallbackBotIcon(messages);
 
       let position = this.props.position;
       let isDisplayTime = true;
@@ -305,6 +316,7 @@ export default class MessageContainer extends PureComponent<
         onListItemClick: this.onListItemClick,
         onSendText: this.props.onSendText,
         isDisplayTime: isDisplayTime,
+        fallbackBotIcon: fallbackBotIcon ?? undefined,
       };
 
       if (this.props.renderMessage) {
