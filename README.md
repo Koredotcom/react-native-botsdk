@@ -1,12 +1,12 @@
 # React Native Kore Bot SDK – Integration Guide
 
-Step-by-step guide to integrate the Kore Bot SDK (rn-kore-bot-sdk-v79) into your React Native 0.79 app. **Install all required packages first** (recommended); you can remove packages later if you don’t need that feature. Alternatively, install by feature tier (Minimal / Voice / Full).
+Step-by-step guide to integrate the Kore Bot SDK (rn-kore-bot-sdk-v77) into your React Native 0.77 app. **Install all required packages first** (recommended); you can remove packages later if you don’t need that feature. Alternatively, install by feature tier (Minimal / Voice / Full).
 
 ---
 
 ## What you need
 
-- React Native **0.79.x** and React **19.0.0**
+- React Native **0.77.x** and React **18.0.0**
 - Node.js **18+**
 - A new or existing React Native project
 
@@ -45,7 +45,7 @@ Add the Kore SDK and supporting packages to **package.json** → **dependencies*
   "react-native-svg": "^15.12.1",
   "react-native-vector-icons": "^10.3.0",
   "react-native-video": "^6.18.0",
-  "rn-kore-bot-sdk-v79": "^0.0.5"
+  "rn-kore-bot-sdk-v77": "^0.0.5"
 }
 ```
 
@@ -55,7 +55,7 @@ Then run:
 npm install
 ```
 
-Ensure **peerDependencies** match (React 19.0.0, React Native ^0.79.0). Optional: `"engines": { "node": ">=18" }`.
+Ensure **peerDependencies** match (React 18.0.0, React Native ^0.77.0). Optional: `"engines": { "node": ">=18" }`.
 
 ### Removing packages later (optional)
 
@@ -72,7 +72,7 @@ Ensure **peerDependencies** match (React 19.0.0, React Native ^0.79.0). Optional
 | File access | `react-native-fs`, `react-native-blob-util` |
 | Gradients / Icons | `react-native-linear-gradient`, `react-native-vector-icons` |
 
-**Do not remove:** `rn-kore-bot-sdk-v79`, `react-native-reanimated`, `react-native-gesture-handler`, `react-native-safe-area-context`, `react-native-screens`, `@react-navigation/*`, `axios`, `react-native-svg`.
+**Do not remove:** `rn-kore-bot-sdk-v77`, `react-native-reanimated`, `react-native-gesture-handler`, `react-native-safe-area-context`, `react-native-screens`, `@react-navigation/*`, `axios`, `react-native-svg`.
 
 ### Alternative: Install by feature tier
 
@@ -87,7 +87,7 @@ npm install \
   "react-native-gesture-handler@^2.27.2" \
   "react-native-safe-area-context@^5.4.1" \
   "react-native-screens@^4.13.1" \
-  "rn-kore-bot-sdk-v79@^0.0.5"
+  "rn-kore-bot-sdk-v77@^0.0.5"
 ```
 
 **Option B – Chat + Voice** (add after A): `npm install @react-native-voice/voice@^3.2.4 react-native-tts@^4.1.1 react-native-permissions@^5.4.1`
@@ -115,7 +115,7 @@ Create **react-native.config.js** in the project root:
 ```javascript
 module.exports = {
   dependencies: {
-    'rn-kore-bot-sdk-v79': { platforms: { android: null, ios: {} } },
+    'rn-kore-bot-sdk-v77': { platforms: { android: null, ios: {} } },
   },
 };
 ```
@@ -158,7 +158,7 @@ If using **react-native-permissions** (Camera, PhotoLibrary, Microphone, SpeechR
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
-import KoreChat from 'rn-kore-bot-sdk-v79';
+import KoreChat from 'rn-kore-bot-sdk-v77';
 
 const botConfig = {
   botName: 'YourBot',
@@ -292,7 +292,7 @@ const botConfig = {
 **Theme:**
 
 ```tsx
-import { ThemeProvider } from 'rn-kore-bot-sdk-v79';
+import { ThemeProvider } from 'rn-kore-bot-sdk-v77';
 
 const customTheme = {
   primaryColor: '#007AFF',
@@ -310,7 +310,7 @@ const customTheme = {
 **Custom templates:**
 
 ```tsx
-import { CustomTemplate } from 'rn-kore-bot-sdk-v79';
+import { CustomTemplate } from 'rn-kore-bot-sdk-v77';
 
 const MyCustomButton = new CustomTemplate({
   templateType: 'custom-button',
@@ -345,7 +345,7 @@ const MyCustomButton = new CustomTemplate({
 ### Error handling
 
 ```tsx
-import { BotException } from 'rn-kore-bot-sdk-v79';
+import { BotException } from 'rn-kore-bot-sdk-v77';
 
 try {
   // Bot operations
@@ -389,9 +389,9 @@ The SDK may degrade gracefully when optional native modules are missing (fallbac
 
 | Item | Version |
 |------|---------|
-| React Native | ^0.79.0 |
+| React Native | ^0.77.0 |
 | React | 19.0.0 |
-| rn-kore-bot-sdk-v79 | ^0.0.5 |
+| rn-kore-bot-sdk-v77 | ^0.0.5 |
 | Node | >= 18 |
 
 Check the SDK **peerDependencies** and release notes for current versions.
