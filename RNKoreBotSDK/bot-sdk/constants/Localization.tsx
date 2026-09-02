@@ -48,7 +48,12 @@ const LOCALIZED_STRINGS = {
     view_more: 'View More',
     answered_by_ai: 'Answered by AI',
     did_not_get_code: 'Didn\'t get a code?',
-    load_earlier_messages: 'Chat history'
+    load_earlier_messages: 'Chat history',
+    send_again: 'Send again',
+    sending_failed_prefix: 'Sending failed. ',
+    failed_message_resend: 'Resend',
+    sending_failed_or: ' or ',
+    failed_message_delete: 'Delete',
   },
   es: {
     back_dialog_title: '¿Te gustaría cerrar la conversación o minimizar?',

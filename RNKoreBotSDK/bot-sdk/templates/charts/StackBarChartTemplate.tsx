@@ -37,22 +37,24 @@ export default class StackBarChartTemplate extends BaseView<
       }));
     };
 
+    const vertical = payload?.direction !== 'vertical'
     // Convert dataset
     const formattedDataSet = convertToStackedFormat(payload);
 
     return (
       <View>
         <BarChart
-          width={ windowWidth - 50}
-          height={ 220 }
-          barWidth={ 50 }
+          width={ vertical ? 220 : windowWidth - 50}
+          height={ vertical ? windowWidth - 50 : 220 }
+          barWidth={30}
+          horizontal={vertical}
           stackData={formattedDataSet}
           noOfSections={4}
           spacing={30} 
-          initialSpacing={30}
+          initialSpacing={20}
           yAxisThickness={1}
           yAxisColor="#ccc"
-          xAxisLabelTextStyle={{ marginStart: 0 , fontSize: 8, transform: [{ rotate: '330deg' }] }}
+          xAxisLabelTextStyle={{ marginStart: 7 , fontSize: 7, transform: [{ rotate: '330deg' }] }}
         />
       </View>
     );

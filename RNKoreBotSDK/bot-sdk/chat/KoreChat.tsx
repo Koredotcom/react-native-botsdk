@@ -52,9 +52,13 @@ import KoreBotClient, {
 } from 'rn-kore-bot-socket-lib-v77';
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {
+  buildMessageToBotFromStoredUserMessage,
+  getAckCorrelationId,
   getDrawableByExt,
   getItemId,
   getTemplateType,
+  getUserMessageCorrelationId,
+  getUserMessagePlainText,
   isBlackStatusBar,
   isWhiteStatusBar,
   normalize,
@@ -109,6 +113,9 @@ const windowWidth = Dimensions.get('window').width;
 var isAgentConnect = false;
 var isMinimizedWindow = false
 var historyMessages = 1;
+
+const SEND_AGAIN_DELAY_MS = 3000;
+
 interface KoraChatProps {
   messages?: any[];
   messagesContainerStyle?: any;
@@ -185,6 +192,8 @@ interface KoraChatState {
   showBackButtonDialog?: boolean;
   showTemplateBottomSheet: boolean;
   messageBottomSheet?: any;
+  pendingAckByMessageId?: Record<string, true>;
+  sendAgainVisibleByMessageId?: Record<string, true>;
 }
 
 export default class KoreChat extends React.Component<
@@ -204,6 +213,10 @@ export default class KoreChat extends React.Component<
   backHandler: any;
   unsubscribeNavigation: any;
   allowNavigation: boolean = false;
+  private pendingAckSendAgainTimers: Record<
+    string,
+    ReturnType<typeof setTimeout>
+  > = {};
   static defaultProps: {
     messagesContainerStyle: null;
     text: null;
@@ -317,7 +330,9 @@ export default class KoreChat extends React.Component<
       showBackButtonDialog: false,
       showTemplateBottomSheet: false,
       messageBottomSheet: null,
-      isTTSenable: false
+      isTTSenable: false,
+      pendingAckByMessageId: {},
+      sendAgainVisibleByMessageId: {},
     };
   }
 
@@ -452,7 +467,7 @@ export default class KoreChat extends React.Component<
             setTimeout(() => {
               if (this.props.route?.params?.postUtterance) {
                 this.onSend({
-                  message: {text: this.props.route?.params?.postUtterance},
+                  message: {text: this.props.route?.params?.postUtterance, payload: ''},
                 });
               }
             }, 2000);
@@ -565,7 +580,7 @@ export default class KoreChat extends React.Component<
     } else {
       KoreBotClient.getInstance().sendEvent('close_button_event');
     }
-    
+
     setTimeout(() => {
       try {
         if (this.props.navigation?.canGoBack?.()) {
@@ -617,15 +632,18 @@ export default class KoreChat extends React.Component<
     }
 
     if (this.props.navigation) {
-      this.unsubscribeNavigation = this.props.navigation.addListener('beforeRemove', (e: any) => {
-        if (this.allowNavigation) {
-          this.allowNavigation = false;
-          return; 
-        }
-        
-        e.preventDefault();
-        this.setState({ showBackButtonDialog: true });
-      });
+      this.unsubscribeNavigation = this.props.navigation.addListener(
+        'beforeRemove',
+        (e: any) => {
+          if (this.allowNavigation) {
+            this.allowNavigation = false;
+            return;
+          }
+
+          e.preventDefault();
+          this.setState({showBackButtonDialog: true});
+        },
+      );
     }
 
     const {text} = this.props;
@@ -645,6 +663,8 @@ export default class KoreChat extends React.Component<
 
   componentWillUnmount() {
     this.setisChatMounted(false);
+    Object.values(this.pendingAckSendAgainTimers).forEach((t) => clearTimeout(t));
+    this.pendingAckSendAgainTimers = {};
     const botClient = KoreBotClient.getInstance();
     botClient.removeAllListeners(RTM_EVENT.CONNECTING);
     botClient.removeAllListeners(RTM_EVENT.ON_OPEN);
@@ -676,11 +696,9 @@ export default class KoreChat extends React.Component<
 
   private setBotClientListeners = () => {
     const botClient = KoreBotClient.getInstance();
-    botClient
-      ?.on(RTM_EVENT.ON_ACK, (data: any) => {
-        if (data.type === 'ack') {
-        }
-      });
+    botClient?.on(RTM_EVENT.ON_ACK, (data: any) => {
+      this.handleAckMessage(data);
+    });
     botClient
       ?.on(RTM_EVENT.ON_EVENTS, (data: any) => {
         if (data.type === 'events') {
@@ -690,7 +708,7 @@ export default class KoreChat extends React.Component<
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
         if (data.type === 'ack') {
-          console.log('Received ACK message, setting loading state');
+          this.handleAckMessage(data);
           this.setIsBotResponseLoading(true);
           return;
         }
@@ -786,6 +804,8 @@ export default class KoreChat extends React.Component<
     if (hasRealAttachments) {
       let attachmentTemplate = {
         type: 'user_message',
+        timeMillis: newMessages?.timeMillis,
+        messageId: newMessages?.messageId,
         message: [
           {
             type: TEMPLATE_TYPES.USER_ATTACHEMENT_TEMPLATE,
@@ -793,6 +813,7 @@ export default class KoreChat extends React.Component<
               type: TEMPLATE_TYPES.USER_ATTACHEMENT_TEMPLATE,
               payload: newMessages?.message?.[0]?.component?.payload,
             },
+            clientMessageId: newMessages?.message?.[0]?.clientMessageId,
           },
         ],
       };
@@ -832,12 +853,12 @@ export default class KoreChat extends React.Component<
     //     !modifiedMessages[0].message[0].component.payload.payload && !modifiedMessages[0].message[0].component.payload.text)
     //       return
     
-    this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
-        if (!isStreamChunk) {
-          setTimeout(() => {
-            this.textToSpeech(newMessages);
-          }, 1000);
-        }
+    this.appendMessagesWithAckTracking(modifiedMessages);
+    if (!isStreamChunk) {
+      setTimeout(() => {
+        this.textToSpeech(newMessages);
+      }, 1000);
+    }
   };
   private stopTTS = async () => {
     if (!this.ttsModule || !this.isTTSAvailable) {
@@ -1015,6 +1036,174 @@ export default class KoreChat extends React.Component<
     });
   };
 
+  /** Appends messages and marks new user_message rows as pending RTM ack. */
+  private appendMessagesWithAckTracking = (modifiedMessages: any[]) => {
+    const batch = Array.isArray(modifiedMessages)
+      ? modifiedMessages
+      : [modifiedMessages];
+    const newCorrelationIds: string[] = [];
+    for (const msg of batch) {
+      if (msg?.type === 'user_message') {
+        const cid = getUserMessageCorrelationId(msg);
+        if (cid) {
+          newCorrelationIds.push(cid);
+        }
+      }
+    }
+    this.setState((prevState: KoraChatState) => {
+      const nextMessages = KoreChat.append(prevState.messages, batch);
+      let pendingAckByMessageId = {...(prevState.pendingAckByMessageId || {})};
+      for (const cid of newCorrelationIds) {
+        pendingAckByMessageId[cid] = true;
+      }
+      historyMessages = nextMessages.length;
+      return {messages: nextMessages, pendingAckByMessageId};
+    });
+    for (const cid of newCorrelationIds) {
+      this.scheduleSendAgainAfterDelay(cid);
+    }
+  };
+
+  private scheduleSendAgainAfterDelay = (correlationId: string) => {
+    const existing = this.pendingAckSendAgainTimers[correlationId];
+    if (existing) {
+      clearTimeout(existing);
+    }
+    const timerId = setTimeout(() => {
+      // One-shot: clear map entry when firing so no stale handle remains.
+      if (this.pendingAckSendAgainTimers[correlationId] !== timerId) {
+        return;
+      }
+      delete this.pendingAckSendAgainTimers[correlationId];
+      this.setState((prev) => {
+        if (!prev.pendingAckByMessageId?.[correlationId]) {
+          return null;
+        }
+        return {
+          sendAgainVisibleByMessageId: {
+            ...(prev.sendAgainVisibleByMessageId || {}),
+            [correlationId]: true,
+          },
+        };
+      });
+    }, SEND_AGAIN_DELAY_MS);
+    this.pendingAckSendAgainTimers[correlationId] = timerId;
+  };
+
+  private clearPendingAckForCorrelationId = (correlationId: string) => {
+    const t = this.pendingAckSendAgainTimers[correlationId];
+    if (t) {
+      clearTimeout(t);
+      delete this.pendingAckSendAgainTimers[correlationId];
+    }
+    this.setState((prev) => {
+      const next = {...(prev.pendingAckByMessageId || {})};
+      delete next[correlationId];
+      const vis = {...(prev.sendAgainVisibleByMessageId || {})};
+      delete vis[correlationId];
+      return {pendingAckByMessageId: next, sendAgainVisibleByMessageId: vis};
+    });
+  };
+
+  private handleAckMessage = (data: any) => {
+    const ackId = getAckCorrelationId(data);
+    if (!ackId) {
+      return;
+    }
+    this.clearPendingAckForCorrelationId(ackId);
+  };
+
+  /**
+   * Resend the same RTM/Webhook request as the original send (same clientMessageId / id for
+   * WebSocket). Does not call processMessage — no duplicate row in the list.
+   */
+  private resendUserMessageSilently = (originalMessage: any) => {
+    if (this.props.onSend) {
+      const text = getUserMessagePlainText(originalMessage);
+      if (text) {
+        this.props.onSend(text, '');
+      }
+      return;
+    }
+
+    const client = KoreBotClient.getInstance() as any;
+    this.setIsBotResponseLoading(true);
+
+    if (this.props.botConfig?.isWebHook) {
+      const p = originalMessage?.message?.[0]?.component?.payload;
+      const text = getUserMessagePlainText(originalMessage) ?? '';
+      client.sendMessage(text, p?.payload, p?.attachments ?? '');
+      return;
+    }
+
+    const built = buildMessageToBotFromStoredUserMessage(
+      originalMessage,
+      client,
+    );
+    if (!built || typeof client.send !== 'function') {
+      return;
+    }
+    client.send(built.messageToBot);
+  };
+
+  private onResendUserMessage = (message: any) => {
+    const cid = getUserMessageCorrelationId(message);
+    const text = getUserMessagePlainText(message);
+    if (!text || !cid) {
+      return;
+    }
+
+    this.resendUserMessageSilently(message);
+
+    this.setState((prev) => {
+      const vis = {...(prev.sendAgainVisibleByMessageId || {})};
+      delete vis[cid];
+      return {sendAgainVisibleByMessageId: vis};
+    });
+    this.scheduleSendAgainAfterDelay(cid);
+  };
+
+  private onDeleteFailedUserMessage = (message: any) => {
+    const cid = getUserMessageCorrelationId(message);
+    if (cid) {
+      const t = this.pendingAckSendAgainTimers[cid];
+      if (t) {
+        clearTimeout(t);
+        delete this.pendingAckSendAgainTimers[cid];
+      }
+    }
+    this.setState((prev) => {
+      const nextPending = {...(prev.pendingAckByMessageId || {})};
+      const nextVis = {...(prev.sendAgainVisibleByMessageId || {})};
+      if (cid) {
+        delete nextPending[cid];
+        delete nextVis[cid];
+      }
+      const messages = prev.messages.filter((m) => {
+        if (m.type !== 'user_message') {
+          return true;
+        }
+        const mcid = getUserMessageCorrelationId(m);
+        if (cid && mcid === cid) {
+          return false;
+        }
+        if (
+          !cid &&
+          message?.timeMillis != null &&
+          m.timeMillis === message.timeMillis
+        ) {
+          return false;
+        }
+        return true;
+      });
+      return {
+        messages,
+        pendingAckByMessageId: nextPending,
+        sendAgainVisibleByMessageId: nextVis,
+      };
+    });
+  };
+
   private getMessages = () => {
     return this.state.messages;
   };
@@ -1084,6 +1273,10 @@ export default class KoreChat extends React.Component<
           isTyping={this.props.isTyping}
           onDragList={this.props.onDragList}
           onHistoryLoaded={this.onHistoryLoaded}
+          pendingAckByMessageId={this.state.pendingAckByMessageId}
+          sendAgainVisibleByMessageId={this.state.sendAgainVisibleByMessageId}
+          onResendUserMessage={this.onResendUserMessage}
+          onDeleteFailedUserMessage={this.onDeleteFailedUserMessage}
         />
         {(this.state.messageBottomSheet && this.state.showTemplateBottomSheet) && (
           this.renderTemplateBottomSheet()
@@ -1159,14 +1352,14 @@ export default class KoreChat extends React.Component<
         });
 
         this.onSend({
-          message: payload.message,
+          message: {text: payload.message.text, payload: ''},
           data: payload.data,
           shouldResetInputToolbar,
           data_type: payload.data_type,
         });
       } else {
         this.onSend({
-          message,
+          message: {text: message.text, payload: message.payload || ''},
           data: data,
           shouldResetInputToolbar,
           data_type,
@@ -1279,9 +1472,7 @@ export default class KoreChat extends React.Component<
   };
 
   private onSend = ({
-    message = {
-      text: '',
-    },
+    message = {text: '', payload: ''},
     data = undefined,
     shouldResetInputToolbar = true,
     data_type = '',
@@ -1299,7 +1490,7 @@ export default class KoreChat extends React.Component<
     } else {
       var messageData = KoreBotClient.getInstance()?.sendMessage(
         message.text,
-        data,
+        message.payload,
         data_type,
       );
       
@@ -1362,7 +1553,7 @@ export default class KoreChat extends React.Component<
           };
         }
 
-        this.onSend({message: {text: message}, data, data_type});
+        this.onSend({message: {text: message, payload: item?.payload || '' }, data, data_type});
         break;
       case 'web_url':
       case 'url':
@@ -1408,7 +1599,7 @@ export default class KoreChat extends React.Component<
       case 'bot_msz':
         if (item?.message && item?.payload) {
           this.onSend({
-            message: {text: item?.message},
+            message: {text: item?.message, payload: ''},
             data: item?.payload,
             data_type: type,
           });
@@ -1419,7 +1610,7 @@ export default class KoreChat extends React.Component<
           if (template_type == TEMPLATE_TYPES.IMAGE_MESSAGE) {
             Linking.openURL(item);
           } else {
-            this.onSend({message: {text: item}});
+            this.onSend({message: {text: item, payload: ''}});
           }
         }
     }
@@ -1443,8 +1634,7 @@ export default class KoreChat extends React.Component<
         return;
       }
     }
-    // console.log('Korachat template_type --->:', template_type);
-    // console.log('Korachat item --->:', item);
+
     switch (template_type) {
       case TEMPLATE_TYPES.BUTTON:
       case TEMPLATE_TYPES.CARD_TEMPLATE:
@@ -1464,16 +1654,16 @@ export default class KoreChat extends React.Component<
         if (!isFromViewMore) {
           this.computePostBack(item, template_type);
         }
-
         break;
+
       case TEMPLATE_TYPES.ADVANCED_LIST_TEMPLATE:
         if (!isFromViewMore) {
           this.computePostBack(item, template_type);
         } else {
           console.log('item ------->:', item);
         }
-
         break;
+        
       case TEMPLATE_TYPES.LIST_VIEW_TEMPLATE:
         if (!isFromViewMore) {
           this.computePostBack(item, template_type);
@@ -1502,7 +1692,6 @@ export default class KoreChat extends React.Component<
             },
           );
         }
-
         break;
         
       case TEMPLATE_TYPES.ARTICLE_TEMPLATE:
@@ -1514,8 +1703,8 @@ export default class KoreChat extends React.Component<
               showSeeMoreModal: true,
             },
           );
-
         break;
+
       case TEMPLATE_TYPES.LIST_TEMPLATE:
       case TEMPLATE_TYPES.CAROUSEL_TEMPLATE:
         this.computePostBack(item, template_type);
@@ -1682,7 +1871,7 @@ export default class KoreChat extends React.Component<
 
       onSendSTTClick: (isOnlyClearSTT: boolean) => {
         if (!isOnlyClearSTT) {
-          this.onSend({message: {text: this.state.onSTTValue}});
+          this.onSend({message: {text: this.state.onSTTValue, payload: ''}});
         }
 
         this.setState({
@@ -2454,7 +2643,7 @@ export default class KoreChat extends React.Component<
       case HeaderIconsId.LIVE_AGENT:
         setTimeout(() => {
           this.onSend({
-            message: {text: 'connect to agent'},
+            message: {text: 'connect to agent', payload: ''},
           });
         }, 1000);
         break;
@@ -2518,7 +2707,7 @@ export default class KoreChat extends React.Component<
               if (postUtterance) {
                 setTimeout(() => {
                   this.onSend({
-                    message: {text: postUtterance},
+                    message: {text: postUtterance, payload: ''},
                   });
                 }, 100);
               }

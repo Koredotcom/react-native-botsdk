@@ -38,8 +38,6 @@ export {
   FallbackVideo
 } from '../LazyVideo';
 
-// LazyCarousel removed - use direct dynamic imports in components
-
 // Lazy TTS components
 export { 
   LazyTTS,
@@ -109,10 +107,6 @@ export type {
   LazyVideoProps,
   VideoProps,
 } from '../LazyVideo';
-
-// LazyImagePicker types removed
-
-// LazyCarousel types removed
 
 export type {
   LazyTTSProps,

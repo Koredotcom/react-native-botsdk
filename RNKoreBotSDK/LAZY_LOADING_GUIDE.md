@@ -1,37 +1,55 @@
 # Comprehensive Lazy/Dynamic Dependency Loading Guide
 
-This comprehensive guide explains how to implement lazy loading for heavy React Native dependencies to reduce bundle size and improve app performance. Our implementation covers 8 major dependencies with a total bundle size reduction of ~340KB, providing significant performance improvements for React Native applications.
+This guide describes how the SDK defers loading of heavy native/React Native modules. **`bot-sdk/components/lazy-loading`** exports wrapper components and hooks for a defined set of packages (see the table below). Other features—**image picker**, **document picker**, and **carousel**—use **dynamic `import()`** at the call site when needed.
+
+Approximate impact depends on your bundler and tree-shaking; any size figures are **order-of-magnitude** guidance for the **initial JS bundle** when code is split correctly.
 
 ## Overview
 
-Lazy loading allows you to dynamically import heavy components only when they're needed, rather than bundling them with your main JavaScript bundle. This can significantly reduce your app's initial bundle size by ~340KB and improve startup performance.
+Lazy loading loads modules on demand instead of always pulling them into the main bundle. Use the **`lazy-loading`** index for the supported wrappers, and use **dynamic `import()`** for image picker, document picker, and carousel (for example in `CarouselTemplate`, `MiniTableTemplate`, and `PermissionsUtils.js`).
 
-## Supported Dependencies
+## What is exported from `lazy-loading` (canonical list)
 
-### **High Impact Components (50KB+ each)**
-- **react-native-video** (~60KB) - Video player component
-- ~~**react-native-image-picker** (~50KB) - Now uses direct dynamic imports in components~~
-- ~~**react-native-reanimated-carousel** (~55KB) - Now uses direct dynamic imports in components~~
-- **react-native-tts** (~45KB) - Text-to-speech functionality
-- **react-native-sound** (~40KB) - Audio playback functionality
-- **react-native-parsed-text** (~15KB) - Text parsing for links, emails, and custom patterns
+These are the symbols from `bot-sdk/components/lazy-loading/index.ts`:
 
-### **Medium Impact Components (20-50KB each)**
-- ~~**react-native-document-picker** (~35KB) - Now uses direct dynamic imports in components~~
-- **@react-native-community/datetimepicker** (~30KB) - Date and time picker
-- **@react-native-picker/picker** (~25KB) - Native picker component
-- **@react-native-voice/voice** (~40KB) - Speech recognition
+| Area | Package | Wrapper / API |
+|------|---------|----------------|
+| Core | — | `LazyLoader`, `DefaultLoader`, `ErrorFallback` |
+| Date/time | `@react-native-community/datetimepicker` | `LazyDateTimePicker`, `useLazyDateTimePicker`, `FallbackDateTimePicker`, `CustomDateTimePickerModal` |
+| Picker | `@react-native-picker/picker` | `LazyPicker`, `LazyPickerItem`, `useLazyPicker`, `FallbackPicker`, `FallbackPickerItem` |
+| Voice | `@react-native-voice/voice` | `LazyVoice`, `useLazyVoice`, `FallbackVoice` |
+| Video | `react-native-video` | `LazyVideo`, `useLazyVideo`, `FallbackVideo` |
+| TTS | `react-native-tts` | `LazyTTS`, `useLazyTTS`, `FallbackTTS` |
+| Popover | `react-native-popover-view` | `LazyPopover`, `useLazyPopover`, `FallbackPopover` |
+| Communications | `react-native-communications` | `LazyCommunications`, `useLazyCommunications`, `FallbackCommunications`, `FallbackCommunicationsAPI` |
+| Sound | `react-native-sound` | `LazySound`, `useLazySound`, `FallbackSound`, `FallbackSoundAPI` |
+| Parsed text | `react-native-parsed-text` | `LazyParsedText`, `useLazyParsedText`, `FallbackParsedText` |
+| Slider | `@react-native-community/slider` | `LazySlider`, `useLazySlider`, `FallbackSlider` |
 
-**Total Bundle Size Reduction: ~380KB** (Image Picker and Document Picker now use direct dynamic imports)
+## Image picker, document picker, and carousel (dynamic `import()`)
+
+These are loaded with **`import()`** when the feature runs. They are normal **`package.json`** dependencies.
+
+| Package | Typical use in this repo |
+|---------|---------------------------|
+| **react-native-image-picker** | `import('react-native-image-picker')` in permission fallbacks (`PermissionsUtils.js`) and wherever you launch camera/library |
+| **react-native-document-picker** | `import('react-native-document-picker')` at the call site when picking files |
+| **react-native-reanimated-carousel** | `import('react-native-reanimated-carousel')` in `CarouselTemplate` and `MiniTableTemplate` (state-held dynamic component) |
+
+## Other dependencies (static imports)
+
+- **`react-native-fast-image`** — imported directly in templates and chat components.
+- **`react-native-svg`** — imported where SVG rendering is needed.
+
+Those use ordinary static imports, so they follow Metro’s dependency graph like any other direct import.
 
 ## Benefits
 
-- **Massive Bundle Size Reduction**: ~380KB saved on initial app load
-- **Improved Performance**: Significantly faster app startup times
-- **Better User Experience**: Progressive loading with meaningful fallbacks
-- **Error Resilience**: Graceful handling when components fail to load
-- **Intelligent Caching**: Once loaded, components are cached for subsequent uses
-- **Selective Loading**: Only load the features your users actually use
+- **Smaller initial JS graph**: Heavy modules wrapped behind `LazyLoader.importModule` or dynamic `import()` load when first needed
+- **Improved startup**: Less work before first paint when those features are unused
+- **Progressive UX**: Loading and fallback UI while native modules resolve
+- **Error resilience**: Failed loads can show fallbacks instead of crashing the tree
+- **Caching**: `LazyLoader` caches successful imports by key for reuse
 
 ## Implementation
 
@@ -40,7 +58,7 @@ Lazy loading allows you to dynamically import heavy components only when they're
 The `LazyLoader` class provides utilities for dynamic imports with caching:
 
 ```typescript
-import { LazyLoader } from '../utils/LazyLoader';
+import { LazyLoader } from '../utils/LazyLoader'; // under bot-sdk
 
 // Dynamic import with caching for any dependency
 const Component = await LazyLoader.importModule(
@@ -51,25 +69,28 @@ const Component = await LazyLoader.importModule(
 
 ### 2. Available Lazy Components
 
-All lazy components follow the same pattern with class-based and hook-based APIs:
+Import from **`bot-sdk/components/lazy-loading`** (or your app’s re-export). Example:
 
 ```typescript
-import { 
-  LazyVideo, LazyTTS, LazySound, LazyParsedText,
-  LazyDateTimePicker, LazyPicker, LazyVoice,
-  // Hooks
-  useLazyVideo, useLazyTTS, useLazySound, useLazyParsedText,
-  useLazyDateTimePicker, useLazyPicker, useLazyVoice,
-  // Fallbacks
-  FallbackVideo, FallbackTTS, FallbackSound, FallbackParsedText,
-  FallbackDateTimePicker, FallbackPicker, FallbackVoice
+import {
+  LazyLoader,
+  LazyVideo, useLazyVideo, FallbackVideo,
+  LazyTTS, useLazyTTS, FallbackTTS,
+  LazySound, useLazySound, FallbackSound,
+  LazyParsedText, useLazyParsedText, FallbackParsedText,
+  LazyDateTimePicker, useLazyDateTimePicker, FallbackDateTimePicker,
+  LazyPicker, LazyPickerItem, useLazyPicker, FallbackPicker, FallbackPickerItem,
+  LazyVoice, useLazyVoice, FallbackVoice,
+  LazyPopover, useLazyPopover, FallbackPopover,
+  LazyCommunications, useLazyCommunications, FallbackCommunications, FallbackCommunicationsAPI,
+  LazySlider, useLazySlider, FallbackSlider,
+  CustomDateTimePickerModal,
 } from './lazy-loading';
 
-// For Image Picker, Document Picker, and Carousel, use direct dynamic imports:
-// Example in a component:
+// Example: image picker / document picker / carousel via dynamic import()
 // const { launchCamera } = await import('react-native-image-picker');
 // const DocumentPicker = await import('react-native-document-picker');
-// const Carousel = await import('react-native-reanimated-carousel');
+// const CarouselMod = await import('react-native-reanimated-carousel');
 ```
 
 ### 3. Component Usage Examples
@@ -84,7 +105,7 @@ import {
 />
 ```
 
-#### **Image Picker (Direct Dynamic Import)**
+#### **Image Picker (dynamic import)**
 ```typescript
 const handleImagePicker = async () => {
   try {
@@ -99,7 +120,7 @@ const handleImagePicker = async () => {
 };
 ```
 
-#### **Carousel (Direct Dynamic Import)**
+#### **Carousel (dynamic import)**
 ```typescript
 const CarouselComponent = await import('react-native-reanimated-carousel');
 <CarouselComponent
@@ -191,7 +212,7 @@ import { LazyParsedText, useLazyParsedText } from './lazy-loading';
 const { ParsedTextComponent, loadParsedText, loadError } = useLazyParsedText();
 ```
 
-#### **Document Picker (Direct Dynamic Import)**
+#### **Document Picker (dynamic import)**
 ```typescript
 const handleDocumentPicker = async () => {
   try {
@@ -294,7 +315,8 @@ const CustomError = ({ error }: { error: string }) => (
 ### Modal Usage (DateTimePicker)
 
 ```typescript
-import CustomDateTimePickerModal from './CustomDateTimePickerModal';
+import { CustomDateTimePickerModal } from './lazy-loading';
+// or: import CustomDateTimePickerModal from '../CustomDateTimePickerModal';
 
 const [showModal, setShowModal] = useState(false);
 const [selectedDate, setSelectedDate] = useState(new Date());
@@ -318,10 +340,9 @@ You can preload components to improve user experience:
 ```typescript
 // Preload frequently used components on app initialization
 useEffect(() => {
-  // Preload after 2 seconds to not impact initial load
   setTimeout(() => {
     LazyLoader.importModule(() => import('react-native-video'), 'video');
-    LazyLoader.importModule(() => import('react-native-image-picker'), 'imagepicker');
+    import('react-native-image-picker'); // optional preload
   }, 2000);
 }, []);
 ```
@@ -408,27 +429,22 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 # Analyze the bundle size before and after implementing lazy loading
 ```
 
-### Bundle Size Impact
+### Bundle Size Impact (illustrative)
 
-| Component | Before (Bundled) | After (Lazy) | Savings |
-|-----------|------------------|--------------|---------|
-| Video Player | 60KB | On-demand | 60KB |
-| Image Picker | 50KB | On-demand | 50KB |
-| Carousel | 55KB | On-demand | 55KB |
-| TTS | 45KB | On-demand | 45KB |
-| Sound Player | 40KB | On-demand | 40KB |
-| Document Picker | 35KB | On-demand | 35KB |
-| DateTimePicker | 30KB | On-demand | 30KB |
-| Picker | 25KB | On-demand | 25KB |
-| Voice Recognition | 40KB | On-demand | 40KB |
-| **Total** | **380KB** | **0KB initial** | **380KB** |
+| Module | How it is loaded | Notes |
+|--------|------------------|--------|
+| Video, TTS, Sound, ParsedText, DateTimePicker, Picker, Voice, Popover, Communications, Slider | `lazy-loading` wrappers | First use via `LazyLoader` |
+| Image picker, document picker, carousel | Dynamic `import()` at call site | See templates / `PermissionsUtils.js` |
+| Fast Image, SVG | Static `import` | Standard Metro graph |
+
+Treat totals as **guidance**, not guarantees—measure with your Metro setup.
 
 ### Communications (Phone, SMS, Email)
 
 The `react-native-communications` package is lazy-loaded to prevent crashes when not installed:
 
 ```typescript
-import { useLazyCommunications, FallbackCommunicationsAPI } from '';
+import { useLazyCommunications, FallbackCommunicationsAPI } from './lazy-loading';
 
 const ContactComponent = () => {
   const { phonecall, email, text, isLoading, loadError } = useLazyCommunications();
@@ -492,7 +508,7 @@ useEffect(() => {
   // Wait 2 seconds to not impact initial load
   setTimeout(() => {
     // Preload most commonly used components
-    LazyLoader.importModule(() => import('react-native-image-picker'), 'imagepicker');
+    import('react-native-image-picker'); // optional preload
     LazyLoader.importModule(() => import('@react-native-community/datetimepicker'), 'datetimepicker');
     LazyLoader.importModule(() => import('react-native-communications'), 'communications');
     
@@ -538,16 +554,21 @@ import Tts from 'react-native-tts';
 // All components loaded immediately, increasing bundle size
 ```
 
-**After (Lazy Loading):**
+**After (lazy-loading wrappers + dynamic imports where appropriate):**
 ```typescript
-import { 
-  LazyVideo, useLazyImagePicker, LazyDateTimePicker, LazyPicker,
-  useLazyVoice, useLazyDocumentPicker, LazyCarousel, useLazyTTS, useLazySound,
-  // Fallbacks for graceful degradation
-  FallbackVideo, FallbackImagePicker, FallbackDateTimePicker, FallbackSound
+import {
+  LazyVideo,
+  LazyDateTimePicker,
+  LazyPicker,
+  useLazyVoice,
+  useLazyTTS,
+  useLazySound,
+  FallbackVideo,
+  FallbackDateTimePicker,
+  FallbackSound,
 } from './lazy-loading';
 
-// Components loaded only when needed, reducing initial bundle size by ~380KB
+// const { launchImageLibrary } = await import('react-native-image-picker');
 ```
 
 ### Migration Examples
@@ -573,9 +594,8 @@ import { LazyVideo, FallbackVideo } from './lazy-loading';
 import { launchImageLibrary } from 'react-native-image-picker';
 const result = await launchImageLibrary({ mediaType: 'photo' });
 
-// After
-import { useLazyImagePicker } from './lazy-loading';
-const { launchImageLibrary } = useLazyImagePicker();
+// After: dynamic import
+const { launchImageLibrary } = await import('react-native-image-picker');
 const result = await launchImageLibrary({ mediaType: 'photo' });
 ```
 
@@ -629,38 +649,41 @@ const playAudio = async () => {
 When testing components that use lazy loading:
 
 ```typescript
-// Mock all lazy components for tests
+// Mock lazy-loading exports used by your tests
 jest.mock('./lazy-loading', () => ({
-  LazyVideo: ({ children, ...props }) => 
+  LazyVideo: ({ children, ...props }) =>
     <div data-testid="video-player" {...props}>{children}</div>,
-  LazyImagePicker: ({ children, ...props }) => 
-    <div data-testid="image-picker" {...props}>{children}</div>,
-  LazyCarousel: ({ children, ...props }) => 
-    <div data-testid="carousel" {...props}>{children}</div>,
-  LazyDateTimePicker: ({ children, ...props }) => 
+  LazyDateTimePicker: ({ children, ...props }) =>
     <div data-testid="date-picker" {...props}>{children}</div>,
-  LazyPicker: ({ children, ...props }) => 
+  LazyPicker: ({ children, ...props }) =>
     <div data-testid="picker" {...props}>{children}</div>,
-  LazyVoice: ({ children, ...props }) => 
+  LazyVoice: ({ children, ...props }) =>
     <div data-testid="voice" {...props}>{children}</div>,
-  LazyTTS: ({ children, ...props }) => 
+  LazyTTS: ({ children, ...props }) =>
     <div data-testid="tts" {...props}>{children}</div>,
-  LazySound: ({ children, ...props }) => 
+  LazySound: ({ children, ...props }) =>
     <div data-testid="sound-player" {...props}>{children}</div>,
-  LazyDocumentPicker: ({ children, ...props }) => 
-    <div data-testid="document-picker" {...props}>{children}</div>,
-  
-  // Mock hooks
+  LazyParsedText: ({ children, ...props }) =>
+    <div data-testid="parsed-text" {...props}>{children}</div>,
+  LazySlider: ({ children, ...props }) =>
+    <div data-testid="slider" {...props}>{children}</div>,
+  LazyPopover: ({ children, ...props }) =>
+    <div data-testid="popover" {...props}>{children}</div>,
+  LazyCommunications: ({ children, ...props }) =>
+    <div data-testid="communications" {...props}>{children}</div>,
+
   useLazyVideo: () => ({ VideoComponent: MockVideo, isLoading: false, loadError: null }),
-  useLazyImagePicker: () => ({ launchCamera: jest.fn(), launchImageLibrary: jest.fn(), isLoading: false }),
   useLazyVoice: () => ({ startRecognizing: jest.fn(), stopRecognizing: jest.fn(), isAvailable: true }),
   useLazyTTS: () => ({ speak: jest.fn(), stop: jest.fn(), isAvailable: true }),
   useLazySound: () => ({ createSound: jest.fn(), setCategory: jest.fn(), isLoading: false, loadError: null }),
-  useLazyDocumentPicker: () => ({ pick: jest.fn(), isLoading: false }),
   useLazyDateTimePicker: () => ({ DateTimePickerComponent: MockDateTimePicker, isLoading: false }),
   useLazyPicker: () => ({ PickerComponent: MockPicker, PickerItem: MockPickerItem, isLoading: false }),
-  useLazyCarousel: () => ({ CarouselComponent: MockCarousel, isLoading: false }),
 }));
+
+// Mock dynamic imports for image picker / document picker / carousel in tests:
+jest.mock('react-native-image-picker', () => ({ launchCamera: jest.fn(), launchImageLibrary: jest.fn() }));
+jest.mock('react-native-document-picker', () => ({ pick: jest.fn(), types: {} }));
+jest.mock('react-native-reanimated-carousel', () => 'Carousel');
 ```
 
 ## Best Practices
@@ -731,7 +754,7 @@ This comprehensive lazy loading implementation provides:
 
 - **Modular Architecture**: Each component is independently loadable
 - **Graceful Degradation**: Apps work even when components fail to load
-- **Performance Optimization**: Massive reduction in initial bundle size
+- **Performance optimization**: Deferring heavy modules until needed can shrink work on first load (measure in your app)
 - **Developer Experience**: Easy to implement and maintain
 - **User Experience**: Faster app startup with progressive feature loading
 - **Production Ready**: Comprehensive error handling and fallbacks

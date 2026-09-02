@@ -327,7 +327,7 @@ export default class AdvancedListTemplate extends BaseView<
                   return (
                     <View
                       key={i + ''}
-                      style={[styles.imageStyle1, { marginStart: 5, flex: 1 }]}>
+                      style={[styles.imageStyle1, { marginStart: 20, flex: 1 }]}>
                       {isLeft ? (
                         <View
                           style={{
@@ -404,8 +404,10 @@ export default class AdvancedListTemplate extends BaseView<
             </CollapsableContainer>
           </View>
         </Wrapper>
-        {this.renderTableListData(item)}
-        {item?.defaultIsCollapsed ? (
+        <CollapsableContainer expanded={!item?.isCollapsed}>
+            <View style={{}}>{this.renderTableListData(item)}</View>
+          </CollapsableContainer>
+        {item?.isCollapsed ? (
           <CollapsableContainer expanded={!item?.isCollapsed}>
             <View style={{}}>{this.renderOtherOptions(item)} {this.renderButtons(item)}</View>
           </CollapsableContainer>
@@ -489,7 +491,7 @@ export default class AdvancedListTemplate extends BaseView<
     if (title?.trim() === '') {
       title = null;
     }
-    const Wrapper: any = item?.defaultIsCollapsed ? TouchableOpacity : View;
+    const Wrapper: any = TouchableOpacity;
 
     let elementStyles: any;
     if (item?.elementStyles) {
@@ -717,7 +719,7 @@ export default class AdvancedListTemplate extends BaseView<
               }}>
               <TouchableOpacity
                 onPress={() => {
-                  this.props.onListItemClick(
+                                    this.props.onListItemClick(
                     this.props.payload?.template_type.trim(),
                     { ...item, item_type: item_type },
                   );
@@ -865,9 +867,6 @@ export default class AdvancedListTemplate extends BaseView<
       };
     });
     if (isRadio) {
-      let filterList = this.state.radioOtherOptions.filter(
-        (obj: any) => obj?.isChecked,
-      );
       const buttonTheme = getBubbleTheme(this.props.theme);
       return (
         <View style={{ backgroundColor: 'transparent' }}>
@@ -877,7 +876,7 @@ export default class AdvancedListTemplate extends BaseView<
             borderColor={buttonTheme.BUBBLE_LEFT_BG_COLOR}
             containerStyle={{
               alignItems: 'flex-start',
-              marginStart: 10,
+              marginStart: 20,
             }}
             // Optional: Set default colors for all radio buttons in this group
             // color="#FF6B6B"        // Red selected color
@@ -1119,10 +1118,11 @@ export default class AdvancedListTemplate extends BaseView<
                     }
                     
                     if (allSelections.length > 0) {
-                      let msz = button.title + ': ';
+                      let msz = ' ';
                       allSelections.map((obj: any) => {
                         msz = msz + obj.value + ',';
                       });
+                      msz = msz + (button.payload ? button.payload : button.title);
                       other = {
                         title: msz,
                         payload: msz,
@@ -1149,7 +1149,7 @@ export default class AdvancedListTemplate extends BaseView<
                   buttonAligment === 'fullwidth' && styles.full_width2,
 
                   buttonAligment === 'left' && {},
-                  {backgroundColor: item?.view == "options" ? index % 2 == 0 ? buttonTheme.BUBBLE_RIGHT_BG_COLOR : Color.transparent : '#E5E5FD'},
+                  {backgroundColor: item?.view == "options" ? index % 2 == 0 ? buttonTheme.BUBBLE_RIGHT_BG_COLOR : buttonTheme.BUBBLE_LEFT_BG_COLOR : '#E5E5FD'},
                   {borderColor: item?.view == "options" ? index % 2 == 0 ? buttonTheme.BUBBLE_RIGHT_BG_COLOR : buttonTheme.BUBBLE_LEFT_BG_COLOR : '#DEDDFC'}
                 ]}>
                 <View style={styles.btn_main_con}>
@@ -1374,10 +1374,7 @@ const styles = StyleSheet.create({
   },
   main: {
     flexDirection: 'column',
-    marginStart: 10,
-    marginEnd: 5,
-    paddingStart: 5,
-    padding: 5,
+    marginStart: 5,
   },
   check_box_text: {
     color: 'black',
@@ -1459,7 +1456,7 @@ const styles = StyleSheet.create({
     flex: 1,
     //marginEnd: 10,
   },
-  header_view_con: { flexDirection: 'row', marginTop: 5, padding: 10 },
+  header_view_con: { flexDirection: 'row', marginTop: 5, padding: 5 },
 
   item_button: {
     backgroundColor: '#E6E6FD',
@@ -1560,7 +1557,6 @@ const styles = StyleSheet.create({
 
   default_main_container: {
     borderRadius: 5,
-    paddingTop: 10,
     borderWidth: 1,
     borderColor: '#E4E5E7',
     width: '95%',

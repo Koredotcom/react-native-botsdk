@@ -54,6 +54,9 @@ export interface MessageProps {
   isDisplayTime: boolean;
   theme: IThemeType;
   fallbackBotIcon?: string | null;
+  showSendAgain?: boolean;
+  onSendAgain?: () => void;
+  onDeleteFailedMessage?: () => void;
 }
 
 const styles = {
@@ -270,6 +273,9 @@ export default class Message extends React.Component<MessageProps> {
       ...props,
       onListItemClick: this.props.onListItemClick,
       onSendText: this.props.onSendText,
+      showSendAgain: this.props.showSendAgain,
+      onSendAgain: this.props.onSendAgain,
+      onDeleteFailedMessage: this.props.onDeleteFailedMessage,
     };
 
     return <Bubble {...newProps} />;

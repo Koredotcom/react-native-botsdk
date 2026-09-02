@@ -188,6 +188,119 @@ export function isSameUser(
   );
 }
 
+/** Correlates outbound user messages with RTM ack (messageId, client id, or time). */
+export function getUserMessageCorrelationId(message: any): string | null {
+  if (!message || message.type !== 'user_message') {
+    return null;
+  }
+  if (message.messageId != null && message.messageId !== '') {
+    return String(message.messageId);
+  }
+  const clientId = message.message?.[0]?.clientMessageId;
+  if (clientId != null && clientId !== '') {
+    return String(clientId);
+  }
+  if (message.timeMillis != null) {
+    return String(message.timeMillis);
+  }
+  return null;
+}
+
+/** Extract id from RTM ack payload (shape varies by server). */
+export function getAckCorrelationId(ackData: any): string | null {
+  if (!ackData) {
+    return null;
+  }
+  // Kore RTM ack: { type: "ack", replyto: <clientMessageId>, ok: true, ... }
+  const direct =
+    ackData.replyto ??
+    ackData.replyTo ??
+    ackData.messageId ??
+    ackData.id ??
+    ackData.clientMessageId ??
+    ackData.msgId;
+  if (direct != null && direct !== '') {
+    return String(direct);
+  }
+  const nested = ackData.message;
+  if (nested && typeof nested === 'object') {
+    const n =
+      nested.messageId ?? nested.id ?? nested.clientMessageId ?? nested.msgId;
+    if (n != null && n !== '') {
+      return String(n);
+    }
+  }
+  return null;
+}
+
+/** Plain text from a user_message for resend (TEXT template path). */
+export function getUserMessagePlainText(message: any): string | null {
+  const p = message?.message?.[0]?.component?.payload;
+  if (!p) {
+    return null;
+  }
+  let text: any = p.text ?? p.payload?.text;
+  if (text && typeof text === 'object' && text.text) {
+    text = text.text;
+  }
+  return typeof text === 'string' && text.trim() ? text.trim() : null;
+}
+
+/** Same WebSocket payload as KoreBotClient.sendMessage, with original clientMessageId / id. */
+export function buildMessageToBotFromStoredUserMessage(
+  originalMessage: any,
+  client: {
+    getBotAccessToken: () => any;
+    getAccessToken: () => any;
+    getUserId: () => any;
+    getBotInfo: () => any;
+  },
+): {messageToBot: object} | null {
+  const clientMessageId =
+    originalMessage?.message?.[0]?.clientMessageId ??
+    originalMessage?.timeMillis;
+  if (clientMessageId == null) {
+    return null;
+  }
+  const p = originalMessage?.message?.[0]?.component?.payload;
+  if (!p) {
+    return null;
+  }
+  const messageFirstArg =
+    typeof p.text === 'string'
+      ? p.text
+      : p.text != null
+        ? String(p.text)
+        : '';
+  const payloadSecondArg = p.payload;
+  const body =
+    payloadSecondArg !== undefined && payloadSecondArg !== null
+      ? payloadSecondArg
+      : messageFirstArg;
+  const renderMsg =
+    payloadSecondArg !== undefined && payloadSecondArg !== null
+      ? messageFirstArg
+      : null;
+
+  const messageToBot = {
+    clientMessageId,
+    message: {
+      body,
+      renderMsg,
+      customData: {
+        botToken: client.getBotAccessToken(),
+        kmToken: client.getAccessToken(),
+        kmUId: client.getUserId(),
+      },
+    },
+    resourceid: '/bot.message',
+    botInfo: client.getBotInfo(),
+    id: clientMessageId,
+    client: Platform.OS,
+  };
+  return {messageToBot};
+}
+
 export const getItemId = (pattern?: any) => {
   var _pattern = pattern || 'xyxxyxxy';
   _pattern = _pattern.replace(/[xy]/g, function (c: any) {

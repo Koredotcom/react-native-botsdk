@@ -21,6 +21,10 @@ import KoreBotClient, {
 } from 'rn-kore-bot-socket-lib-v77';
 import { getWindowWidth } from '../../charts';
 import { LocalizationManager } from '../../constants/Localization';
+import {
+  getUserMessageCorrelationId,
+  getUserMessagePlainText,
+} from '../../utils/helpers';
 
 interface MessageContainerProps {
   //extends MessageProps {
@@ -57,6 +61,10 @@ interface MessageContainerProps {
   showAvatarForEveryMessage?: boolean;
   onPressAvatar?: (user: any) => void;
   onLongPressAvatar?: (user: any) => void;
+  pendingAckByMessageId?: Record<string, true>;
+  sendAgainVisibleByMessageId?: Record<string, true>;
+  onResendUserMessage?: (message: any) => void;
+  onDeleteFailedUserMessage?: (message: any) => void;
 }
 
 interface MessageContainerState {
@@ -118,6 +126,9 @@ const styles = StyleSheet.create({
   listStyle: {
     flex: 1,
   },
+  messageList: {
+    flex: 1,
+  },
   scrollToBottomStyle: {
     opacity: 0.8,
     position: 'absolute',
@@ -143,6 +154,12 @@ export default class MessageContainer extends PureComponent<
 > {
   private listLayoutHeight = 0;
   private listContentHeight = 0;
+  /** One scan per list paint; used by every visible row (avoid O(n²) getFallbackBotIcon). */
+  private rowRenderFallbackBotIcon: string | null = null;
+  /** Stable `extraData` reference when underlying ack / typing inputs are unchanged. */
+  private listExtraDataSig = '';
+  private listExtraDataRef: { sig: string } = { sig: '' };
+  private lastOnDragListTs = 0;
   static contextType = ThemeContext;
   static defaultProps = {
     messages: [],
@@ -182,8 +199,12 @@ export default class MessageContainer extends PureComponent<
   };
 
   scrollTo(options: { offset: number; animated?: boolean }): void {
-    if (this.props.forwardRef && this.props.forwardRef.current && options) {
-      this.props.forwardRef.current.scrollToOffset(options);
+    const ref = this.props.forwardRef?.current;
+    if (ref && options) {
+      ref.scrollToOffset({
+        offset: options.offset,
+        animated: options.animated,
+      });
     }
   }
 
@@ -206,24 +227,36 @@ export default class MessageContainer extends PureComponent<
     } = event;
     const { scrollToBottomOffset } = this.props;
     if (this.props.onDragList) {
-      this.props.onDragList();
+      const now = Date.now();
+      if (now - this.lastOnDragListTs >= 200) {
+        this.lastOnDragListTs = now;
+        this.props.onDragList();
+      }
     }
+    let nextShowScrollBottom = false;
     if (this.props.inverted) {
-      if (contentOffsetY > scrollToBottomOffset) {
-        this.setState({ showScrollBottom: true });
-      } else {
-        this.setState({ showScrollBottom: false });
-      }
+      nextShowScrollBottom = contentOffsetY > scrollToBottomOffset;
     } else {
-      if (
+      nextShowScrollBottom =
         contentOffsetY < scrollToBottomOffset &&
-        contentSizeHeight - layoutMeasurementHeight > scrollToBottomOffset
-      ) {
-        this.setState({ showScrollBottom: true });
-      } else {
-        this.setState({ showScrollBottom: false });
-      }
+        contentSizeHeight - layoutMeasurementHeight > scrollToBottomOffset;
     }
+    if (nextShowScrollBottom !== this.state.showScrollBottom) {
+      this.setState({ showScrollBottom: nextShowScrollBottom });
+    }
+  };
+
+  private getListExtraData = (): { sig: string } => {
+    const ack = this.props.pendingAckByMessageId;
+    const sendAgain = this.props.sendAgainVisibleByMessageId;
+    const ackKeys = ack ? Object.keys(ack).sort().join(',') : '';
+    const sendKeys = sendAgain ? Object.keys(sendAgain).sort().join(',') : '';
+    const sig = `${this.props.isTyping}\u0000${String(this.props.extraData)}\u0000${ackKeys}\u0000${sendKeys}`;
+    if (sig !== this.listExtraDataSig) {
+      this.listExtraDataSig = sig;
+      this.listExtraDataRef = { sig };
+    }
+    return this.listExtraDataRef;
   };
 
   private getFallbackBotIcon = (messages: any[]): string | null => {
@@ -288,13 +321,19 @@ export default class MessageContainer extends PureComponent<
         default:
           break;
       }
-      let totalLength = messages ? messages.length : 0;
-      item = {
-        ...item,
-        totalLength: totalLength,
-        itemIndex: index,
-        position: position,
-      };
+      const totalLength = messages ? messages.length : 0;
+
+      const correlationId = getUserMessageCorrelationId(item);
+      const pendingMap = this.props.pendingAckByMessageId || {};
+      const sendAgainVisibleMap =
+        this.props.sendAgainVisibleByMessageId || {};
+      const canResendText = !!getUserMessagePlainText(item);
+      const showSendAgain =
+        item.type === 'user_message' &&
+        !!correlationId &&
+        !!pendingMap[correlationId as string] &&
+        !!sendAgainVisibleMap[correlationId as string] &&
+        canResendText;
 
       const messageProps = {
         ...restProps,
@@ -310,6 +349,13 @@ export default class MessageContainer extends PureComponent<
         onSendText: this.props.onSendText,
         isDisplayTime: isDisplayTime,
         fallbackBotIcon: fallbackBotIcon ?? undefined,
+        showSendAgain,
+        onSendAgain: showSendAgain
+          ? () => this.props.onResendUserMessage?.(item)
+          : undefined,
+        onDeleteFailedMessage: showSendAgain
+          ? () => this.props.onDeleteFailedUserMessage?.(item)
+          : undefined,
       };
 
       if (this.props.renderMessage) {
@@ -403,7 +449,8 @@ export default class MessageContainer extends PureComponent<
     return false;
   };
 
-  onEndReached = (distanceFromEnd: number): void => {
+  private onEndReached = (info: { distanceFromEnd: number }): void => {
+    const distanceFromEnd = info?.distanceFromEnd ?? 0;
     const { loadEarlier, onLoadEarlier, infiniteScroll, isLoadingEarlier } =
       this.props;
     if (
@@ -488,6 +535,9 @@ export default class MessageContainer extends PureComponent<
 
   render() {
     const { inverted } = this.props;
+    this.rowRenderFallbackBotIcon = this.getFallbackBotIcon(
+      this.props.messages ?? [],
+    );
     return (
       <View
         style={[
@@ -527,9 +577,9 @@ export default class MessageContainer extends PureComponent<
         </TouchableOpacity>
         <FlatList
           ref={this.props.forwardRef}
-          extraData={[this.props.extraData, this.props.isTyping]}
+          style={styles.messageList}
+          extraData={this.getListExtraData()}
           keyExtractor={this.keyExtractor}
-          enableEmptySections
           automaticallyAdjustContentInsets={false}
           inverted={inverted}
           showsVerticalScrollIndicator={false}
@@ -554,9 +604,14 @@ export default class MessageContainer extends PureComponent<
           scrollEnabled={true}
           keyboardShouldPersistTaps="always"
           keyboardDismissMode="on-drag"
-          estimatedItemSize={100}
+          estimatedItemSize={120}
           contentInsetAdjustmentBehavior="scrollableAxes"
           scrollIndicatorInsets={{ top: 0, left: 20, bottom: 0, right: 0 }}
+          removeClippedSubviews={false}
+          windowSize={21}
+          maxToRenderPerBatch={12}
+          updateCellsBatchingPeriod={50}
+          initialNumToRender={16}
           onContentSizeChange={(w, h) => {
             if (
               typeof h === 'number' &&

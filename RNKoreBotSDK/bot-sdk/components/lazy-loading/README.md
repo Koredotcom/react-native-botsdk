@@ -1,162 +1,49 @@
 # Lazy Loading Implementation
 
-This directory contains a complete implementation of lazy/dynamic loading for heavy React Native dependencies to reduce bundle size and improve app performance.
+This directory exposes **`index.ts`**, the public entry for lazy/dynamic loading of several heavy dependencies. See **`LAZY_LOADING_GUIDE.md`** at the SDK root for full documentation.
 
-## Supported Components
+## What `index.ts` exports
 
-### **High Impact (40KB+ each)**
-- **react-native-video** (~60KB) - Video player component
-- **react-native-image-picker** (~50KB) - Image selection from camera/gallery
-- **react-native-reanimated-carousel** (~55KB) - Advanced carousel component
-- **react-native-tts** (~45KB) - Text-to-speech functionality
-- **react-native-svg** (~40KB) - SVG rendering library
+`index.ts` re-exports wrappers and hooks for:
 
-### **Medium Impact (20-40KB each)**  
-- **react-native-document-picker** (~35KB) - Document selection
-- **react-native-fast-image** (~35KB) - Optimized image component
-- **@react-native-community/datetimepicker** (~30KB) - Date and time picker
-- **@react-native-picker/picker** (~25KB) - Native picker component
-- **react-native-popover-view** (~25KB) - Popover/tooltip component
-- **@react-native-voice/voice** (~40KB) - Speech recognition
+- **Video** (`react-native-video`)
+- **TTS** (`react-native-tts`)
+- **Sound** (`react-native-sound`)
+- **Parsed text** (`react-native-parsed-text`)
+- **Date/time picker** (`@react-native-community/datetimepicker`) + `CustomDateTimePickerModal`
+- **Picker** (`@react-native-picker/picker`)
+- **Voice** (`@react-native-voice/voice`)
+- **Popover** (`react-native-popover-view`)
+- **Communications** (`react-native-communications`)
+- **Slider** (`@react-native-community/slider`)
+- **Core** — `LazyLoader`, `DefaultLoader`, `ErrorFallback` from `bot-sdk/utils/LazyLoader.tsx`
 
-### **Lower Impact (10-20KB each)**
-- **react-native-communications** (~15KB) - Phone/SMS/Email functionality
-- **react-native-orientation-locker** (~15KB) - Screen orientation control
+## Image picker, document picker, and carousel
 
-## Quick Start
+These are loaded with **dynamic `import()`** at the call site (see `PermissionsUtils.js`, `CarouselTemplate`, `MiniTableTemplate`). They are normal **`package.json`** dependencies and are not listed in `index.ts`.
+
+## Other dependencies (static imports)
+
+- **`react-native-fast-image`** — imported statically across templates and chat UI.
+- **`react-native-svg`** — imported where SVG rendering is required.
+
+## Quick start
 
 ```typescript
-import { 
+import {
   LazyVideo,
-  LazyTTS,
-  LazyDateTimePicker, 
-  LazyPicker, 
-  LazyVoice,
-  // Fallbacks
+  useLazyVideo,
   FallbackVideo,
-  FallbackTTS,
-  FallbackDateTimePicker,
-  FallbackPicker,
-  FallbackVoice
+  LazyParsedText,
+  LazySlider,
+  LazyPopover,
+  LazyCommunications,
 } from './lazy-loading';
 
-// For Image Picker, Document Picker, and Carousel, use direct dynamic imports:
-// const { launchCamera } = await import('react-native-image-picker');
-// const DocumentPicker = await import('react-native-document-picker');
-// const Carousel = await import('react-native-reanimated-carousel');
-
-// Video Player
-<LazyVideo
-  source={{ uri: videoUrl }}
-  style={{ width: 300, height: 200 }}
-  fallbackComponent={FallbackVideo}
-/>
-
-// Image Picker (Direct Dynamic Import)
 const { launchCamera } = await import('react-native-image-picker');
-await launchCamera({ mediaType: 'photo' }, handleImageResponse);
-
-// Carousel (Direct Dynamic Import)
-const CarouselComponent = await import('react-native-reanimated-carousel');
-<CarouselComponent
-  data={carouselData}
-  renderItem={renderCarouselItem}
-/>
-
-// Text-to-Speech (Hook)
-const { speak, stop } = useLazyTTS();
-await speak("Hello world!");
-
-// Document Picker (Direct Dynamic Import)
-const DocumentPicker = await import('react-native-document-picker');
-const docs = await DocumentPicker.pick({ type: ['pdf', 'doc'] });
 ```
 
-## Files Overview
+## Files
 
-- **`index.ts`** - Main export file for all lazy loading components
-- **`LazyLoader.tsx`** - Core utility for dynamic imports with caching
-- **`LazyDateTimePicker.tsx`** - Lazy-loaded DateTimePicker component
-- **`LazyPicker.tsx`** - Lazy-loaded Picker component
-- **`LazyVoice.tsx`** - Lazy-loaded Voice recognition component
-- **`CustomDateTimePickerModal.tsx`** - Updated modal with lazy loading
-- **`LazyComponentsExample.tsx`** - Comprehensive usage examples
-- **`LAZY_LOADING_GUIDE.md`** - Complete documentation
-
-## Key Features
-
-✅ **Bundle Size Reduction** - Components loaded only when needed  
-✅ **Caching** - Once loaded, components are cached for reuse  
-✅ **Fallback Support** - Graceful handling when loading fails  
-✅ **Loading States** - Customizable loading and error components  
-✅ **TypeScript Support** - Full type safety  
-✅ **Platform Agnostic** - Works on iOS, Android, and Web  
-✅ **Hook Support** - Both class and hook-based APIs
-
-## Usage Patterns
-
-### 1. Direct Component Usage
-```typescript
-import { LazyPicker, FallbackPicker } from './lazy-loading';
-
-<LazyPicker
-  selectedValue={value}
-  onValueChange={handleChange}
-  fallbackComponent={FallbackPicker}
->
-  <LazyPicker.Item label="Option 1" value="1" />
-</LazyPicker>
-```
-
-### 2. Hook-based Usage
-```typescript
-import { useLazyVoice } from './lazy-loading';
-
-const { startRecognizing, isAvailable, isLoading } = useLazyVoice({
-  onSpeechResults: handleResults,
-  onSpeechError: handleError,
-});
-```
-
-### 3. Modal Usage (DateTimePicker)
-```typescript
-import { CustomDateTimePickerModal } from './lazy-loading';
-
-<CustomDateTimePickerModal
-  isVisible={showModal}
-  mode="date"
-  onConfirm={handleConfirm}
-  onCancel={handleCancel}
-/>
-```
-
-## Performance Impact
-
-- **Before**: All components included in main bundle (~150KB+)
-- **After**: Loaded dynamically when first used
-- **Cache**: Subsequent uses are instant (cached)
-- **Fallbacks**: Graceful degradation when components fail to load
-
-## Bundle Size Savings
-
-| Component | Bundle Size | Lazy Loading Savings |
-|-----------|-------------|---------------------|
-| **High Impact** | | |
-| Video Player | ~60KB | ✅ 60KB saved |
-| Image Picker | ~50KB | ✅ 50KB saved (direct imports) |
-| Carousel | ~55KB | ✅ 55KB saved (direct imports) |
-| TTS | ~45KB | ✅ 45KB saved |
-| SVG | ~40KB | ✅ 40KB saved |
-| **Medium Impact** | | |
-| Document Picker | ~35KB | ✅ 35KB saved (direct imports) |
-| Fast Image | ~35KB | ✅ 35KB saved |
-| DateTimePicker | ~30KB | ✅ 30KB saved |
-| Picker | ~25KB | ✅ 25KB saved |
-| Popover | ~25KB | ✅ 25KB saved |
-| Voice Recognition | ~40KB | ✅ 40KB saved |
-| **Lower Impact** | | |
-| Communications | ~15KB | ✅ 15KB saved |
-| Orientation | ~15KB | ✅ 15KB saved |
-| **Total** | **~470KB** | **✅ 470KB saved** |
-
-See `LAZY_LOADING_GUIDE.md` for complete documentation and best practices.
+- **`index.ts`** — Public exports (source of truth for the API surface)
+- **`LAZY_LOADING_GUIDE.md`** — SDK root guide (architecture, migration, troubleshooting)
