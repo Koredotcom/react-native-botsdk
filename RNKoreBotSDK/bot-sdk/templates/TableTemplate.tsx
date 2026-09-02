@@ -63,9 +63,13 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
 
   private updatePayloadValues() {
     let payload = this.props.payload;
+    const sourceElements = Array.isArray(payload?.elements)
+      ? payload.elements
+      : [];
 
-    const elements = payload?.elements.slice(0, 3).map((element: any) => {
-      let values = element.Values.map((value: any, i: number) => {
+    const elements = sourceElements.slice(0, 3).map((element: any) => {
+      const rowValues = Array.isArray(element?.Values) ? element.Values : [];
+      let values = rowValues.map((value: any, i: number) => {
         return {
           value: value,
           title: payload?.columns?.[i]?.[0],
@@ -145,7 +149,8 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
       let view = (
         <View key={i + '__' + i} style={styles.tr_con}>
           <View style={styles.tr_con_2}>
-            {elements[i].Values.slice(0, SLICE).map(
+            {(Array.isArray(elements[i]?.Values) ? elements[i].Values : [])
+              .slice(0, SLICE).map(
               (value: any, index: number) => {
                 return (
                   <TouchableOpacity
@@ -220,7 +225,10 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
 
   private toggleButton = (index: number, isCollapse: boolean) => {
     let payload = this.state.payload;
-    payload.elements = payload?.elements.map((element: any, i: number) => {
+    if (!Array.isArray(payload?.elements)) {
+      return;
+    }
+    payload.elements = payload.elements.map((element: any, i: number) => {
       if (index === i) {
         return {
           ...element,
@@ -239,8 +247,9 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
 
   private renderTableItems1 = (element: any) => {
     const renderedItems: any = [];
+    const values = Array.isArray(element?.Values) ? element.Values : [];
     {
-      for (let i = 1; i <= element.Values.length / SLICE; i++) {
+      for (let i = 1; i <= values.length / SLICE; i++) {
         renderedItems.push(
           this.renderTableItems(element, i * SLICE, i * SLICE + SLICE, i),
         );
@@ -257,7 +266,8 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
   ): any => {
     return (
       <View key={i + ' ' + i + '_'} style={styles.ti_con}>
-        {element.Values.slice(fromValue, toValue).map(
+        {(Array.isArray(element?.Values) ? element.Values : [])
+          .slice(fromValue, toValue).map(
           (value: any, index: number) => {
             return (
               <View key={index + ''} style={{flex: 1}}>
@@ -330,20 +340,21 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
           horizontal={true}>
           <View style={[styles.subContainer_more,{borderColor:btheme?.BUBBLE_LEFT_BG_COLOR}]}>
             <View style={[styles.subContainer2_more]}>
-              {payload?.columns.map((coloum: any, i: number) => {
-                flexArry[i] = coloum[0].length;
+              {(Array.isArray(payload?.columns) ? payload.columns : []).map(
+                (coloum: any, i: number) => {
+                flexArry[i] = coloum?.[0]?.length;
                 return (
                   <Text
                     key={i + ''}
                     style={[
                       styles.titles,
-                      {flex: coloum[0].length, color: Color.black},
+                      {flex: coloum?.[0]?.length, color: Color.black},
                       {
                         fontFamily: this.props?.theme?.v3?.body?.font?.family,
                       },
                       botStyles.small?.size,
                     ]}>
-                    {coloum[0]}
+                    {coloum?.[0]}
                   </Text>
                 );
               })}
@@ -373,7 +384,7 @@ export default class TableTemplate extends BaseView<TableProps, TableState> {
               flexDirection: 'row',
               backgroundColor: isEvenRow ? btheme?.BUBBLE_LEFT_BG_COLOR : 'white'
             }}>
-            {elements[i].Values.map((value: any, index: number) => {
+            {(Array.isArray(elements[i]?.Values) ? elements[i].Values : []).map((value: any, index: number) => {
               return (
                 <View
                   key={index + ''}

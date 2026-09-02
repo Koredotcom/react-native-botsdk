@@ -152,17 +152,21 @@ const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
       <TouchableOpacity onPress={handlePress} disabled={disabled} activeOpacity={0.7}>
         <Animated.View style={boxStyle}>
           {isSelected && (
-            <Animated.Text
+            <Animated.View
+              pointerEvents="none"
               style={[
                 styles.checkmark,
                 {
-                  color: effectiveCheckColor,
                   opacity: animatedValue,
-                  fontSize: effectiveSize * 0.7, // Scale checkmark with checkbox size
+                  width: effectiveSize * 0.46,
+                  height: effectiveSize * 0.24,
+                  borderLeftColor: effectiveCheckColor,
+                  borderBottomColor: effectiveCheckColor,
+                  borderLeftWidth: Math.max(2, effectiveSize * 0.09),
+                  borderBottomWidth: Math.max(2, effectiveSize * 0.09),
                 },
-              ]}>
-              ✓
-            </Animated.Text>
+              ]}
+            />
           )}
         </Animated.View>
       </TouchableOpacity>
@@ -179,11 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   checkmark: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    includeFontPadding: false,
-    textAlignVertical: 'center',
+    transform: [{rotate: '-45deg'}],
   },
 });
 

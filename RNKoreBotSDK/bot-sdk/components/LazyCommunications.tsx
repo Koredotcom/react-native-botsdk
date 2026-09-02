@@ -4,7 +4,7 @@ import { LazyLoader, DefaultLoader, ErrorFallback } from '../utils/LazyLoader';
 
 // Type definitions for the lazy-loaded Communications
 export interface CommunicationsModule {
-  phonecall: (phoneNumber: string, prompt?: boolean) => void;
+  phonecall: (phoneNumber: string, isPrompt: boolean) => void;
   email: (to?: string[], cc?: string[], bcc?: string[], subject?: string, body?: string) => void;
   text: (phoneNumber?: string, body?: string) => void;
   web: (url: string) => void;

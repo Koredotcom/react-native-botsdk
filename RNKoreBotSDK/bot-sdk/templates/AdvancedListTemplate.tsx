@@ -1101,8 +1101,15 @@ export default class AdvancedListTemplate extends BaseView<
           ]}>
           {listItems?.map((button: any, index: number) => {
             return (
-              <TouchableOpacity
-                key={index + ''}
+              <View
+                key={index + '_button_wrapper'}
+                style={
+                  buttonAligment === 'fullwidth'
+                    ? styles.full_width_button_spacing
+                    : undefined
+                }>
+                <TouchableOpacity
+                  key={index + ''}
                 onPress={() => {
                   if (this.props.onListItemClick) {
                     let other = {};
@@ -1183,7 +1190,8 @@ export default class AdvancedListTemplate extends BaseView<
                     {button.title}
                   </Text>
                 </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
             );
           })}
 
@@ -1406,7 +1414,15 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   full_width2: {
-    flex: 1,
+    alignSelf: 'stretch',
+    flexGrow: 0,
+    marginBottom: 0,
+    marginTop: 0,
+    width: '100%',
+  },
+  full_width_button_spacing: {
+    paddingVertical: 5,
+    width: '100%',
   },
   right1: {
     //flex: 1,
@@ -1503,8 +1519,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     padding: 5,
-    marginBottom: 2,
+    marginBottom: 5,
     marginLeft: 10,
+    marginTop: 5,
   },
   button_container2: {
     flexDirection: 'row',
@@ -1517,8 +1534,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     padding: 5,
-    marginBottom: 2,
+    marginBottom: 5,
     marginLeft: 10,
+    marginTop: 5,
   },
   button_container: {
     marginRight: 10,

@@ -50,6 +50,13 @@ import KoreBotClient, {
   ActiveThemeAPI,
   ApiService,
 } from 'rn-kore-bot-socket-lib-v79';
+
+// Extend KoreBotClient type to include event emitter methods
+interface ExtendedKoreBotClient extends KoreBotClient {
+  once(event: string, listener: (...args: any[]) => void): this;
+  on(event: string, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string): this;
+}
 import {TEMPLATE_STYLE_VALUES} from '../theme/styles';
 import {
   getDrawableByExt,
@@ -145,6 +152,8 @@ interface KoraChatProps {
   renderQuickRepliesView?: any;
   renderChatHeader?: any;
   onHeaderActionsClick?: any;
+  /** Called after the default Close action sends its bot-side close event. */
+  onClose?: () => void;
   navigation?: any;
   route?: any;
   statusBarColor?: (colorCode: any) => void;
@@ -180,6 +189,8 @@ interface KoraChatState {
   wlcomeModalVisible?: boolean;
   currentTemplateHeading?: any;
   themeData?: IThemeType;
+  /** Keeps the default UI from rendering before branding is resolved. */
+  isThemeLoaded?: boolean;
   isTTSenable?: boolean;
   isReconnecting?: boolean;
   showBackButtonDialog?: boolean;
@@ -311,6 +322,7 @@ export default class KoreChat extends React.Component<
       currentTemplate: null,
       currentTemplateData: null,
       activetheme: null,
+      isThemeLoaded: false,
       wlcomeModalVisible: false,
       currentTemplateHeading: undefined,
       isReconnecting: false,
@@ -340,7 +352,7 @@ export default class KoreChat extends React.Component<
   private lazyDocumentPicker = async () => {
     try {
       const DocumentPickerModule = await import('@react-native-documents/picker');
-      return DocumentPickerModule;
+      return DocumentPickerModule.default || DocumentPickerModule;
     } catch (error) {
       console.warn('Failed to load DocumentPicker:', error);
       return null;
@@ -350,7 +362,7 @@ export default class KoreChat extends React.Component<
   private getDocumentPickerTypes = async () => {
     try {
       const DocumentPickerModule = await import('@react-native-documents/picker');
-      const DocumentPicker = DocumentPickerModule;
+      const DocumentPicker = DocumentPickerModule.default || DocumentPickerModule;
       return DocumentPicker?.types || {};
     } catch (error) {
       console.warn('Failed to load DocumentPicker types:', error);
@@ -418,7 +430,7 @@ export default class KoreChat extends React.Component<
       return;
     }
     console.log('this.props.botConfig ------>:', this.props.botConfig);
-    const botClient = KoreBotClient.getInstance();
+    const botClient = KoreBotClient.getInstance() as ExtendedKoreBotClient;
 
     botClient.setAppState(APP_STATE.ACTIVE);
     botClient
@@ -430,6 +442,16 @@ export default class KoreChat extends React.Component<
 
     botClient
       .on(RTM_EVENT.ERROR, (data?: any) => {
+        if (this.state.isReconnecting || !this.state.isThemeLoaded) {
+          this.setState({
+            isReconnecting: false,
+            showLoader: false,
+            // If the connection fails before branding is returned, allow the
+            // default theme to render instead of leaving the chat blocked.
+            isThemeLoaded: true,
+          });
+        }
+
         let message = data?.message
           ? data?.message
           : 'Connection to the bot failed. Please ensure your configuration is valid and try again.';
@@ -462,11 +484,6 @@ export default class KoreChat extends React.Component<
         if (this.state.isReconnecting) {
           this.setState({
             isReconnecting: false,
-            showLoader: false,
-          });
-        } else if (this.state.showLoader) {
-          this.setState({
-            showLoader: false,
           });
         }
 
@@ -527,12 +544,14 @@ export default class KoreChat extends React.Component<
         this.setState({
           showLoader: false,
           themeData: data,
+          isThemeLoaded: true,
         });
       } else {
         this.saveThemeData(null);
         this.setState({
           showLoader: false,
           themeData: undefined,
+          isThemeLoaded: true,
         });
       }
     });
@@ -558,12 +577,21 @@ export default class KoreChat extends React.Component<
   };
 
   private handleDialogClose = () => {
-    isMinimizedWindow = false
+    isMinimizedWindow = false;
     this.setState({ showBackButtonDialog: false });
-    if (isAgentConnect) {
-      KoreBotClient.getInstance().sendEvent('close_agent_chat');
-    } else {
-      KoreBotClient.getInstance().sendEvent('close_button_event');
+    try {
+      if (isAgentConnect) {
+        KoreBotClient.getInstance().sendEvent('close_agent_chat');
+      } else {
+        KoreBotClient.getInstance().sendEvent('close_button_event');
+      }
+    } catch (error) {
+      console.warn('Unable to send the close event:', error);
+    }
+
+    if (this.props.onClose) {
+      this.props.onClose();
+      return;
     }
     
     setTimeout(() => {
@@ -644,9 +672,8 @@ export default class KoreChat extends React.Component<
   };
 
   componentWillUnmount() {
-    this._unsubscribeConn?.();
     this.setisChatMounted(false);
-    const botClient = KoreBotClient.getInstance();
+    const botClient = KoreBotClient.getInstance() as ExtendedKoreBotClient;
     botClient.removeAllListeners(RTM_EVENT.CONNECTING);
     botClient.removeAllListeners(RTM_EVENT.ON_OPEN);
     botClient.removeAllListeners(RTM_EVENT.ON_MESSAGE);
@@ -676,7 +703,7 @@ export default class KoreChat extends React.Component<
   }
 
   private setBotClientListeners = () => {
-    const botClient = KoreBotClient.getInstance();
+    const botClient = KoreBotClient.getInstance() as ExtendedKoreBotClient;
     botClient
       ?.on(RTM_EVENT.ON_ACK, (data: any) => {
         if (data.type === 'ack') {
@@ -690,6 +717,9 @@ export default class KoreChat extends React.Component<
       });
     botClient
       ?.on(RTM_EVENT.ON_MESSAGE, (data: any) => {
+        // if (data) {
+        //   console.log('Bot Response Data ------->:', JSON.stringify(data, null, 2));
+        // }
         if (data.type === 'ack') {
           console.log('Received ACK message, setting loading state');
           this.setIsBotResponseLoading(true);
@@ -716,7 +746,19 @@ export default class KoreChat extends React.Component<
     }
     this.setState({isReconnecting: true}, () => {
       const botClient = KoreBotClient.getInstance();
-      botClient.reconnect(true, true);
+      try {
+        Promise.resolve(botClient.reconnect(true, true)).catch(() => {
+          this.setState({
+            isReconnecting: false,
+            showLoader: false,
+          });
+        });
+      } catch (error) {
+        this.setState({
+          isReconnecting: false,
+          showLoader: false,
+        });
+      }
     });
   };
 
@@ -739,46 +781,9 @@ export default class KoreChat extends React.Component<
   };
 
   private processMessage = (newMessages: any) => {
-    console.log('processMessage ------->:', JSON.stringify(newMessages, null, 2));
+    
     let modifiedMessages: any = null;
     const itemId = getItemId();
-
-    const isStreamChunk = newMessages?.sM === true && newMessages?.type === 'bot_response';
-    const streamText = isStreamChunk && newMessages?.message?.[0]?.component?.payload?.text;
-    const endChunk = isStreamChunk && newMessages?.endChunk === true;
-    const completeResponse = newMessages?.completeResponse;
-    if (isStreamChunk && (streamText != null || endChunk)) {
-      const messageId = newMessages.messageId;
-      this.setMessages((prevMessages) => {
-        const messages = prevMessages || [];
-        const idx = messages.findIndex((m: any) => m.messageId === messageId && m.type === 'bot_response');
-        if (idx >= 0) {
-          const prev = messages[idx];
-          const prevPayload = prev?.message?.[0]?.component?.payload;
-          const prevText = (prevPayload?.text ?? '') || '';
-          const prevCInfo = prev?.message?.[0]?.cInfo;
-          const prevBody = (prevCInfo?.body ?? '') || '';
-          const nextMessages = messages.slice();
-          const nextMessage = { ...prev };
-          const nextMsgEntry = nextMessage.message?.[0] ? { ...nextMessage.message[0] } : null;
-          if (nextMsgEntry?.component?.payload) {
-            nextMsgEntry.component = { ...nextMsgEntry.component, payload: { ...nextMsgEntry.component.payload, text: prevText + (streamText ?? '') } };
-            if (nextMsgEntry.cInfo) nextMsgEntry.cInfo = { ...nextMsgEntry.cInfo, body: prevBody + (streamText ?? '') };
-            nextMessage.message = [nextMsgEntry];
-            nextMessages[idx] = nextMessage;
-            return nextMessages;
-          }
-        }
-
-        const modifiedMessages = [{ ...newMessages, itemId }];
-        return KoreChat.append(messages, modifiedMessages);
-      });
-      if (endChunk && completeResponse != null) {
-        const ttsPayload = { ...newMessages, message: [{ component: { payload: { payload: { text: completeResponse }, text: completeResponse } } }] };
-        setTimeout(() => this.textToSpeech(ttsPayload), 1000);
-      }
-      return;
-    }
 
     const hasRealAttachments = newMessages?.message?.[0]?.component?.payload?.attachments && 
                               newMessages?.message?.[0]?.component?.payload?.attachments !== "attachments" &&
@@ -827,18 +832,11 @@ export default class KoreChat extends React.Component<
         }  
       }
     }
-
-    // if (modifiedMessages && modifiedMessages[0].from === 'bot' && modifiedMessages[0].message && 
-    //     modifiedMessages[0].message[0].component && modifiedMessages[0].message[0].component.payload &&
-    //     !modifiedMessages[0].message[0].component.payload.payload && !modifiedMessages[0].message[0].component.payload.text)
-    //       return
     
     this.setMessages(KoreChat.append(this.state.messages, modifiedMessages))
-        if (!isStreamChunk) {
-          setTimeout(() => {
-            this.textToSpeech(newMessages);
-          }, 1000);
-        }
+        setTimeout(() => {
+          this.textToSpeech(newMessages);
+        }, 1000);
   };
   private stopTTS = async () => {
     if (!this.ttsModule || !this.isTTSAvailable) {
@@ -1005,15 +1003,9 @@ export default class KoreChat extends React.Component<
     return this.props.text;
   };
 
-  private setMessages = (messagesOrUpdater: any[] | ((prev: any[]) => any[])) => {
-    this.setState((prevState: KoraChatState) => {
-      const nextMessages =
-        typeof messagesOrUpdater === 'function'
-          ? messagesOrUpdater(prevState.messages || [])
-          : messagesOrUpdater;
-      historyMessages = nextMessages.length;
-      return { messages: nextMessages };
-    });
+  private setMessages = (messages: any[]) => {
+    historyMessages = messages.length;
+    this.setState({messages});
   };
 
   private getMessages = () => {
@@ -1342,13 +1334,6 @@ export default class KoreChat extends React.Component<
           if (item?.renderMsg) {
             message = item?.renderMsg;
           }
-
-          if (item?.payload !== undefined && item?.payload !== null) {
-            message =
-              typeof item.payload === 'string'
-                ? item.payload
-                : (item.payload?.name ?? message);
-          }
         }
 
         let data_type = '';
@@ -1468,7 +1453,6 @@ export default class KoreChat extends React.Component<
       case TEMPLATE_TYPES.RESET_PIN_TEMPLATE:
       case TEMPLATE_TYPES.LISTWIDGET_TEMPLATE:
       case TEMPLATE_TYPES.IMAGE_MESSAGE:
-      case TEMPLATE_TYPES.DIGITALFORM_TEMPLATE:
         if (!isFromViewMore) {
           this.computePostBack(item, template_type);
         }
@@ -2436,7 +2420,6 @@ export default class KoreChat extends React.Component<
   private onHeaderActionsClick = (item: any) => {
     switch (item) {
       case HeaderIconsId.BACK:
-      case HeaderIconsId.CLOSE:
         try {
           if (this.props.navigation?.canGoBack?.()) {
             this.props.navigation?.goBack?.();
@@ -2447,6 +2430,10 @@ export default class KoreChat extends React.Component<
           BackHandler.exitApp();
         }
 
+        break;
+
+      case HeaderIconsId.CLOSE:
+        this.handleDialogClose();
         break;
 
       case HeaderIconsId.HELP:
@@ -2645,10 +2632,7 @@ export default class KoreChat extends React.Component<
   };
 
   render() {
-    if (
-      (this.state.isInitialized === true && !this.state.showLoader) ||
-      this.state.activetheme
-    ) {
+    if (this.state.isInitialized === true && this.state.isThemeLoaded) {
       const {wrapInSafeArea} = this.props;
       const Wrapper = wrapInSafeArea ? SafeAreaView : View;
       const bgColor = this.state.themeData?.v3?.header?.bg_color || '#EAECF0';
@@ -2656,7 +2640,7 @@ export default class KoreChat extends React.Component<
       const isBlackStatus = isBlackStatusBar(bgColor);
 
       return (
-        <ThemeProvider>
+        <ThemeProvider theme={this.state.themeData || null}>
           <Wrapper style={styles.safeArea}>
             <View
               style={[styles.container, {flexDirection: 'column'}]}

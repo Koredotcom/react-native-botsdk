@@ -314,7 +314,6 @@ export const defaultTheme: IThemeType = {
       time_stamp: {
         show: true,
         show_type: 'always',
-        position: 'bottom',
         separator: 'line',
         color: '#1d2939',
       },
@@ -323,6 +322,7 @@ export const defaultTheme: IThemeType = {
         user_icon: false,
         bot_icon: true,
         agent_icon: true,
+        avatar_position: 'top',
       },
       buttons: {
         bg_color: '#a37645',

@@ -101,7 +101,7 @@ export default App;
 
 ```bash
 git clone <repository-url>
-cd SampleApp
+cd SampleUI
 npm install
 ```
 
@@ -496,7 +496,7 @@ npx react-native run-ios
 Run the complete sample:
 
 ```bash
-cd SampleApp
+cd SampleUI
 npm install
 npx react-native run-ios    # or run-android
 ```

@@ -9,7 +9,6 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import LoadEarlier from './LoadEarlier';
 import Message, { MessageProps } from './Message';
 import Color from '../../theme/Color';
 import { ThemeType } from '../../theme/ThemeType';
@@ -47,8 +46,14 @@ interface MessageContainerProps {
   position: 'right' | 'center' | 'left';
   onListItemClick: any;
   botConfig: BotConfigModel;
-  onHistoryLoaded: (messages: any[]) => any
+  onHistoryLoaded: (messages: any[]) => any;
   onSendText?: any;
+  renderAvatar?: (props: any) => any | null;
+  showUserAvatar?: boolean;
+  renderAvatarOnTop?: boolean;
+  showAvatarForEveryMessage?: boolean;
+  onPressAvatar?: (user: any) => void;
+  onLongPressAvatar?: (user: any) => void;
 }
 
 interface MessageContainerState {
@@ -71,26 +76,26 @@ const styles = StyleSheet.create({
   },
   history_container: {
     flex: 1,
-    justifyContent: "center", // center vertically
-    alignItems: "center",     // center horizontally
+    justifyContent: 'center', // center vertically
+    alignItems: 'center', // center horizontally
   },
   heading: {
     fontSize: 14,
-    fontWeight: "400",
-    color: "#000",
+    fontWeight: '400',
+    color: '#000',
   },
   card: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 8,
     paddingHorizontal: 7,
     paddingVertical: 3,
     margin: 5,
-    maxWidth: "80%",
-    alignItems: "center",
-    justifyContent: "center",
+    maxWidth: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   shadowProp: {
-    shadowColor: "#171717",
+    shadowColor: '#171717',
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -142,8 +147,8 @@ export default class MessageContainer extends PureComponent<
     renderChatEmpty: null,
     renderFooter: null,
     renderMessage: null,
-    onLoadEarlier: () => { },
-    onQuickReply: () => { },
+    onLoadEarlier: () => {},
+    onQuickReply: () => {},
     inverted: true,
     loadEarlier: false,
     listViewProps: {},
@@ -162,7 +167,7 @@ export default class MessageContainer extends PureComponent<
     showScrollBottom: false,
     hasMoreHististory: true,
     loadingHistory: false,
-    isListScrollable: false
+    isListScrollable: false,
   };
 
   renderFooter = (): any => {
@@ -172,20 +177,6 @@ export default class MessageContainer extends PureComponent<
 
     return null;
   };
-
-  // renderLoadEarlier = (): any => {
-  //   if (this.props.loadEarlier === true) {
-  //     const loadEarlierProps = {
-  //       ...this.props,
-  //     };
-  //     if (this.props.renderLoadEarlier) {
-  //       return this.props.renderLoadEarlier(loadEarlierProps);
-  //     }
-  //     return <LoadEarlier {...loadEarlierProps} />;
-  //   }
-  //   return null;
-  // };
-
 
   scrollTo(options: { offset: number; animated?: boolean }): void {
     if (this.props.forwardRef && this.props.forwardRef.current && options) {
@@ -232,6 +223,16 @@ export default class MessageContainer extends PureComponent<
     }
   };
 
+  /** Most recent bot_response in the list that has an icon (for streaming chunks that omit icon). */
+  private getFallbackBotIcon = (messages: any[]): string | null => {
+    if (!messages?.length) return null;
+    for (let i = 0; i < messages.length; i++) {
+      const m = messages[i];
+      if (m?.type === 'bot_response' && m?.icon) return m.icon;
+    }
+    return null;
+  };
+
   renderRow = ({ item, index }: { item: any; index: number }): any => {
     const { messages, inverted, ...restProps } = this.props;
     if (messages) {
@@ -246,6 +247,27 @@ export default class MessageContainer extends PureComponent<
         case 'bot_response':
           position = 'left';
 
+          if (
+            item.message &&
+            item.message[0] &&
+            item.message[0].component &&
+            item.message[0].component.payload &&
+            item.message[0].component.payload.type &&
+            item.message[0].component.type === 'template' &&
+            item.message[0].component.payload.payload &&
+            item.message[0].component.payload.payload.template_type &&
+            item.message[0].component.payload.payload.template_type !==
+            TEMPLATE_TYPES.START_TIMER &&
+            item.message[0].component.payload.payload.template_type !==
+            TEMPLATE_TYPES.QUICK_REPLIES &&
+            item.message[0].component.payload.payload.template_type !==
+            TEMPLATE_TYPES.LIVE_AGENT_TEMPLATE &&
+            item.message[0].component.payload.payload.template_type !==
+            TEMPLATE_TYPES.SYSTEM_TEMPLATE
+          ) {
+            //position = 'center';
+            //isDisplayTime = false;
+          }
           if (
             item?.message?.[0]?.component?.type === 'template' &&
             item?.message?.[0]?.component?.payload?.type === 'image' &&
@@ -338,7 +360,8 @@ export default class MessageContainer extends PureComponent<
       <View style={[styles.scrollToBottomStyle, propsStyle]}>
         <TouchableOpacity
           onPress={() => this.scrollToBottom(false)}
-          hitSlop={{ top: 5, left: 5, right: 5, bottom: 5 }}>
+          hitSlop={{ top: 5, left: 5, right: 5, bottom: 5 }}
+        >
           {this.renderScrollBottomComponent()}
         </TouchableOpacity>
       </View>
@@ -347,7 +370,11 @@ export default class MessageContainer extends PureComponent<
 
   onLayoutList = (e: any): void => {
     const height = e?.nativeEvent?.layout?.height;
-    if (typeof height === 'number' && height > 0 && height !== this.listLayoutHeight) {
+    if (
+      typeof height === 'number' &&
+      height > 0 &&
+      height !== this.listLayoutHeight
+    ) {
       this.listLayoutHeight = height;
       this.setState({ isListScrollable: this.isListScrollable() });
     }
@@ -398,10 +425,6 @@ export default class MessageContainer extends PureComponent<
   };
 
   keyExtractor = (item: any): string => {
-    // if (item.itemId) {
-    //   return item.itemId;
-    // } else {
-    // const itemId = this.getItemId();
     const itemId = item.timeMillis;
     item = {
       ...item,
@@ -413,17 +436,24 @@ export default class MessageContainer extends PureComponent<
 
   loadHistory = async () => {
     if (this.state.hasMoreHististory) {
-      const apiService = new ApiService(this.props.botConfig.botUrl, KoreBotClient.getInstance());
-      await apiService.getBotHistory(this.props.messages.length, 10, this.props.botConfig, (response: any) => {
-
-        this.setState({ loadingHistory: false });
-        if (response == null) {
-          console.log('BotHistory null');
-          return;
-        }
-        this.setState({ hasMoreHististory: response.data.moreAvailable });
-        this.props.onHistoryLoaded(response.data.botHistory);
-      });
+      const apiService = new ApiService(
+        this.props.botConfig.botUrl,
+        KoreBotClient.getInstance(),
+      );
+      await apiService.getBotHistory(
+        this.props.messages.length,
+        10,
+        this.props.botConfig,
+        (response: any) => {
+          this.setState({ loadingHistory: false });
+          if (response == null) {
+            console.log('BotHistory null');
+            return;
+          }
+          this.setState({ hasMoreHististory: response.data.moreAvailable });
+          this.props.onHistoryLoaded(response.data.botHistory);
+        },
+      );
     } else {
       await new Promise((res) => setTimeout(res, 1000));
       this.setState({ loadingHistory: false });
@@ -443,13 +473,13 @@ export default class MessageContainer extends PureComponent<
           style={[styles.card, styles.shadowProp]}
           onPress={this.loadHistory}
         >
-          <Text style={styles.heading} >{LocalizationManager.getLocalizedString('load_earlier_messages')}</Text>
+          <Text style={styles.heading}>
+            {LocalizationManager.getLocalizedString('load_earlier_messages')}
+          </Text>
         </TouchableOpacity>
       </View>
-
     );
   };
-
 
   render() {
     const { inverted } = this.props;
@@ -458,18 +488,37 @@ export default class MessageContainer extends PureComponent<
         style={[
           this.props.alignTop ? styles.containerAlignTop : styles.container,
           { backgroundColor: this.getBackgroundColor() },
-        ]}>
+        ]}
+      >
         {this.state.showScrollBottom && this.props.scrollToBottom
           ? this.renderScrollToBottomWrapper()
           : null}
-        <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#ffffff', alignSelf: 'flex-end', marginEnd: 5 }}
+        <TouchableOpacity
+          style={{
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            borderRadius: 10,
+            backgroundColor: '#ffffff',
+            alignSelf: 'flex-end',
+            marginEnd: 5,
+          }}
           onPress={(v) => {
             if (!this.state.loadingHistory) {
               this.setState({ loadingHistory: true });
               this.loadHistory();
             }
-          }}>
-          <Text style={{ fontSize: 10, color: '#000000', fontWeight: 'bold', display: 'none' }}>Load history</Text>
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 10,
+              color: '#000000',
+              fontWeight: 'bold',
+              display: 'none',
+            }}
+          >
+            Load history
+          </Text>
         </TouchableOpacity>
         <FlatList
           ref={this.props.forwardRef}
@@ -480,8 +529,6 @@ export default class MessageContainer extends PureComponent<
           inverted={inverted}
           showsVerticalScrollIndicator={false}
           data={this.props.messages}
-          // style={[{transform: [{rotate: '180deg'}]}]}
-          //style={styles.listStyle}
           contentContainerStyle={styles.contentContainerStyle}
           renderItem={this.renderRow}
           {...this.props.invertibleScrollViewProps}
@@ -506,15 +553,24 @@ export default class MessageContainer extends PureComponent<
           contentInsetAdjustmentBehavior="scrollableAxes"
           scrollIndicatorInsets={{ top: 0, left: 20, bottom: 0, right: 0 }}
           onContentSizeChange={(w, h) => {
-            if (typeof h === 'number' && h > 0 && h !== this.listContentHeight) {
+            if (
+              typeof h === 'number' &&
+              h > 0 &&
+              h !== this.listContentHeight
+            ) {
               this.listContentHeight = h;
               this.setState({ isListScrollable: this.isListScrollable() });
             }
           }}
         />
         {this.state.loadingHistory ? (
-          <ActivityIndicator size="large" style={{ flex: 1, width: getWindowWidth(), position: 'absolute' }} />
-        ) : <></>}
+          <ActivityIndicator
+            size="large"
+            style={{ flex: 1, width: getWindowWidth(), position: 'absolute' }}
+          />
+        ) : (
+          <></>
+        )}
       </View>
     );
   }

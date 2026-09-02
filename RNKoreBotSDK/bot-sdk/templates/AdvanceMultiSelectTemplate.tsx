@@ -3,12 +3,12 @@ import * as React from 'react';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {
   Dimensions,
+  Image,
   ImageBackground,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
 import BotText from './BotText';
 import {normalize} from '../utils/helpers';
@@ -91,7 +91,10 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
           }>
           {this.props.payload.buttons.map((btn: any, _btnIndex: number) => {
             return (
-              <TouchableOpacity
+              <View
+                key={'btn_wrapper' + _btnIndex}
+                style={styles.action_button_spacing}>
+                <TouchableOpacity
                 key={'btn' + _btnIndex}
                 onPress={
                   selectList?.length === 0
@@ -125,7 +128,8 @@ export default class AdvanceMultiSelectTemplate extends BaseView<
                   // this.isViewDisable() && {backgroundColor: Color.gray},
                 ]}>
                 <Text style={[styles.btn_text, {color: bubbleTheme.BUBBLE_RIGHT_TEXT_COLOR || Color.white}]}>{btn?.title}</Text>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
             );
           })}
         </View>
@@ -370,8 +374,13 @@ const styles = StyleSheet.create({
   },
   che_main: {
     flexDirection: 'row',
-    marginStart: normalize(0),
+    alignItems: 'center',
+    paddingStart: normalize(12),
     marginBottom: normalize(10),
+  },
+  action_button_spacing: {
+    paddingVertical: normalize(5),
+    width: '100%',
   },
   ele_main: {flexDirection: 'column', marginBottom: normalize(5)},
   ele_title: {

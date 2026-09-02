@@ -1,20 +1,35 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
+import { Image, View, StyleSheet, ViewStyle } from 'react-native';
 
-import Avatar, {AvatarProps} from './Avatar';
+import Avatar, { AvatarProps } from './Avatar';
 import Bubble from './Bubble';
-import {isSameUser, normalize} from '../../utils/helpers';
-import {Day} from './Day';
-import {IThemeType} from '../../theme/IThemeType';
+import { isSameUser, normalize } from '../../utils/helpers';
+import { Day } from './Day';
+import { IThemeType } from '../../theme/IThemeType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BOT_ICON_URL} from '../../constants/Constant';
+import { BOT_ICON_URL } from '../../constants/Constant';
 import Color from '../../theme/Color';
-import {placeholder} from '../../assets';
+import { placeholder } from '../../assets';
+
+const TIMESTAMP_ROW_OFFSET = normalize(25);
+const TIMESTAMP_OFFSET_TRIM = normalize(7);
+
+const effectiveTimestampAvatarOffset = () =>
+  Math.max(0, TIMESTAMP_ROW_OFFSET - TIMESTAMP_OFFSET_TRIM);
+
+const effectiveTimestampAvatarOffsetWhenTsBelow = () => TIMESTAMP_ROW_OFFSET;
+
+const AVATAR_MARGIN_BOTTOM_TS_TOP_ICON_BOTTOM = normalize(6);
+
 export interface MessageProps {
   renderAvatar?: (props: AvatarProps) => any | null;
   showUserAvatar?: boolean;
+  renderAvatarOnTop?: boolean;
+  showAvatarForEveryMessage?: boolean;
+  onPressAvatar?: (user: any) => void;
+  onLongPressAvatar?: (user: any) => void;
 
   renderDay?: (props: MessageProps) => any | null;
   position: 'left' | 'right' | 'center';
@@ -37,13 +52,14 @@ export interface MessageProps {
   onSendText: any;
   isDisplayTime: boolean;
   theme: IThemeType;
+  fallbackBotIcon?: string | null;
 }
 
 const styles = {
   bot_icon: {
     height: normalize(23),
     width: normalize(23),
-    marginTop: 10,
+    marginTop: 0,
   },
   bot_icon_con2: {
     height: normalize(23),
@@ -52,7 +68,7 @@ const styles = {
   },
   bot_icon_con: {
     marginLeft: normalize(10),
-    marginEnd: normalize(-2)
+    marginEnd: normalize(-2),
   },
   image: {
     height: normalize(25),
@@ -94,9 +110,8 @@ export default class Message extends React.Component<MessageProps> {
   state = {
     imageLoadFailed: false,
   };
-  
+
   static defaultProps = {
-    renderAvatar: null,
     renderDay: null,
     position: 'left',
     currentMessage: {},
@@ -109,37 +124,135 @@ export default class Message extends React.Component<MessageProps> {
     shouldUpdateMessage: null,
     onListItemClick: () => {},
     onSendText: () => {},
+    renderAvatarOnTop: true,
+    showAvatarForEveryMessage: false,
+    onPressAvatar: () => {},
+    onLongPressAvatar: () => {},
   };
-  // shouldComponentUpdate(nextProps: MessageProps): boolean {
-  //   const next = nextProps.currentMessage;
-  //   const current = this.props.currentMessage;
-  //   const {previousMessage, nextMessage} = this.props;
-  //   const nextPropsMessage = nextProps.nextMessage;
-  //   const nextPropsPreviousMessage = nextProps.previousMessage;
 
-  //   const shouldUpdate =
-  //     (this.props.shouldUpdateMessage &&
-  //       this.props.shouldUpdateMessage(this.props, nextProps)) ||
-  //     false;
+  private resolveRenderAvatarOnTop = (): boolean => {
+    const themePos = this.props.theme?.v3?.body?.icon?.avatar_position;
+    if (themePos === 'top') {
+      return true;
+    }
+    if (themePos === 'bottom') {
+      return false;
+    }
+    return this.props.renderAvatarOnTop ?? true;
+  };
 
-  //   return (
-  //     next.sent !== current.sent ||
-  //     next.received !== current.received ||
-  //     next.pending !== current.pending ||
-  //     next.createdOn !== current.createdOn ||
-  //     next.text !== current.text ||
-  //     next.image !== current.image ||
-  //     next.video !== current.video ||
-  //     next.audio !== current.audio ||
-  //     previousMessage !== nextPropsPreviousMessage ||
-  //     nextMessage !== nextPropsMessage ||
-  //     shouldUpdate
-  //   );
-  // }
+  private getTimestampAvatarOffset = (): ViewStyle => {
+    const { theme, isDisplayTime } = this.props;
+    const ts = theme?.v3?.body?.time_stamp;
+    if (!ts?.show || !isDisplayTime) {
+      return {};
+    }
+    const pos = ts.position ?? 'bottom';
+    const offsetTopCase = effectiveTimestampAvatarOffset();
+    const offsetTsBelowBubble = effectiveTimestampAvatarOffsetWhenTsBelow();
+    const iconBottom = !this.resolveRenderAvatarOnTop();
+
+    if (pos === 'top') {
+      const style: ViewStyle = { marginTop: offsetTopCase };
+      if (iconBottom) {
+        style.marginBottom = AVATAR_MARGIN_BOTTOM_TS_TOP_ICON_BOTTOM;
+      }
+      return style;
+    }
+    if (pos === 'bottom') {
+      return { marginBottom: offsetTsBelowBubble };
+    }
+    return {};
+  };
+
+  private setBotIconUrl = async (url: any) => {
+    if (this.botIconUrl !== url) {
+      this.botIconUrl = url;
+      this.setState({ imageLoadFailed: false });
+      AsyncStorage.setItem(BOT_ICON_URL, url);
+    }
+  };
+
+  private renderDefaultBotAvatar = (avatarProps: AvatarProps) => {
+    const currentMessage =
+      avatarProps.currentMessage || this.props.currentMessage;
+    const iconUrl = currentMessage?.icon || this.props.fallbackBotIcon || null;
+
+    if (iconUrl) {
+      this.setBotIconUrl(iconUrl);
+    }
+
+    return (
+      <View
+        style={[
+          styles.bot_icon_con2,
+          {
+            backgroundColor: Color.transparent,
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        ]}
+      >
+        <Image
+          source={
+            this.state.imageLoadFailed || !iconUrl
+              ? placeholder.default_bot_icon
+              : {
+                  uri: iconUrl,
+                }
+          }
+          resizeMode="cover"
+          style={[styles.bot_icon, { alignSelf: 'center' }]}
+          onError={() => {
+            this.setState({ imageLoadFailed: true });
+          }}
+        />
+      </View>
+    );
+  };
+
+  private renderBotAvatarSlot(): React.ReactNode {
+    const { currentMessage, theme, position } = this.props;
+
+    if (
+      currentMessage?.type !== 'bot_response' ||
+      !theme?.v3?.body?.icon?.show
+    ) {
+      return <View style={{ width: normalize(5) }} />;
+    }
+
+    if (!theme?.v3?.body?.icon?.bot_icon) {
+      return <View style={{ width: normalize(5) }} />;
+    }
+
+    const newPosition = position ? position : 'left';
+    const customRender = this.props.renderAvatar;
+    const renderFn =
+      customRender != null ? customRender : this.renderDefaultBotAvatar;
+
+    const containerOffset = this.getTimestampAvatarOffset();
+
+    return (
+      <Avatar
+        renderAvatar={renderFn}
+        renderAvatarOnTop={this.resolveRenderAvatarOnTop()}
+        showAvatarForEveryMessage={this.props.showAvatarForEveryMessage}
+        position={newPosition}
+        currentMessage={currentMessage}
+        previousMessage={this.props.previousMessage}
+        nextMessage={this.props.nextMessage}
+        onPressAvatar={this.props.onPressAvatar!}
+        onLongPressAvatar={this.props.onLongPressAvatar!}
+        containerStyle={{
+          [newPosition]: [styles.bot_icon_con, containerOffset],
+        }}
+      />
+    );
+  }
 
   renderDay(): any | null {
     if (this.props.currentMessage && this.props.currentMessage.createdOn) {
-      const {containerStyle, ...props} = this.props;
+      const { containerStyle, ...props } = this.props;
       if (this.props.renderDay) {
         return this.props.renderDay(props);
       }
@@ -149,7 +262,7 @@ export default class Message extends React.Component<MessageProps> {
   }
 
   private renderBubble(): any | null {
-    const {containerStyle, ...props} = this.props;
+    const { containerStyle, ...props } = this.props;
     const newProps = {
       ...props,
       onListItemClick: this.props.onListItemClick,
@@ -159,89 +272,26 @@ export default class Message extends React.Component<MessageProps> {
     return <Bubble {...newProps} />;
   }
 
-  private setBotIconUrl = async (url: any) => {
-    if (this.botIconUrl !== url) {
-      this.botIconUrl = url;
-      // Reset image load failed state when new URL is set
-      this.setState({ imageLoadFailed: false });
-      AsyncStorage.setItem(BOT_ICON_URL, url);
-    }
-  };
-
-  private renderAvatar(): any | undefined {
-    const {user, currentMessage, showUserAvatar} = this.props;
-
-    const isTimeTop =
-      this.props.isDisplayTime &&
-      this.props?.theme?.v3?.body?.time_stamp?.show &&
-      this.props?.theme?.v3?.body?.time_stamp?.position === 'top';
-
-    if (
-      currentMessage?.type === 'bot_response' &&
-      this.props?.theme?.v3?.body?.icon?.show
-    ) {
-      this.setBotIconUrl(currentMessage.icon);
-      const isShowBotIcon = this.props?.theme?.v3?.body?.icon?.bot_icon || false;
-
-      if (!isShowBotIcon) {
-        return <View style={{width: normalize(5)}} />;
-      }
-
-      return (
-        <View
-          style={[
-            styles.bot_icon_con
-          ]}>
-          <View
-            style={[
-              styles.bot_icon_con2,
-              {
-                backgroundColor: Color.transparent,
-                alignItems: 'center',
-                justifyContent: 'center',
-              },
-            ]}>
-            <Image
-              source={
-                this.state.imageLoadFailed || !currentMessage.icon
-                  ? placeholder.default_bot_icon
-                  : {
-                      uri: currentMessage.icon,
-                    }
-              }
-              resizeMode={'cover'}
-              style={[styles.bot_icon, {alignSelf: 'center'}]}
-              onError={() => {
-                this.setState({ imageLoadFailed: true });
-              }}
-            />
-          </View>
-        </View>
-      );
-    }
-
-    return <View style={{width: normalize(5)}} />;
-  }
-
   render() {
-    const {currentMessage, nextMessage, position, containerStyle} = this.props;
+    const { currentMessage, nextMessage, position, containerStyle } =
+      this.props;
     if (currentMessage) {
       const sameUser = isSameUser(currentMessage, nextMessage);
       const newPosition = position ? position : 'left';
       return (
         <View>
-          <View style={{flexDirection: 'column'}}>
+          <View style={{ flexDirection: 'column' }}>
             {this.renderDay()}
-            <View style={{flexDirection: 'row', marginBottom: normalize(5)}}>
-              {this.renderAvatar()}
+            <View style={{ flexDirection: 'row', marginBottom: normalize(5) }}>
+              {this.renderBotAvatarSlot()}
               <View
                 style={[
                   styles[newPosition].container,
-                  {marginBottom: sameUser ? 2 : 10},
-                  !this.props.inverted && {marginBottom: 2},
+                  { marginBottom: sameUser ? 2 : 10 },
+                  !this.props.inverted && { marginBottom: 2 },
                   containerStyle &&
                     containerStyle[position ? position : 'left'],
-                  {flex: 1},
+                  { flex: 1 },
                   this.props?.theme?.v3?.body?.icon?.show &&
                     currentMessage?.type === 'bot_response' &&
                     position === 'left' && {
@@ -250,14 +300,11 @@ export default class Message extends React.Component<MessageProps> {
                   position === 'right' && {
                     marginRight: normalize(8),
                   },
-                ]}>
-                {/* {newPosition === 'left' ? this.renderAvatar() : null} */}
+                ]}
+              >
                 {this.renderBubble()}
-
-                {/* {newPosition === 'right' ? this.renderAvatar() : null} */}
               </View>
             </View>
-            {/* {this.renderAvatar()} */}
           </View>
         </View>
       );

@@ -1,0 +1,51 @@
+# Build artifacts
+android/build/
+android/.gradle/
+android/app/build/
+ios/build/
+ios/Pods/
+
+# Development files
+.idea/
+.vscode/
+.gradle/
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+.kotlin/
+
+# Test and example app
+SampleApp/
+__tests__/
+
+# Development config
+.DS_Store
+*.log
+.metro-health-check*
+coverage/
+
+# Keep these important files
+!android/src/
+!android/build.gradle
+!android/settings.gradle
+!android/gradle.properties
+!android/gradle/
+
+# Node modules (will be installed by consumer)
+node_modules/
+
+# Local environment
+local.properties
+.env
+.env.local
+
+# Vendor
+vendor/
+
+# Temp files
+*.tmp
+*.swp
+*~
+

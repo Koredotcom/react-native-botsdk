@@ -1,7 +1,13 @@
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 
 import * as React from 'react';
-import {Text, TouchableOpacity, View, StyleSheet} from 'react-native';
+import {
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from 'react-native';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import Color from '../theme/Color';
 import BotText from './BotText';
@@ -70,7 +76,8 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
               this.props.onListItemClick(
                 this.props.payload.template_type,
                 item,
-              );
+  );
+
             }
           }}>
           <Text
@@ -91,6 +98,13 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
     );
   };
 
+  private renderHorizontalButton = ({item, index}: {item: any; index: number}) => {
+    const btheme = getButtonTheme(this.props?.theme);
+    const bbtheme = getBubbleTheme(this.props?.theme);
+
+    return this.getSingleButtonView(item, index, btheme, bbtheme, this.props.payload);
+  };
+
   private renderButtonsView = (payload: any) => {
     let list = payload.buttons;
     if (!list || list.length === 0) {
@@ -98,6 +112,27 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
     }
     const btheme = getButtonTheme(this.props?.theme);
     const bbtheme = getBubbleTheme(this.props?.theme);
+
+    if (!payload.stackedButtons && !payload.fullWidth) {
+      return (
+        <FlatList
+          pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
+          horizontal
+          inverted={false}
+          contentOffset={{x: 0, y: 0}}
+          data={list}
+          renderItem={this.renderHorizontalButton}
+          keyExtractor={(_item, index) => `button-${index}`}
+          showsHorizontalScrollIndicator={false}
+          nestedScrollEnabled
+          keyboardShouldPersistTaps="always"
+          removeClippedSubviews={false}
+          style={styles.horizontal_button_list}
+          contentContainerStyle={styles.horizontal_button_content}
+        />
+      );
+    }
+
     return (
       <View
         pointerEvents={this.isViewDisable() ? 'none' : 'auto'}
@@ -138,9 +173,10 @@ export default class Button extends BaseView<ButtonProps, ButtonState> {
 const styles = StyleSheet.create({
   item_container: {
     flexWrap: 'wrap',
-    marginBottom: 10,
+    flexShrink: 0,
+    marginBottom: 5,
     marginRight: 10,
-    marginTop: 10,
+    marginTop: 5,
   },
   mainContainer: {
     backgroundColor: Color.white,
@@ -163,6 +199,14 @@ const styles = StyleSheet.create({
   },
 
   bottom_btns: {flexDirection: 'row', marginTop: 0},
+  horizontal_button_list: {
+    alignSelf: 'stretch',
+    flexGrow: 0,
+  },
+  horizontal_button_content: {
+    alignItems: 'flex-start',
+    paddingRight: 10,
+  },
   btn_view: {
     flexDirection: 'column',
     alignItems: 'center',

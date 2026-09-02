@@ -1,13 +1,13 @@
-import React, {Component} from 'react';
-import {StyleSheet, View, ViewStyle, StyleProp} from 'react-native';
+import React, { Component } from 'react';
+import { StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
 import UserAvatar from './UserAvatar';
-import {isSameUser, isSameDay, normalize} from '../../utils/helpers';
+import { isSameUser, isSameDay, normalize } from '../../utils/helpers';
 
 export interface AvatarProps {
   renderAvatarOnTop?: boolean;
   showAvatarForEveryMessage?: boolean;
   position: 'left' | 'right' | 'center';
-  currentMessage?: {user: any};
+  currentMessage?: { user: any };
   previousMessage?: any;
   nextMessage?: any;
   onPressAvatar: (user: any) => void;
@@ -32,7 +32,7 @@ export default class Avatar extends Component<AvatarProps> {
     super(props);
   }
   static defaultProps = {
-    renderAvatarOnTop: false,
+    renderAvatarOnTop: true,
     showAvatarForEveryMessage: false,
     position: 'left',
     currentMessage: {
@@ -53,7 +53,7 @@ export default class Avatar extends Component<AvatarProps> {
 
   renderAvatar() {
     if (this.props.renderAvatar) {
-      const {...avatarProps} = this.props;
+      const { ...avatarProps } = this.props;
       return this.props.renderAvatar(avatarProps);
     }
     if (this.props.currentMessage) {
@@ -107,14 +107,25 @@ export default class Avatar extends Component<AvatarProps> {
         <View
           style={[
             styles[position!].container,
+            styles[position!][computedStyle],
             containerStyle && containerStyle[position!],
-          ]}>
-          <UserAvatar
-            avatarStyle={[
-              styles[position!].image,
-              imageStyle && imageStyle[position!],
-            ]}
-          />
+          ]}
+        >
+          {renderAvatar ? (
+            <View
+              style={[
+                styles[position!].image,
+                imageStyle && imageStyle[position!],
+              ]}
+            />
+          ) : (
+            <UserAvatar
+              avatarStyle={[
+                styles[position!].image,
+                imageStyle && imageStyle[position!],
+              ]}
+            />
+          )}
         </View>
       );
     }
@@ -125,7 +136,8 @@ export default class Avatar extends Component<AvatarProps> {
           styles[position!].container,
           styles[position!][computedStyle],
           containerStyle && containerStyle[position!],
-        ]}>
+        ]}
+      >
         {this.renderAvatar()}
       </View>
     );
@@ -140,7 +152,9 @@ const styles = {
     onTop: {
       alignSelf: 'flex-start',
     },
-    onBottom: {},
+    onBottom: {
+      alignSelf: 'flex-end',
+    },
     image: {
       height: normalize(23),
       width: normalize(23),
@@ -154,7 +168,9 @@ const styles = {
     onTop: {
       alignSelf: 'flex-start',
     },
-    onBottom: {},
+    onBottom: {
+      alignSelf: 'flex-end',
+    },
     image: {
       height: normalize(23),
       width: normalize(23),
@@ -168,7 +184,9 @@ const styles = {
     onTop: {
       alignSelf: 'flex-start',
     },
-    onBottom: {},
+    onBottom: {
+      alignSelf: 'flex-end',
+    },
     image: {
       height: normalize(23),
       width: normalize(23),

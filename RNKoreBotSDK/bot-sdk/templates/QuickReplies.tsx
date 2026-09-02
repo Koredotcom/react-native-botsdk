@@ -1,12 +1,12 @@
 import * as React from 'react';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
 import {TEMPLATE_STYLE_VALUES, botStyles} from '../theme/styles';
 import {normalize} from '../utils/helpers';
@@ -18,7 +18,7 @@ interface QuickProps extends BaseViewProps {
   itemClick?: any;
   isVertical?: boolean;
   quick_container_style?: any;
-  quick_text_style?: any;
+  quck_text_style?: any;
   quick_image_style?: any;
 }
 interface QuickState extends BaseViewState {
@@ -95,20 +95,20 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
             )}
             <Text
               style={
-                this.props.quick_text_style 
-                  ? this.props.quick_text_style 
+                this.props.quck_text_style
+                  ? this.props.quck_text_style
                   : [
                       {
                         padding: 5,
                       },
                       {
-                        color: btheme?.BUBBLE_LEFT_TEXT_COLOR || '#FFFFFF',
+                        color: btheme?.BUBBLE_RIGHT_BG_COLOR,
                         fontFamily:
                           this.props?.theme?.v3?.body?.font?.family || 'Inter',
                       },
                       botStyles[
                         this.props?.theme?.v3?.body?.font?.size || 'medium'
-                      ]?.size,
+                      ].size,
                     ]
               }>
               {item?.title?.value || item?.title}
@@ -132,7 +132,17 @@ export default class QuickReplies extends BaseView<QuickProps, QuickState> {
         showsHorizontalScrollIndicator={true}
         keyboardShouldPersistTaps={'handled'}
         horizontal={!this.props.isVertical}>
-        <View style={styles.quick_main_container}>
+        <View
+        style={styles.quick_main_container}>
+          <View
+            style={{
+              height: 1,
+              backgroundColor: btheme?.BUBBLE_LEFT_BG_COLOR || '#CCCCCC',
+              marginVertical: 2,
+              flexGrow: 1,
+              minWidth: '100%',
+            }}
+          />
           {views}
         </View>
       </ScrollView>

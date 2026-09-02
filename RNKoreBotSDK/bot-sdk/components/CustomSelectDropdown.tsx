@@ -21,6 +21,7 @@ export interface SelectDropdownProps {
   renderItem?: (item: any, index: number, isSelected: boolean, onItemPress: (item: any, index: number) => void) => React.ReactElement;
   defaultButtonText?: string;
   disabled?: boolean;
+  value?: any;
   dropdownStyle?: ViewStyle;
   buttonStyle?: ViewStyle;
   buttonTextStyle?: TextStyle;
@@ -45,11 +46,18 @@ export interface SelectDropdownProps {
   buttonLayout: { x: number; y: number; width: number; height: number };
 }
 
-class CustomSelectDropdown extends React.Component<SelectDropdownProps, any> {
+export interface SelectDropdownState {
+  isVisible: boolean;
+  selectedItem: any;
+  selectedIndex: number;
+  buttonLayout: { x: number; y: number; width: number; height: number };
+}
+
+class CustomSelectDropdown extends React.Component<SelectDropdownProps, SelectDropdownState> {
   private fadeAnim: Animated.Value;
   private scaleAnim: Animated.Value;
-  private buttonRef: React.RefObject<View>;
-  private flatListRef: React.RefObject<FlatList>;
+  private buttonRef: React.RefObject<View | null>;
+  private flatListRef: React.RefObject<FlatList<any> | null>;
 
   constructor(props: SelectDropdownProps) {
     super(props);
@@ -63,8 +71,8 @@ class CustomSelectDropdown extends React.Component<SelectDropdownProps, any> {
     
     this.fadeAnim = new Animated.Value(0);
     this.scaleAnim = new Animated.Value(0.95);
-    this.buttonRef = React.createRef();
-    this.flatListRef = React.createRef();
+    this.buttonRef = React.createRef<View>();
+    this.flatListRef = React.createRef<FlatList<any>>();
   }
 
   closeDropdown = () => {

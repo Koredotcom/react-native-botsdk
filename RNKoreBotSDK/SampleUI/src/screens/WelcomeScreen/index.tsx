@@ -45,7 +45,7 @@ class WelcomeScreen extends Component<any, State> {
     this.state = {
       botName: 'Kore.ai Bot',
       botId: 'PLEASE_ENTER_BOT_ID',
-      clientId: 'PLEASE_ENTER_CLIENT_ID',,
+      clientId: 'PLEASE_ENTER_CLIENT_ID',
       clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
       botUrl: 'https://bots.kore.ai',
       jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',

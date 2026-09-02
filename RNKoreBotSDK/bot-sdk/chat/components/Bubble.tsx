@@ -540,6 +540,13 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
     return <></>;
   };
 
+  private isBotTextMessage = () => {
+    return (
+      this.props.currentMessage?.type === 'bot_response' &&
+      getTemplateType(this.props.currentMessage?.message) === TEMPLATE_TYPES.TEXT
+    );
+  };
+
   render() {
     const {position, containerStyle, wrapperStyle, bottomContainerStyle} =
       this.props;
@@ -588,6 +595,7 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
         </View>
         {theme?.v3?.body?.time_stamp?.show &&
           theme?.v3?.body?.time_stamp?.position === 'bottom' &&
+          this.isBotTextMessage() &&
           this.renderTime()}
       </View>
     );

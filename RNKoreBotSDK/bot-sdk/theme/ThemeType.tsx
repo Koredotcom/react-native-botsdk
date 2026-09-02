@@ -241,6 +241,7 @@ export interface ThemeType {
         user_icon?: boolean;
         bot_icon?: boolean;
         agent_icon?: boolean;
+        avatar_position?: 'top' | 'bottom';
       };
       buttons?: {
         bg_color?: string;

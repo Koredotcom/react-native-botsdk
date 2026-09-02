@@ -66,9 +66,11 @@ export default class MiniTableTemplate extends BaseView<
     }
     return (
       <View style={{}}>
-        {payload.elements.map((item: any, index: number) => {
-          return this.renderTablesViewMore(item, true, index);
-        })}
+        {Array.isArray(payload.elements)
+          ? payload.elements.map((item: any, index: number) => {
+              return this.renderTablesViewMore(item, true, index);
+            })
+          : null}
       </View>
     );
   };
@@ -105,7 +107,7 @@ export default class MiniTableTemplate extends BaseView<
         loop={false}
         width={width}
         height={height}
-        data={payload.elements}
+        data={Array.isArray(payload.elements) ? payload.elements : []}
         style={{ width: viewportWidth }}
         // mode="undefined" //kk
         // modeConfig={{
@@ -230,7 +232,8 @@ export default class MiniTableTemplate extends BaseView<
             style={{
               flexDirection: 'row',
             }}>
-            {elements[i].map((value: any, index: number) => {
+            {Array.isArray(elements[i])
+              ? elements[i].map((value: any, index: number) => {
               return (
                 <View
                   key={index + '_' + index + '_'}
@@ -255,15 +258,16 @@ export default class MiniTableTemplate extends BaseView<
                         fontFamily: this.props?.theme?.v3?.body?.font?.family,
                       },
                       botStyles[isVertical ? 'small' : 'medium']?.size,
-                      element?.primary?.[index][1] && {
-                        textAlign: element?.primary?.[index][1] || 'center', //'right',
+                      element?.primary?.[index]?.[1] && {
+                        textAlign: element?.primary?.[index]?.[1] || 'center', //'right',
                       },
                     ]}>
                     {value}
                   </Text>
                 </View>
               );
-            })}
+            })
+              : null}
           </View>
           {i !== elements?.length - 1 && <View style={[styles.line,{backgroundColor: bubbleTheme.BUBBLE_LEFT_BG_COLOR}]}></View>}
         </View>

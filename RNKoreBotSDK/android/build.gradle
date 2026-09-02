@@ -3,10 +3,11 @@ buildscript {
         buildToolsVersion = "35.0.0"
         minSdkVersion = 24
         compileSdkVersion = 35
-        targetSdkVersion = 34
+        targetSdkVersion = 35
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.0.21"
     }
+
     repositories {
         google()
         mavenCentral()
@@ -18,4 +19,44 @@ buildscript {
     }
 }
 
-apply plugin: "com.facebook.react.rootproject"
+def safeExtGet = { prop, fallback ->
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+def reactNativeVersion = safeExtGet('reactNativeVersion', '0.79.0')
+
+// This is the library build configuration. The host application supplies
+// the React Native/Android toolchain values when this module is autolinked.
+apply plugin: 'com.android.library'
+
+android {
+    compileSdk safeExtGet('compileSdkVersion', 35)
+    namespace 'com.rnkorebotsdk'
+
+    defaultConfig {
+        minSdk safeExtGet('minSdkVersion', 24)
+        targetSdk safeExtGet('targetSdkVersion', 35)
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+    maven {
+        url "$projectDir/../node_modules/react-native/android"
+    }
+}
+
+dependencies {
+    implementation "com.facebook.react:react-android:${reactNativeVersion}"
+}
