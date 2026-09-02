@@ -1,0 +1,79 @@
+  # Resolve react_native_pods.rb with node to allow for hoisting
+  def node_require(script)
+    # Resolve script with node to allow for hoisting
+    require Pod::Executable.execute_command('node', ['-p',
+      "require.resolve(
+        '#{script}',
+        {paths: [process.argv[1]]},
+      )", __dir__]).strip
+  end
+
+  # Use it to require both react-native's and this package's scripts:
+  node_require('react-native/scripts/react_native_pods.rb')
+  node_require('react-native-permissions/scripts/setup.rb')
+
+  platform :ios, min_ios_version_supported
+  prepare_react_native_project!
+
+  # Configure react-native-permissions
+  setup_permissions([
+    'Camera',
+    'PhotoLibrary',
+    'Microphone',
+  ])
+
+  linkage = ENV['USE_FRAMEWORKS']
+  if linkage != nil
+    Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+    use_frameworks! :linkage => linkage.to_sym
+  end
+
+  target 'SampleUI' do
+    config = use_native_modules!
+
+    use_react_native!(
+      :path => config[:reactNativePath],
+      # An absolute path to your application root.
+      :app_path => "#{Pod::Config.instance.installation_root}/..",
+      :hermes_enabled => true
+    )
+
+    post_install do |installer|
+      # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+      react_native_post_install(
+        installer,
+        config[:reactNativePath],
+        :mac_catalyst_enabled => false,
+        # :ccache_enabled => true
+      )
+
+      # Xcode 26's Clang rejects fmt 11's consteval format-string checks when
+      # compiling the fmt headers used by React Native 0.79. Keep C++20 and
+      # New Architecture enabled, but use fmt's constexpr fallback instead.
+      installer.pods_project.targets.each do |target|
+        next unless %w[fmt Yoga].include?(target.name)
+
+        target.build_configurations.each do |build_configuration|
+          flags = build_configuration.build_settings['OTHER_CPLUSPLUSFLAGS']
+          flags = '$(inherited)' if flags.nil? || flags.empty?
+          flags = flags.join(' ') if flags.is_a?(Array)
+          flags = flags.sub(/\s*-DFMT_USE_CONSTEVAL=\S*/, '')
+          build_configuration.build_settings['OTHER_CPLUSPLUSFLAGS'] = "#{flags} -DFMT_USE_CONSTEVAL=0"
+        end
+      end
+
+      # fmt 11.0.2 does not honor a pre-defined FMT_USE_CONSTEVAL value. Add
+      # that guard to the generated header so the compiler flag above works.
+      fmt_header = File.expand_path('Pods/fmt/include/fmt/base.h', __dir__)
+      if File.file?(fmt_header)
+        source = File.read(fmt_header)
+        original = '#if !defined(__cpp_lib_is_constant_evaluated)'
+        replacement = "#if defined(FMT_USE_CONSTEVAL)\n// Use the value supplied by the build configuration.\n#elif !defined(__cpp_lib_is_constant_evaluated)"
+        if source.include?(original)
+          # CocoaPods may unpack this generated header read-only.
+          File.chmod(0644, fmt_header)
+          File.write(fmt_header, source.sub(original, replacement))
+        end
+      end
+    end
+  end

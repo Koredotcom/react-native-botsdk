@@ -1,8 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import { Image, View, StyleSheet, ViewStyle } from 'react-native';
 
 import Avatar, { AvatarProps } from './Avatar';
 import Bubble from './Bubble';
@@ -194,17 +193,15 @@ export default class Message extends React.Component<MessageProps> {
           },
         ]}
       >
-        <FastImage
+        <Image
           source={
             this.state.imageLoadFailed || !iconUrl
               ? placeholder.default_bot_icon
               : {
                   uri: iconUrl,
-                  priority: FastImage.priority.high,
-                  cache: FastImage.cacheControl.immutable,
                 }
           }
-          resizeMode={FastImage.resizeMode.cover}
+          resizeMode="cover"
           style={[styles.bot_icon, { alignSelf: 'center' }]}
           onError={() => {
             this.setState({ imageLoadFailed: true });

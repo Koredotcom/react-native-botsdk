@@ -42,7 +42,7 @@ export const botTimeStyles = {
   }),
 };
 
-export const botStyles = {
+const BOT_STYLES = {
   medium: StyleSheet.create({
     size: {
       fontSize: normalize(14),
@@ -59,6 +59,16 @@ export const botStyles = {
     },
   }),
 };
+
+// Unknown branding sizes (e.g. "xlarge") fall back to medium so `.size` never throws.
+export const botStyles = new Proxy(BOT_STYLES, {
+  get(target, prop: string | symbol) {
+    if (typeof prop === 'string' && prop in target) {
+      return target[prop as keyof typeof BOT_STYLES];
+    }
+    return target.medium;
+  },
+}) as typeof BOT_STYLES & Record<string, (typeof BOT_STYLES)['medium']>;
 
 export const image_size = {
   medium: StyleSheet.create({

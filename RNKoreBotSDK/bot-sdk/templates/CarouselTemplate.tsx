@@ -2,12 +2,12 @@
 import * as React from 'react';
 import {
   Dimensions,
+  Image,
   Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
 import BaseView, {BaseViewProps, BaseViewState} from './BaseView';
 import {normalize} from '../utils/helpers';
@@ -70,14 +70,17 @@ export default class CarouselTemplate extends BaseView<
 
   componentDidMount() {
     const payload = this.props.payload;
-    payload?.elements.map((item: any) => {
-      if (this.max_btn_count < item?.buttons.length) {
-        this.max_btn_count = item?.buttons.length;
+    const elements = Array.isArray(payload?.elements) ? payload.elements : [];
+
+    elements.forEach((item: any) => {
+      const buttonCount = Array.isArray(item?.buttons) ? item.buttons.length : 0;
+      if (this.max_btn_count < buttonCount) {
+        this.max_btn_count = buttonCount;
       }
     });
 
     this.setState({
-      elements: payload.elements,
+      elements,
     });
 
     // Load carousel component lazily
@@ -89,11 +92,12 @@ export default class CarouselTemplate extends BaseView<
     index: number,
     isStacked?: boolean,
   ) => {
-    let btnViews = item?.buttons.map((btn: any, _index: number) => {
+    const buttons = Array.isArray(item?.buttons) ? item.buttons : [];
+    let btnViews = buttons.map((btn: any, _index: number) => {
       return this.getSingleButtonView(
         btn,
         _index,
-        item?.buttons.length,
+        buttons.length,
         isStacked,
       );
     });

@@ -1,69 +1,88 @@
-import React, { createContext, useContext, ReactNode, Component } from 'react';
-import { ThemeType } from './ThemeType';
+import React, {createContext, useContext, ReactNode, Component} from 'react';
+import {ThemeType} from './ThemeType';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BRANDING_RESPONSE_FILE } from '../constants/Constant';
-import { defaultTheme } from './AppTheme';
+import {BRANDING_RESPONSE_FILE} from '../constants/Constant';
+import {defaultTheme} from './AppTheme';
+
+// Define your theme object type
 
 // Create a context object
 export const ThemeContext = createContext<ThemeType | undefined>(undefined);
 
-function mergeBrandingDefaults(theme: ThemeType): ThemeType {
-  const defaultBody = defaultTheme.v3?.body;
-  const defaultTs = defaultBody?.time_stamp;
-  const defaultIcon = defaultBody?.icon;
-  if (!theme?.v3?.body || !defaultBody) {
-    return theme;
-  }
-  const body = theme.v3.body;
-  return {
-    ...theme,
-    v3: {
-      ...theme.v3,
-      body: {
-        ...defaultBody,
-        ...body,
-        time_stamp: {
-          ...(defaultTs || {}),
-          ...(body.time_stamp || {}),
-        },
-        icon: {
-          ...(defaultIcon || {}),
-          ...(body.icon || {}),
-        },
-      },
-    },
-  };
+// Create a provider component
+// export const ThemeProvider: React.FC<{
+//   theme: ThemeType;
+//   children: ReactNode;
+// }> = ({theme, children}) => {
+//   return (
+//     <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+//   );
+// };
+
+interface ThemeProviderProps {
+  children: ReactNode;
+  /**
+   * The current theme from the branding API. `null` means that no remote
+   * theme is available and the provider should use the default theme.
+   */
+  theme?: ThemeType | null;
 }
 
-export class ThemeProvider extends Component<{
-  children: ReactNode;
-  theme?: ThemeType | null;
-}> {
-  state = {
-    theme: defaultTheme,
+interface ThemeProviderState {
+  theme: ThemeType;
+}
+
+export class ThemeProvider extends Component<
+  ThemeProviderProps,
+  ThemeProviderState
+> {
+  state: ThemeProviderState = {
+    theme: this.props.theme || defaultTheme,
   };
 
   componentDidMount() {
-    this.fetchThemeFromDB();
+    // The API response is authoritative when it is already available. Only
+    // load the persisted theme while the chat is waiting for the API.
+    if (this.props.theme == null) {
+      this.fetchThemeFromDB();
+    }
+  }
+
+  componentDidUpdate(previousProps: ThemeProviderProps) {
+    if (this.props.theme && this.props.theme !== previousProps.theme) {
+      this.setState({theme: this.props.theme});
+    } else if (
+      this.props.theme === null &&
+      previousProps.theme !== null
+    ) {
+      this.setState({theme: defaultTheme});
+    }
   }
 
   private fetchThemeFromDB = async () => {
     try {
-      AsyncStorage.getItem(BRANDING_RESPONSE_FILE, (error, result) => {
-        if (result) {
-          const savedTheme = JSON.parse(result);
-          this.setState({ theme: savedTheme });
-        }
-      });
-    } catch {}
+      const result = await AsyncStorage.getItem(BRANDING_RESPONSE_FILE);
+      // Do not allow a slower storage read to overwrite a newer API response.
+      if (result && this.props.theme == null) {
+        const savedTheme = JSON.parse(result) as ThemeType;
+        this.setState({theme: savedTheme});
+      }
+    } catch (error) {
+      console.log('Error fetching theme from local storage:', error);
+    }
   };
 
   render() {
-    const fromProps = this.props.theme;
-    const raw = fromProps?.v3 != null ? fromProps : this.state.theme;
-    const resolvedTheme = mergeBrandingDefaults(raw);
+    // Use the API value directly during this render so branding is visible
+    // immediately; the state update above keeps it as the fallback if the
+    // prop is later removed.
+    const theme =
+      this.props.theme === null
+        ? defaultTheme
+        : this.props.theme || this.state.theme;
+
     return (
-      <ThemeContext.Provider value={resolvedTheme}>
+      <ThemeContext.Provider value={theme}>
         {this.props.children}
       </ThemeContext.Provider>
     );

@@ -270,7 +270,7 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
       console.log('⚠️  Full message data:', JSON.stringify(this.props.currentMessage, null, 2));
       return <></>;
     }
-
+    
     console.log('✅ Rendering bot text:', text);
     const theme = this.context as ThemeType;
     return (
@@ -540,11 +540,17 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
     return <></>;
   };
 
+  private isBotTextMessage = () => {
+    return (
+      this.props.currentMessage?.type === 'bot_response' &&
+      getTemplateType(this.props.currentMessage?.message) === TEMPLATE_TYPES.TEXT
+    );
+  };
+
   render() {
     const {position, containerStyle, wrapperStyle, bottomContainerStyle} =
       this.props;
     const theme = this.context as ThemeType;
-    const timeStampPosition = theme?.v3?.body?.time_stamp?.position ?? 'bottom';
     return (
       <View
         style={[
@@ -552,7 +558,7 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
           containerStyle && containerStyle[position],
         ]}>
         {theme?.v3?.body?.time_stamp?.show &&
-          timeStampPosition === 'top' &&
+          theme?.v3?.body?.time_stamp?.position === 'top' &&
           this.renderTime()}
 
         <View
@@ -588,7 +594,8 @@ export default class Bubble extends React.Component<BubbleProps, BubbleState> {
           </TouchableWithoutFeedback>
         </View>
         {theme?.v3?.body?.time_stamp?.show &&
-          timeStampPosition === 'bottom' &&
+          theme?.v3?.body?.time_stamp?.position === 'bottom' &&
+          this.isBotTextMessage() &&
           this.renderTime()}
       </View>
     );

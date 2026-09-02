@@ -9,13 +9,9 @@ export interface SoundModule {
   DOCUMENT: string;
   LIBRARY: string;
   CACHES: string;
-  setCategory: (category: string, mixWithOthers?: boolean) => void;
-  getCategory: (callback: (category: string, mixWithOthers: boolean) => void) => void;
-  setMode: (mode: string) => void;
-  getMode: (callback: (mode: string) => void) => void;
-  setSpeakerphoneOn: (speaker: boolean) => void;
+  setCategory: (category: any, mixWithOthers?: boolean) => void;
+  setMode: (mode: any) => void;
   setActive: (active: boolean) => void;
-  isWiredHeadsetPluggedIn: (callback: (pluggedIn: boolean) => void) => void;
 }
 
 export interface SoundInstance {
@@ -111,17 +107,17 @@ export class LazySound extends Component<LazySoundProps, LazySoundState> {
         }
 
         this.setState({
-          SoundModule: Sound as unknown as SoundModule,
+          SoundModule: Sound,
           isLoading: false,
           loadError: null,
         });
 
         // Notify parent components
         if (this.props.onModuleLoaded) {
-          this.props.onModuleLoaded(Sound as unknown as SoundModule);
+          this.props.onModuleLoaded(Sound);
         }
 
-        return Sound as unknown as SoundModule;
+        return Sound;
       }
     } catch (error) {
       console.warn('Failed to load Sound:', error);
@@ -160,13 +156,6 @@ export class LazySound extends Component<LazySoundProps, LazySoundState> {
     return Sound.setCategory(category as any, mixWithOthers);
   }
 
-  public async getCategory(callback: (category: string, mixWithOthers: boolean) => void) {
-    const Sound = await this.loadSound();
-    if (!Sound || !Sound.getCategory) {
-      throw new Error('Sound getCategory not available');
-    }
-    return Sound.getCategory(callback);
-  }
 
   public async setMode(mode: string) {
     const Sound = await this.loadSound();
@@ -176,21 +165,7 @@ export class LazySound extends Component<LazySoundProps, LazySoundState> {
     return Sound.setMode(mode as any);
   }
 
-  public async getMode(callback: (mode: string) => void) {
-    const Sound = await this.loadSound();
-    if (!Sound || !Sound.getMode) {
-      throw new Error('Sound getMode not available');
-    }
-    return Sound.getMode(callback);
-  }
 
-  public async setSpeakerphoneOn(speaker: boolean) {
-    const Sound = await this.loadSound();
-    if (!Sound || !Sound.setSpeakerphoneOn) {
-      throw new Error('Sound setSpeakerphoneOn not available');
-    }
-    return Sound.setSpeakerphoneOn(speaker);
-  }
 
   public async setActive(active: boolean) {
     const Sound = await this.loadSound();
@@ -200,13 +175,6 @@ export class LazySound extends Component<LazySoundProps, LazySoundState> {
     return Sound.setActive(active);
   }
 
-  public async isWiredHeadsetPluggedIn(callback: (pluggedIn: boolean) => void) {
-    const Sound = await this.loadSound();
-    if (!Sound || !Sound.isWiredHeadsetPluggedIn) {
-      throw new Error('Sound isWiredHeadsetPluggedIn not available');
-    }
-    return Sound.isWiredHeadsetPluggedIn(callback);
-  }
 
   render() {
     const { 
@@ -264,7 +232,7 @@ export const useLazySound = () => {
     loadError: null,
   });
 
-  const loadSound = React.useCallback(async (): Promise<SoundModule | null> => {
+  const loadSound = React.useCallback(async () => {
     if (state.SoundModule || state.isLoading) {
       return state.SoundModule;
     }
@@ -293,12 +261,12 @@ export const useLazySound = () => {
       }
 
       setState({
-        SoundModule: Sound as unknown as SoundModule,
+        SoundModule: Sound,
         isLoading: false,
         loadError: null,
       });
 
-      return Sound as unknown as SoundModule;
+      return Sound;
     } catch (error) {
       console.warn('Failed to load Sound:', error);
       setState({
@@ -326,14 +294,6 @@ export const useLazySound = () => {
     return Sound.setCategory(category as any, mixWithOthers);
   }, [loadSound]);
 
-  const getCategory = React.useCallback(async (callback: (category: string, mixWithOthers: boolean) => void) => {
-    const Sound = await loadSound();
-    if (!Sound || !Sound.getCategory) {
-      throw new Error('Sound getCategory not available');
-    }
-    return Sound.getCategory(callback);
-  }, [loadSound]);
-
   const setMode = React.useCallback(async (mode: string) => {
     const Sound = await loadSound();
     if (!Sound || !Sound.setMode) {
@@ -342,36 +302,12 @@ export const useLazySound = () => {
     return Sound.setMode(mode as any);
   }, [loadSound]);
 
-  const getMode = React.useCallback(async (callback: (mode: string) => void) => {
-    const Sound = await loadSound();
-    if (!Sound || !Sound.getMode) {
-      throw new Error('Sound getMode not available');
-    }
-    return Sound.getMode(callback);
-  }, [loadSound]);
-
-  const setSpeakerphoneOn = React.useCallback(async (speaker: boolean) => {
-    const Sound = await loadSound();
-    if (!Sound || !Sound.setSpeakerphoneOn) {
-      throw new Error('Sound setSpeakerphoneOn not available');
-    }
-    return Sound.setSpeakerphoneOn(speaker);
-  }, [loadSound]);
-
   const setActive = React.useCallback(async (active: boolean) => {
     const Sound = await loadSound();
     if (!Sound || !Sound.setActive) {
       throw new Error('Sound setActive not available');
     }
     return Sound.setActive(active);
-  }, [loadSound]);
-
-  const isWiredHeadsetPluggedIn = React.useCallback(async (callback: (pluggedIn: boolean) => void) => {
-    const Sound = await loadSound();
-    if (!Sound || !Sound.isWiredHeadsetPluggedIn) {
-      throw new Error('Sound isWiredHeadsetPluggedIn not available');
-    }
-    return Sound.isWiredHeadsetPluggedIn(callback);
   }, [loadSound]);
 
   React.useEffect(() => {
@@ -385,12 +321,8 @@ export const useLazySound = () => {
     loadSound,
     createSound,
     setCategory,
-    getCategory,
     setMode,
-    getMode,
-    setSpeakerphoneOn,
     setActive,
-    isWiredHeadsetPluggedIn,
   };
 };
 
@@ -430,31 +362,12 @@ export const FallbackSoundAPI = {
     console.warn('Sound not available - cannot set category');
   },
   
-  getCategory: async (callback: (category: string, mixWithOthers: boolean) => void) => {
-    console.warn('Sound not available - cannot get category');
-    callback('Playback', false);
-  },
-  
   setMode: async (mode: string) => {
     console.warn('Sound not available - cannot set mode');
   },
   
-  getMode: async (callback: (mode: string) => void) => {
-    console.warn('Sound not available - cannot get mode');
-    callback('Default');
-  },
-  
-  setSpeakerphoneOn: async (speaker: boolean) => {
-    console.warn('Sound not available - cannot set speakerphone');
-  },
-  
   setActive: async (active: boolean) => {
     console.warn('Sound not available - cannot set active');
-  },
-  
-  isWiredHeadsetPluggedIn: async (callback: (pluggedIn: boolean) => void) => {
-    console.warn('Sound not available - cannot check headset');
-    callback(false);
   },
 };
 

@@ -5,19 +5,25 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 Pod::Spec.new do |s|
   s.name         = "react-native-rn-kore-bot-sdk"
   s.version      = package["version"]
-  s.summary      = package["description"]
-  s.description  = package["description"]
+  s.summary      = package["description"] || "Kore.ai React Native Bot SDK"
+  s.description  = package["description"] || s.summary
   
-  # Use homepage if available, otherwise fall back to repository URL
-  s.homepage     = package["homepage"] || package["repository"]["url"]
+  # Use homepage if available, otherwise fall back to the repository URL.
+  # `repository` is optional in package.json and may be either a hash or a URL.
+  repository = package["repository"]
+  repository_url = repository.is_a?(Hash) ? repository["url"] : repository
+  s.homepage     = package["homepage"] || repository_url || "https://github.com/Koredotcom/react-native-botsdk"
   
-  s.license      = package["license"]
-  s.authors      = package["author"]
+  s.license      = package["license"] || { :type => "MIT" }
+  s.authors      = package["author"] || { "Kore.ai" => "https://kore.ai" }
 
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => "https://github.com/Koredotcom/react-native-botsdk.git", :tag => "#{s.version}" }
 
-  s.source_files = "ios/**/*.{h,c,cc,cpp,m,mm,swift}"
+  # The ios/ directory contains the SampleUI application's AppDelegate and
+  # resources, not native SDK implementation files. Do not compile the sample
+  # application's Swift entry point as part of this React Native pod.
+  s.source_files = []
   s.requires_arc = true
 
   s.dependency "React-Core"
@@ -37,4 +43,3 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
   end
 end
-

@@ -12,10 +12,11 @@ class UUID {
    */
   static v4() {
     // Use crypto.getRandomValues if available (web environment)
-    const g = globalThis as typeof globalThis & { crypto?: { getRandomValues?(b: Uint8Array): void } };
-    if (typeof globalThis !== 'undefined' && g.crypto?.getRandomValues) {
+    if (typeof globalThis !== 'undefined' && 
+        (globalThis as any).crypto && 
+        (globalThis as any).crypto.getRandomValues) {
       const buffer = new Uint8Array(16);
-      g.crypto.getRandomValues(buffer);
+      (globalThis as any).crypto.getRandomValues(buffer);
       
       // Set version (4) and variant bits according to RFC 4122
       buffer[6] = (buffer[6] & 0x0f) | 0x40; // Version 4

@@ -179,9 +179,12 @@ export default class MultiSelectTemplate extends BaseView<
       <View pointerEvents={this.isViewDisable() ? 'none' : 'auto'}>
         {this.renderMultiSelectView(this.state.mPayload)}
         <View pointerEvents={selectList?.length === 0 ? 'none' : 'auto'}>
-          {this.props.payload.buttons.map((btn: any) => {
+          {this.props.payload.buttons.map((btn: any, index: number) => {
             return (
-              <TouchableOpacity
+              <View
+                key={'button_wrapper_' + index}
+                style={styles.action_button_spacing}>
+                <TouchableOpacity
                 onPress={() => {
                   let msgsStr = '';
                   let botStr = '';
@@ -213,8 +216,9 @@ export default class MultiSelectTemplate extends BaseView<
                     : {backgroundColor: btheme?.BUBBLE_RIGHT_BG_COLOR},
                   //this.isViewDisable() && {backgroundColor: Color.gray},
                 ]}>
-                <Text style={[styles.btn_text]}>{btn?.title}</Text>
-              </TouchableOpacity>
+                  <Text style={[styles.btn_text]}>{btn?.title}</Text>
+                </TouchableOpacity>
+              </View>
             );
           })}
         </View>
@@ -281,7 +285,15 @@ const styles = StyleSheet.create({
   },
   che_main: {
     flexDirection: 'row',
+    alignItems: 'center',
+    // Keep Select all aligned with the checkbox inside each collection card:
+    // col_main marginStart (5) + col_item_main padding (8).
+    paddingStart: normalize(13),
     marginBottom: normalize(5),
+  },
+  action_button_spacing: {
+    paddingVertical: normalize(5),
+    width: '100%',
   },
   ele_main: {flexDirection: 'column', marginBottom: normalize(5)},
 
