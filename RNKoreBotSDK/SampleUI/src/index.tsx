@@ -4,7 +4,7 @@ import React from 'react';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native';
 import {botConfig} from './config/BotConfig';
-import KoreChat from 'rn-kore-bot-sdk-v79-test';
+import KoreChat from 'rn-kore-bot-sdk-v79';
 //import CustomButton from './customTemplates/CustomButton';
 import {LogBox} from 'react-native';
 import {checkAndRequestMicrophonePermission} from './utils/permissionUtils';

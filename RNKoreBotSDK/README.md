@@ -1,4 +1,4 @@
-# rn-kore-bot-sdk-v79-test
+# rn-kore-bot-sdk-v79
 
 React Native chatbot UI SDK for React Native **0.79.x** and React **19.x**.
 
@@ -6,21 +6,21 @@ React Native chatbot UI SDK for React Native **0.79.x** and React **19.x**.
 
 | SDK package | React Native | React |
 | --- | --- | --- |
-| `rn-kore-bot-sdk-v79-test` | `>=0.79.0 <0.80.0` | `19.x` |
+| `rn-kore-bot-sdk-v79` | `>=0.79.0 <0.80.0` | `19.x` |
 
 Do not install this package in an RN 0.77 application. Use the v77 SDK and its matching socket library instead. Do not mix the UI package, socket package, or native Android project from different SDK versions.
 
 ## Installation
 
 ```sh
-npm install rn-kore-bot-sdk-v79-test
+npm install rn-kore-bot-sdk-v79
 cd ios && pod install && cd ..
 ```
 
 The SDK uses native dependencies for networking, media, documents, permissions, and voice features. Follow each dependency's native setup instructions, then rebuild the application. The host application must use a React Native 0.79-compatible Android Gradle Plugin, Gradle, Kotlin, Java, and compile SDK configuration.
 
 Android voice recognition is autolinked from the SDK. Do not set
-`rn-kore-bot-sdk-v79-test.platforms.android` to `null`, copy the SDK's Java
+`rn-kore-bot-sdk-v79.platforms.android` to `null`, copy the SDK's Java
 files into the app, or manually add `VoiceRecognitionPackage()`; those steps
 prevent autolinking or can register the native module twice. If the log shows
 `[CustomVoiceRecognition] Module not available or not on Android`, remove that
@@ -34,8 +34,8 @@ The root application must be wrapped in `GestureHandlerRootView` when using gest
 ```tsx
 import React from 'react';
 import {SafeAreaView} from 'react-native';
-import KoreChat from 'rn-kore-bot-sdk-v79-test';
-import type {BotConfigModel} from 'rn-kore-bot-sdk-v79-test';
+import KoreChat from 'rn-kore-bot-sdk-v79';
+import type {BotConfigModel} from 'rn-kore-bot-sdk-v79';
 
 const botConfig: BotConfigModel = {
   botName: 'Assistant',
@@ -73,7 +73,7 @@ The default header supports Back, Close, Help, Live Agent, and Reconnect actions
 `onHeaderActionsClick` is an override. When it is provided, the host application owns the action behavior and must handle every action it enables:
 
 ```tsx
-import KoreChat, {HeaderIconsId} from 'rn-kore-bot-sdk-v79-test';
+import KoreChat, {HeaderIconsId} from 'rn-kore-bot-sdk-v79';
 
 const onHeaderActionsClick = (action: string) => {
   switch (action) {
@@ -95,7 +95,7 @@ If `renderChatHeader` is supplied, the default header and its action handling ar
 The socket client and event names are available from the SDK package:
 
 ```tsx
-import {KoreBotClient, RTM_EVENT} from 'rn-kore-bot-sdk-v79-test';
+import {KoreBotClient, RTM_EVENT} from 'rn-kore-bot-sdk-v79';
 
 const client = KoreBotClient.getInstance();
 
@@ -114,6 +114,6 @@ The SDK itself registers listeners needed to render messages and typing state. H
 ## Troubleshooting
 
 - `ERESOLVE` or peer dependency errors: verify that the host uses React 19 and RN 0.79.x, and that no v77 socket/UI package is installed.
-- `BotConfigModel` is not found: update to test package `0.0.15` or later and import it as a type from `rn-kore-bot-sdk-v79-test`.
+- `BotConfigModel` is not found: use production package `0.0.9` or later and import it as a type from `rn-kore-bot-sdk-v79`.
 - Header actions appear inactive: remove `onHeaderActionsClick` temporarily to test the SDK defaults. If a custom callback or custom header is used, the host owns those actions.
 - Android “no matching variant”: clean the host application's Gradle/build directories, verify the RN 0.79 Android toolchain, reinstall the SDK, and rebuild. Capture the complete Gradle dependency-selection error if the problem remains.

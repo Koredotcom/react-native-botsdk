@@ -1,6 +1,6 @@
-# Speech-to-Text Integration Guide for rn-kore-bot-sdk-v79-test
+# Speech-to-Text Integration Guide for rn-kore-bot-sdk-v79
 
-This guide provides step-by-step instructions for integrating the `rn-kore-bot-sdk-v79-test` package with **custom Android speech recognition** functionality in your React Native application.
+This guide provides step-by-step instructions for integrating the `rn-kore-bot-sdk-v79` package with **custom Android speech recognition** functionality in your React Native application.
 
 ## 📋 Prerequisites
 
@@ -15,7 +15,7 @@ This guide provides step-by-step instructions for integrating the `rn-kore-bot-s
 ### Step 1: Install the Package
 
 ```bash
-npm install rn-kore-bot-sdk-v79-test
+npm install rn-kore-bot-sdk-v79
 ```
 
 ### Step 2: Install Required Dependencies
@@ -45,7 +45,7 @@ npm install @react-native-voice/voice
 
 ### Step 3: Configure React Native Autolinking
 
-Do not disable Android autolinking for `rn-kore-bot-sdk-v79-test`. The package
+Do not disable Android autolinking for `rn-kore-bot-sdk-v79`. The package
 contains `VoiceRecognitionModule` and `VoiceRecognitionPackage`, and React
 Native 0.79 can discover and register them automatically. If your project
 already has a `react-native.config.js`, it may disable only the iOS-inapplicable
@@ -112,7 +112,7 @@ npx react-native config
 ```
 
 The output should include `android.sourceDir` pointing to
-`node_modules/rn-kore-bot-sdk-v79-test/android` and
+`node_modules/rn-kore-bot-sdk-v79/android` and
 `packageInstance: new VoiceRecognitionPackage()`.
 
 Do not copy Java files into `android/app` or add `VoiceRecognitionPackage()` to
@@ -146,7 +146,7 @@ Import and use the bot SDK in your components:
 ```javascript
 import React from 'react';
 import { View } from 'react-native';
-import KoreChat from 'rn-kore-bot-sdk-v79-test';
+import KoreChat from 'rn-kore-bot-sdk-v79';
 
 const YourChatScreen = () => {
   const botConfig = {
@@ -254,7 +254,7 @@ native configuration.
 
 Before considering the integration complete, verify:
 
-- [ ] Package is installed: `npm list rn-kore-bot-sdk-v79-test`
+- [ ] Package is installed: `npm list rn-kore-bot-sdk-v79`
 - [ ] All required peer dependencies are installed
 - [ ] If voice is enabled: `@react-native-voice/voice` is installed and the iOS pod is present
 - [ ] Android autolinking reports `new VoiceRecognitionPackage()`
@@ -277,7 +277,7 @@ If you encounter issues not covered in this guide:
 
 When updating the package:
 
-1. Update the npm package: `npm update rn-kore-bot-sdk-v79-test`
+1. Update the npm package: `npm update rn-kore-bot-sdk-v79`
 2. Run `cd ios && pod install` for iOS updates
 3. Clean and rebuild your project
 

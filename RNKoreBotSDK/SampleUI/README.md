@@ -2,7 +2,7 @@
 
 # 🤖 React Native Kore Bot SDK - Sample App
 
-[![NPM Version](https://img.shields.io/npm/v/rn-kore-bot-sdk-v79-test.svg?style=flat-square)](https://www.npmjs.com/package/rn-kore-bot-sdk-v79-test)
+[![NPM Version](https://img.shields.io/npm/v/rn-kore-bot-sdk-v79.svg?style=flat-square)](https://www.npmjs.com/package/rn-kore-bot-sdk-v79)
 [![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android-lightgrey.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/language-TypeScript-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
@@ -69,7 +69,7 @@ Get up and running in minutes:
 ```tsx
 import React from 'react';
 import { View } from 'react-native';
-import KoreChat, { BotConfigModel } from 'rn-kore-bot-sdk-v79-test';
+import KoreChat, { BotConfigModel } from 'rn-kore-bot-sdk-v79';
 
 const App = () => {
   const botConfig: BotConfigModel = {
@@ -236,7 +236,7 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 ```tsx
 import React from 'react';
 import { SafeAreaView, StatusBar } from 'react-native';
-import KoreChat, { BotConfigModel, ThemeProvider } from 'rn-kore-bot-sdk-v79-test';
+import KoreChat, { BotConfigModel, ThemeProvider } from 'rn-kore-bot-sdk-v79';
 
 const App = () => {
   const botConfig: BotConfigModel = {
@@ -282,7 +282,7 @@ export default App;
 ### Theme Customization
 
 ```tsx
-import { ThemeProvider } from 'rn-kore-bot-sdk-v79-test';
+import { ThemeProvider } from 'rn-kore-bot-sdk-v79';
 
 const customTheme = {
   primaryColor: '#007AFF',
@@ -303,7 +303,7 @@ const App = () => (
 ### Custom Templates
 
 ```tsx
-import { CustomTemplate } from 'rn-kore-bot-sdk-v79-test';
+import { CustomTemplate } from 'rn-kore-bot-sdk-v79';
 
 const MyCustomButton = new CustomTemplate({
   templateType: 'custom-button',
@@ -380,7 +380,7 @@ The library implements graceful degradation for native modules:
 ### Error Handling
 
 ```tsx
-import { BotException } from 'rn-kore-bot-sdk-v79-test';
+import { BotException } from 'rn-kore-bot-sdk-v79';
 
 try {
   // Bot operations

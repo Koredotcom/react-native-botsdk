@@ -22,7 +22,7 @@ const config = {
     disableHierarchicalLookup: true,
     nodeModulesPaths: [appNodeModules, sdkNodeModules],
     extraNodeModules: {
-      'rn-kore-bot-sdk-v79-test': sdkRoot,
+      'rn-kore-bot-sdk-v79': sdkRoot,
       // The SDK is linked from a sibling directory during local development.
       // Force React and React Native to resolve from the app so the renderer
       // and the SDK never load separate physical copies.
