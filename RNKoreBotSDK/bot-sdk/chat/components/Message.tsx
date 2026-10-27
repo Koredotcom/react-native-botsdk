@@ -165,6 +165,27 @@ export default class Message extends React.Component<MessageProps> {
     return {};
   };
 
+  componentDidMount() {
+    const iconUrl =
+      this.props.currentMessage?.icon || this.props.fallbackBotIcon;
+    if (iconUrl && this.botIconUrl !== iconUrl) {
+      this.botIconUrl = iconUrl;
+      AsyncStorage.setItem(BOT_ICON_URL, iconUrl);
+    }
+  }
+
+  componentDidUpdate(prevProps: MessageProps) {
+    const prevIcon =
+      prevProps.currentMessage?.icon || prevProps.fallbackBotIcon;
+    const currIcon =
+      this.props.currentMessage?.icon || this.props.fallbackBotIcon;
+    if (currIcon && currIcon !== prevIcon) {
+      this.botIconUrl = currIcon;
+      this.setState({ imageLoadFailed: false });
+      AsyncStorage.setItem(BOT_ICON_URL, currIcon);
+    }
+  }
+
   private setBotIconUrl = async (url: any) => {
     if (this.botIconUrl !== url) {
       this.botIconUrl = url;
@@ -177,10 +198,6 @@ export default class Message extends React.Component<MessageProps> {
     const currentMessage =
       avatarProps.currentMessage || this.props.currentMessage;
     const iconUrl = currentMessage?.icon || this.props.fallbackBotIcon || null;
-
-    if (iconUrl) {
-      this.setBotIconUrl(iconUrl);
-    }
 
     return (
       <View

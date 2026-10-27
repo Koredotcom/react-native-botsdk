@@ -23,6 +23,7 @@ import { BotConfigModel } from 'rn-kore-bot-socket-lib-v79';
 import { ROUTE_NAMES } from '../../navigation/RouteNames';
 import Color from 'rn-kore-bot-sdk-v79';
 import WAKeyboardAvoidingView from '../../components/WAKeyboardAvoidingView';
+import { botConfig as sharedBotConfig } from '../../config/BotConfig';
 
 interface State {
   botName: string;
@@ -43,12 +44,12 @@ class WelcomeScreen extends Component<any, State> {
   constructor(props: {}) {
     super(props);
     this.state = {
-      botName: 'Kore.ai Bot',
-      botId: 'PLEASE_ENTER_BOT_ID',
-      clientId: 'PLEASE_ENTER_CLIENT_ID',
-      clientSecret: 'PLEASE_ENTER_CLIENT_SECRET',
-      botUrl: 'https://bots.kore.ai',
-      jwtServerUrl: 'PLEASE_ENTER_JWT_SERVER_URL',
+      botName: sharedBotConfig.botName,
+      botId: sharedBotConfig.botId,
+      clientId: sharedBotConfig.clientId,
+      clientSecret: sharedBotConfig.clientSecret,
+      botUrl: sharedBotConfig.botUrl,
+      jwtServerUrl: sharedBotConfig.jwtServerUrl,
       permissionsGranted: {
         camera: false,
         microphone: false,
@@ -200,12 +201,12 @@ class WelcomeScreen extends Component<any, State> {
       clientId: clientId,
       clientSecret: clientSecret,
       botUrl: botUrl,
-      identity: '1234567890',
-      isWebHook: false,
-      value_aud: 'https://idproxy.kore.com/authorize', //this is for jwt token generation
+      identity: sharedBotConfig.identity,
+      isWebHook: sharedBotConfig.isWebHook,
+      value_aud: sharedBotConfig.value_aud,
       jwtServerUrl: jwtServerUrl,
-      isHeaderVisible: true,
-      isFooterVisible: true,
+      isHeaderVisible: sharedBotConfig.isHeaderVisible,
+      isFooterVisible: sharedBotConfig.isFooterVisible,
     };
 
     this.props.navigation.navigate(ROUTE_NAMES.HOME, { botConfig: botConfig });

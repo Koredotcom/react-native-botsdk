@@ -26,7 +26,6 @@ The package requires several peer dependencies. Install them:
 npm install @react-native-async-storage/async-storage
 npm install @react-native-community/netinfo
 npm install @react-native-documents/picker
-npm install @react-native-voice/voice
 npm install react-native-bootsplash
 npm install react-native-fs
 npm install react-native-gesture-handler
@@ -37,19 +36,27 @@ npm install react-native-screens
 npm install react-native-svg
 ```
 
+Voice recognition is optional. Only install the iOS voice dependency when the
+host application wants speech-to-text and branding enables the microphone:
+
+```bash
+npm install @react-native-voice/voice
+```
+
 ### Step 3: Configure React Native Autolinking
 
-Create a `react-native.config.js` file in your project root:
+Do not disable Android autolinking for `rn-kore-bot-sdk-v79`. The package
+contains `VoiceRecognitionModule` and `VoiceRecognitionPackage`, and React
+Native 0.79 can discover and register them automatically. If your project
+already has a `react-native.config.js`, it may disable only the iOS-inapplicable
+voice dependency:
 
 ```javascript
 module.exports = {
   dependencies: {
-    'rn-kore-bot-sdk-v79': {
+    '@react-native-voice/voice': {
       platforms: {
-        android: null, // Disable Android autolinking - we'll integrate manually
-        ios: {
-          // iOS will use the podspec automatically
-        },
+        android: null,
       },
     },
   },
@@ -95,133 +102,21 @@ Edit `android/app/src/main/AndroidManifest.xml`:
 </manifest>
 ```
 
-#### 4.2 Copy Native Android Modules
+#### 4.2 Verify Android autolinking
 
-Create the directory structure and copy the native modules:
+After installing the package, regenerate the React Native configuration and
+confirm that the SDK has an Android `sourceDir` and a package instance:
 
 ```bash
-# Create directory
-mkdir -p android/app/src/main/java/com/rnkorebotsdk
-
-# Copy the native modules from node_modules
-cp node_modules/rn-kore-bot-sdk-v79/android/src/main/java/com/rnkorebotsdk/VoiceRecognitionModule.java android/app/src/main/java/com/rnkorebotsdk/
-cp node_modules/rn-kore-bot-sdk-v79/android/src/main/java/com/rnkorebotsdk/VoiceRecognitionPackage.java android/app/src/main/java/com/rnkorebotsdk/
+npx react-native config
 ```
 
-#### 4.3 Register Native Modules in MainApplication
+The output should include `android.sourceDir` pointing to
+`node_modules/rn-kore-bot-sdk-v79/android` and
+`packageInstance: new VoiceRecognitionPackage()`.
 
-Edit your `android/app/src/main/java/com/yourpackage/MainApplication.kt` (or `.java`):
-
-**For Kotlin:**
-```kotlin
-package com.yourpackage
-
-import android.app.Application
-import com.facebook.react.PackageList
-import com.facebook.react.ReactApplication
-import com.facebook.react.ReactHost
-import com.facebook.react.ReactNativeHost
-import com.facebook.react.ReactPackage
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
-import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
-import com.facebook.react.defaults.DefaultReactNativeHost
-import com.facebook.react.soloader.OpenSourceMergedSoMapping
-import com.facebook.soloader.SoLoader
-import com.rnkorebotsdk.VoiceRecognitionPackage  // Add this import
-
-class MainApplication : Application(), ReactApplication {
-
-  override val reactNativeHost: ReactNativeHost =
-      object : DefaultReactNativeHost(this) {
-        override fun getPackages(): List<ReactPackage> =
-            PackageList(this).packages.apply {
-              // Add the VoiceRecognitionPackage manually
-              add(VoiceRecognitionPackage())  // Add this line
-            }
-
-        override fun getJSMainModuleName(): String = "index"
-        override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
-        override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-        override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
-      }
-
-  override val reactHost: ReactHost
-    get() = getDefaultReactHost(applicationContext, reactNativeHost)
-
-  override fun onCreate() {
-    super.onCreate()
-    SoLoader.init(this, OpenSourceMergedSoMapping)
-    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      load()
-    }
-  }
-}
-```
-
-**For Java:**
-```java
-package com.yourpackage;
-
-import android.app.Application;
-import com.facebook.react.PackageList;
-import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactNativeHost;
-import com.facebook.react.ReactPackage;
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
-import com.facebook.react.defaults.DefaultReactNativeHost;
-import com.facebook.soloader.SoLoader;
-import com.rnkorebotsdk.VoiceRecognitionPackage;  // Add this import
-
-import java.util.List;
-
-public class MainApplication extends Application implements ReactApplication {
-
-  private final ReactNativeHost mReactNativeHost =
-      new DefaultReactNativeHost(this) {
-        @Override
-        public boolean getUseDeveloperSupport() {
-          return BuildConfig.DEBUG;
-        }
-
-        @Override
-        protected List<ReactPackage> getPackages() {
-          List<ReactPackage> packages = new PackageList(this).getPackages();
-          // Add the VoiceRecognitionPackage manually
-          packages.add(new VoiceRecognitionPackage());  // Add this line
-          return packages;
-        }
-
-        @Override
-        protected String getJSMainModuleName() {
-          return "index";
-        }
-
-        @Override
-        protected boolean isNewArchEnabled() {
-          return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
-        }
-
-        @Override
-        protected Boolean isHermesEnabled() {
-          return BuildConfig.IS_HERMES_ENABLED;
-        }
-      };
-
-  @Override
-  public ReactNativeHost getReactNativeHost() {
-    return mReactNativeHost;
-  }
-
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    SoLoader.init(this, /* native exopackage */ false);
-    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      DefaultNewArchitectureEntryPoint.load();
-    }
-  }
-}
-```
+Do not copy Java files into `android/app` or add `VoiceRecognitionPackage()` to
+`MainApplication`. Doing both after autolinking can register the module twice.
 
 ### Step 5: iOS Configuration
 
@@ -310,7 +205,10 @@ The package includes only **one** podspec file: `react-native-rn-kore-bot-sdk.po
 
 #### 1. "VoiceRecognitionModule not found" Error
 
-**Solution:** Ensure you've copied the native modules and registered the package correctly in MainApplication.
+**Solution:** Remove any host-app `react-native.config.js` entry that sets the
+SDK's Android platform to `null`, then run `npx react-native config` and confirm
+that `VoiceRecognitionPackage` is autolinked. Rebuild the app after changing
+native configuration.
 
 #### 2. "Permission denied" for Microphone
 
@@ -357,11 +255,10 @@ The package includes only **one** podspec file: `react-native-rn-kore-bot-sdk.po
 Before considering the integration complete, verify:
 
 - [ ] Package is installed: `npm list rn-kore-bot-sdk-v79`
-- [ ] All peer dependencies are installed
-- [ ] `react-native.config.js` is created and configured
+- [ ] All required peer dependencies are installed
+- [ ] If voice is enabled: `@react-native-voice/voice` is installed and the iOS pod is present
+- [ ] Android autolinking reports `new VoiceRecognitionPackage()`
 - [ ] Android permissions are added to AndroidManifest.xml
-- [ ] Android native modules are copied to correct location
-- [ ] VoiceRecognitionPackage is registered in MainApplication
 - [ ] iOS permissions are added to Info.plist
 - [ ] iOS pods are installed
 - [ ] App builds successfully on both platforms
@@ -381,9 +278,8 @@ If you encounter issues not covered in this guide:
 When updating the package:
 
 1. Update the npm package: `npm update rn-kore-bot-sdk-v79`
-2. Re-copy the Android native modules (they may have changed)
-3. Run `cd ios && pod install` for iOS updates
-4. Clean and rebuild your project
+2. Run `cd ios && pod install` for iOS updates
+3. Clean and rebuild your project
 
 ---
 

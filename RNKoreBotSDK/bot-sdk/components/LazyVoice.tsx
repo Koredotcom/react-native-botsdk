@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Platform, Alert } from 'react-native';
 import { LazyLoader, DefaultLoader, ErrorFallback } from '../utils/LazyLoader';
+import {isNativeVoiceModuleAvailable} from '../utils/VoiceNativeModule';
 
 // Type definitions for the lazy-loaded Voice
 export interface VoiceEvents {
@@ -88,6 +89,10 @@ export class LazyVoice extends Component<LazyVoiceProps, LazyVoiceState> {
     this.setState({ isLoading: true, loadError: null });
 
     try {
+      if (!isNativeVoiceModuleAvailable()) {
+        throw new Error('Voice native module is not linked');
+      }
+
       // Dynamic import with fallback for different module structures
       const VoiceModule = await LazyLoader.importModule(
         () => import('@react-native-voice/voice'),
@@ -283,6 +288,10 @@ export const useLazyVoice = (events: VoiceEvents = {}) => {
     setState(prev => ({ ...prev, isLoading: true, loadError: null }));
 
     try {
+      if (!isNativeVoiceModuleAvailable()) {
+        throw new Error('Voice native module is not linked');
+      }
+
       const VoiceModule = await LazyLoader.importModule(
         () => import('@react-native-voice/voice'),
         'voice'

@@ -1,5 +1,6 @@
 import CustomVoiceRecognition from './CustomVoiceRecognition.tsx';
 import { Platform } from 'react-native';
+import {isNativeVoiceModuleAvailable} from './VoiceNativeModule';
 
 let Voice: any = null;
 let Permissions: any = null;
@@ -16,6 +17,14 @@ const loadNativeModules = () => {
   Permissions = null;
 
   try {
+    // Do not evaluate @react-native-voice/voice when the host app did not
+    // compile its native module. The package creates a NativeEventEmitter at
+    // module evaluation time, which can otherwise throw an invariant error.
+    if (!isNativeVoiceModuleAvailable()) {
+      console.warn('[VoiceRecorder] Native voice module is not linked; voice is disabled');
+      return { Voice: null, Permissions: null };
+    }
+
     if (Platform.OS === 'android') {
       // Use CustomVoiceRecognition for Android
       try {

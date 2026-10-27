@@ -294,7 +294,6 @@ export default class MessageContainer extends PureComponent<
 
       const messageProps = {
         ...restProps,
-        key: item._id,
         currentMessage: item,
         previousMessage,
         inverted,
@@ -311,7 +310,7 @@ export default class MessageContainer extends PureComponent<
         return this.props.renderMessage(messageProps);
       }
       const theme = this.context as IThemeType;
-      return <Message {...messageProps} theme={theme} />;
+      return <Message key={item._id} {...messageProps} theme={theme} />;
     }
     return null;
   };

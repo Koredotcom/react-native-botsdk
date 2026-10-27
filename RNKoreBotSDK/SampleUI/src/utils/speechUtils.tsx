@@ -1,5 +1,29 @@
-import Voice from '@react-native-voice/voice';
-import {Alert, Platform} from 'react-native';
+import {Alert, NativeModules, Platform} from 'react-native';
+
+let Voice: any = null;
+let voiceLoadAttempted = false;
+
+const loadVoice = () => {
+  if (voiceLoadAttempted) {
+    return Voice;
+  }
+
+  voiceLoadAttempted = true;
+
+  try {
+    if (Platform.OS !== 'ios' || !NativeModules?.Voice) {
+      return null;
+    }
+
+    const VoiceModule = require('@react-native-voice/voice');
+    Voice = VoiceModule?.default || VoiceModule || null;
+  } catch (error) {
+    console.warn('Speech recognition native module is not available:', error);
+    Voice = null;
+  }
+
+  return Voice;
+};
 
 export interface SpeechRecognitionResult {
   success: boolean;
@@ -12,16 +36,23 @@ class SpeechRecognitionService {
   private resultsCallback?: (result: SpeechRecognitionResult) => void;
 
   constructor() {
-    this.setupVoiceEvents();
+    if (loadVoice()) {
+      this.setupVoiceEvents();
+    }
   }
 
   private setupVoiceEvents() {
-    Voice.onSpeechStart = this.onSpeechStart;
-    Voice.onSpeechRecognized = this.onSpeechRecognized;
-    Voice.onSpeechEnd = this.onSpeechEnd;
-    Voice.onSpeechError = this.onSpeechError;
-    Voice.onSpeechResults = this.onSpeechResultsHandler;
-    Voice.onSpeechPartialResults = this.onSpeechPartialResults;
+    const voice = loadVoice();
+    if (!voice) {
+      return;
+    }
+
+    voice.onSpeechStart = this.onSpeechStart;
+    voice.onSpeechRecognized = this.onSpeechRecognized;
+    voice.onSpeechEnd = this.onSpeechEnd;
+    voice.onSpeechError = this.onSpeechError;
+    voice.onSpeechResults = this.onSpeechResultsHandler;
+    voice.onSpeechPartialResults = this.onSpeechPartialResults;
   }
 
   private onSpeechStart = () => {
@@ -82,7 +113,8 @@ class SpeechRecognitionService {
   async checkAvailability(): Promise<boolean> {
     try {
       // Check if Voice is available and properly initialized
-      if (!Voice) {
+      const voice = loadVoice();
+      if (!voice) {
         console.log('Voice module not available');
         return false;
       }
@@ -93,7 +125,7 @@ class SpeechRecognitionService {
         // Still return true to allow testing, but handle errors gracefully
       }
 
-      const isAvailable = await Voice.isAvailable();
+      const isAvailable = await voice.isAvailable();
       console.log('Speech recognition available:', isAvailable);
       return !!isAvailable;
     } catch (error) {
@@ -104,6 +136,15 @@ class SpeechRecognitionService {
 
   async startListening(onResults: (result: SpeechRecognitionResult) => void): Promise<boolean> {
     try {
+      const voice = loadVoice();
+      if (!voice) {
+        onResults({
+          success: false,
+          error: 'Speech recognition is not available on this device',
+        });
+        return false;
+      }
+
       if (this.isListening) {
         console.log('Already listening');
         return false;
@@ -120,7 +161,7 @@ class SpeechRecognitionService {
 
       this.resultsCallback = onResults;
       
-      await Voice.start('en-US');
+      await voice.start('en-US');
       this.isListening = true;
       console.log('Started listening');
       return true;
@@ -138,8 +179,14 @@ class SpeechRecognitionService {
 
   async stopListening(): Promise<void> {
     try {
+      const voice = loadVoice();
+      if (!voice) {
+        this.isListening = false;
+        return;
+      }
+
       if (this.isListening) {
-        await Voice.stop();
+        await voice.stop();
         this.isListening = false;
         console.log('Stopped listening');
       }
@@ -151,7 +198,13 @@ class SpeechRecognitionService {
 
   async destroyRecognizer(): Promise<void> {
     try {
-      await Voice.destroy();
+      const voice = loadVoice();
+      if (!voice) {
+        this.isListening = false;
+        return;
+      }
+
+      await voice.destroy();
       this.isListening = false;
       console.log('Voice recognizer destroyed');
     } catch (error) {
@@ -165,4 +218,4 @@ class SpeechRecognitionService {
 }
 
 // Export a singleton instance
-export const speechRecognitionService = new SpeechRecognitionService(); 
+export const speechRecognitionService = new SpeechRecognitionService();

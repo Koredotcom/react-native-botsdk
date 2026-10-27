@@ -55,18 +55,30 @@ const LOCALIZED_STRINGS = {
     cancel: 'CANCELAR',
     close: 'CERRAR',
     minimize: 'MINIMIZAR',
+    view_more: 'Ver más',
+    answered_by_ai: 'Respondido por la IA',
+    did_not_get_code: '¿No recibiste un código?',
+    load_earlier_messages: 'Historial del chat',
   },
   fr: {
     back_dialog_title: 'Souhaitez-vous fermer la conversation ou la minimiser?',
     cancel: 'ANNULER',
     close: 'FERMER',
     minimize: 'MINIMISER',
+    view_more: 'Voir plus',
+    answered_by_ai: 'Répondu par l’IA',
+    did_not_get_code: 'Vous n’avez pas reçu de code ?',
+    load_earlier_messages: 'Historique de la conversation',
   },
   de: {
     back_dialog_title: 'Möchten Sie das Gespräch schließen oder minimieren?',
     cancel: 'ABBRECHEN',
     close: 'SCHLIEßEN',
     minimize: 'MINIMIEREN',
+    view_more: 'Mehr anzeigen',
+    answered_by_ai: 'Von der KI beantwortet',
+    did_not_get_code: 'Keinen Code erhalten?',
+    load_earlier_messages: 'Chatverlauf',
   },
 };
 
@@ -332,4 +344,4 @@ export class Localization {
 export const LocalizationManager = Localization.getInstance();
 
 // Export the strings constant for backward compatibility if needed
-export { LOCALIZED_STRINGS }; 
+export { LOCALIZED_STRINGS };

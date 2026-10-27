@@ -2,7 +2,10 @@
 
 `SampleUI` is a working React Native 0.79 sample application that demonstrates how an external application can integrate `rn-kore-bot-sdk-v79`.
 
-The complete SDK feature reference is maintained in the repository root: [SDK README](../README.md). This document intentionally contains only sample-app and external-app integration steps.
+[![NPM Version](https://img.shields.io/npm/v/rn-kore-bot-sdk-v79.svg?style=flat-square)](https://www.npmjs.com/package/rn-kore-bot-sdk-v79)
+[![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android-lightgrey.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your-repo/react-native-kore-bot-sdk/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/language-TypeScript-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
 
 ## Requirements
 
@@ -13,7 +16,90 @@ The complete SDK feature reference is maintained in the repository root: [SDK RE
 
 ## Run this sample
 
-From this directory:
+---
+
+## 📋 Table of Contents
+
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [📦 Installation](#-installation)
+- [🎯 Basic Usage](#-basic-usage)
+- [🎨 Customization](#-customization)
+- [📚 API Reference](#-api-reference)
+- [🛠️ Advanced Configuration](#️-advanced-configuration)
+- [🔐 Permissions Setup](#-permissions-setup)
+- [📱 Examples](#-examples)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [💬 Support](#-support)
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td>
+
+### 🎯 **Core Features**
+- 🤖 Complete chatbot UI components
+- 💬 Rich messaging templates
+- 🎨 Fully customizable themes
+- 📱 Cross-platform (iOS & Android)
+- 🔧 Full TypeScript support
+
+</td>
+<td>
+
+### 🚀 **Advanced Features**
+- 🎵 Voice recognition & TTS
+- 📁 File upload/download
+- 📊 Charts & data visualization
+- 🔄 Real-time messaging
+- 🎭 Custom template injection
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🚀 Quick Start
+
+Get up and running in minutes:
+
+```tsx
+import React from 'react';
+import { View } from 'react-native';
+import KoreChat, { BotConfigModel } from 'rn-kore-bot-sdk-v79';
+
+const App = () => {
+  const botConfig: BotConfigModel = {
+    botId: 'your-bot-id',
+    chatBotName: 'Assistant',
+    serverUrl: 'https://your.server.url',
+    brandingAPIUrl: 'https://your.branding.url',
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+      <KoreChat
+        botConfig={botConfig}
+        onListItemClick={(item) => console.log('📋 Item clicked:', item)}
+        onHeaderActionsClick={(action) => console.log('⚡ Action:', action)}
+      />
+    </View>
+  );
+};
+
+export default App;
+```
+
+---
+
+## 📦 Sample App Installation
+
+### Step 1: Clone & Install Base
 
 ```bash
 npm install
@@ -44,7 +130,40 @@ Use React 19 and React Native 0.79.x in the external application. Do not install
 
 ### 2. Configure the host application
 
-Wrap the application root with `GestureHandlerRootView` and add the Reanimated Babel plugin:
+## 🎯 Basic Usage
+
+### Simple Integration
+
+```tsx
+import React from 'react';
+import { SafeAreaView, StatusBar } from 'react-native';
+import KoreChat, { BotConfigModel, ThemeProvider } from 'rn-kore-bot-sdk-v79';
+
+const App = () => {
+  const botConfig: BotConfigModel = {
+    botId: 'st-12345678-1234-1234-1234-123456789012',
+    chatBotName: 'My Assistant',
+    serverUrl: 'https://bots.kore.ai',
+    brandingAPIUrl: 'https://bots.kore.ai',
+    customerId: 'your-customer-id',
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret',
+    identity: 'your-user-identity',
+    isAnonymous: false,
+    isPlatform: true,
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <KoreChat
+        botConfig={botConfig}
+        onListItemClick={handleListItemClick}
+        onHeaderActionsClick={handleHeaderAction}
+      />
+    </SafeAreaView>
+  );
+};
 
 ```js
 // babel.config.js
@@ -55,11 +174,47 @@ module.exports = {
 ```
 
 ```tsx
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import { ThemeProvider } from 'rn-kore-bot-sdk-v79';
 
-<GestureHandlerRootView style={{flex: 1}}>
-  {/* navigation and screens */}
-</GestureHandlerRootView>
+const customTheme = {
+  primaryColor: '#007AFF',
+  secondaryColor: '#5856D6',
+  backgroundColor: '#F2F2F7',
+  textColor: '#000000',
+  borderColor: '#C7C7CC',
+  // Add more theme properties
+};
+
+const App = () => (
+  <ThemeProvider theme={customTheme}>
+    <KoreChat botConfig={botConfig} />
+  </ThemeProvider>
+);
+```
+
+### Custom Templates
+
+```tsx
+import { CustomTemplate } from 'rn-kore-bot-sdk-v79';
+
+const MyCustomButton = new CustomTemplate({
+  templateType: 'custom-button',
+  render: (data, onAction) => (
+    <TouchableOpacity
+      style={styles.customButton}
+      onPress={() => onAction(data.action)}
+    >
+      <Text>{data.title}</Text>
+    </TouchableOpacity>
+  ),
+});
+
+<KoreChat
+  botConfig={botConfig}
+  templateInjection={new Map([
+    ['custom-button', MyCustomButton]
+  ])}
+/>
 ```
 
 ### 3. Configure the bot
@@ -92,12 +247,15 @@ import {SafeAreaView} from 'react-native';
 import KoreChat from 'rn-kore-bot-sdk-v79';
 import {botConfig} from './config/BotConfig';
 
-export default function ChatScreen({navigation}: {navigation?: any}) {
-  return (
-    <SafeAreaView style={{flex: 1}}>
-      <KoreChat botConfig={botConfig} navigation={navigation} />
-    </SafeAreaView>
-  );
+```tsx
+import { BotException } from 'rn-kore-bot-sdk-v79';
+
+try {
+  // Bot operations
+} catch (error) {
+  if (error instanceof BotException) {
+    console.log('Bot error:', error.message);
+  }
 }
 ```
 

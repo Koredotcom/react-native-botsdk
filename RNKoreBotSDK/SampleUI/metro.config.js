@@ -10,46 +10,25 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
  */
 const sdkRoot = path.resolve(__dirname, '..');
 const appNodeModules = path.resolve(__dirname, 'node_modules');
-const sdkNodeModules = path.join(sdkRoot, 'node_modules');
-const sdkPackage = require(path.join(sdkRoot, 'package.json'));
-
-// The local file-linked SDK has dependencies that are not direct SampleUI
-// dependencies. Alias only those missing packages to the SDK install. React
-// and React Native are deliberately excluded and remain pinned to the app.
-const sdkDependencyAliases = Object.keys(sdkPackage.dependencies || {})
-  .filter(
-    dependency =>
-      dependency !== 'react' &&
-      dependency !== 'react-native' &&
-      !fs.existsSync(path.join(appNodeModules, dependency)) &&
-      fs.existsSync(path.join(sdkNodeModules, dependency)),
-  )
-  .reduce((aliases, dependency) => {
-    aliases[dependency] = path.join(sdkNodeModules, dependency);
-    return aliases;
-  }, {});
+const sdkNodeModules = path.resolve(sdkRoot, 'node_modules');
 
 const config = {
   // The sample app uses the SDK from the sibling package during local
-  // development. Metro must watch that package explicitly when it is linked.
+  // development. The SDK root must be watched so Metro can read its
+  // package.json and resolve the package entry point through the alias below.
   watchFolders: [sdkRoot],
   resolver: {
-    // Resolve the SDK's imports from the sample app's installed dependency
-    // tree, since the SDK source lives outside the app directory.
-    // Without this, Metro can walk up into the SDK repository's node_modules
-    // and load a second React instance for watched SDK files.
+    // Resolve shared singletons from the app first, even for files under the
+    // SDK folder. Loading a second React instance causes invalid hook calls.
     disableHierarchicalLookup: true,
-    // Prefer the app's modules (especially React/React Native), then fall
-    // back to SDK-only dependencies installed in the linked package root.
     nodeModulesPaths: [appNodeModules, sdkNodeModules],
     extraNodeModules: {
       'rn-kore-bot-sdk-v79': sdkRoot,
-      // The SDK is watched from outside the app directory. Pin these shared
-      // runtimes to the app copies so SDK and app components use the same
-      // React dispatcher and native module registry.
+      // The SDK is linked from a sibling directory during local development.
+      // Force React and React Native to resolve from the app so the renderer
+      // and the SDK never load separate physical copies.
       react: path.join(appNodeModules, 'react'),
       'react-native': path.join(appNodeModules, 'react-native'),
-      ...sdkDependencyAliases,
     },
   },
 };

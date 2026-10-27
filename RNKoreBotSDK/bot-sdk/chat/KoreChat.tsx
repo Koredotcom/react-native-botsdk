@@ -747,7 +747,7 @@ export default class KoreChat extends React.Component<
     this.setState({isReconnecting: true}, () => {
       const botClient = KoreBotClient.getInstance();
       try {
-        Promise.resolve(botClient.reconnect(true, true)).catch(() => {
+        Promise.resolve(botClient.reconnect(false, true)).catch(() => {
           this.setState({
             isReconnecting: false,
             showLoader: false,

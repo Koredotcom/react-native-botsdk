@@ -1,4 +1,6 @@
 {
     "java.compile.nullAnalysis.mode": "disabled",
-    "java.configuration.updateBuildConfiguration": "disabled"
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "window.density.editorTabHeight": "default",
+    "window.density.layout": "compact"
 }

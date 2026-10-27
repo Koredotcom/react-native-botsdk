@@ -262,7 +262,8 @@ export const defaultTheme: IThemeType = {
           icon: 'url|icomoon',
         },
         microphone: {
-          show: true,
+          // Voice is optional and must be explicitly enabled by branding.
+          show: false,
           icon: 'url|icomoon',
         },
         speaker: {

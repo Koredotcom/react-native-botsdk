@@ -1,6 +1,6 @@
 {
   "name": "rn-kore-bot-sdk-v79",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "src/index.tsx",
   "react-native": "src/index.tsx",
   "types": "src/index.tsx",
@@ -43,7 +43,7 @@
     "react-native-communications": "^2.2.1",
     "react-native-file-viewer": "^2.1.5",
     "react-native-fs": "^2.20.0",
-    "react-native-gesture-handler": "^2.25.0",
+    "react-native-gesture-handler": "2.27.2",
     "react-native-image-picker": "^8.2.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-paper": "^5.14.5",
@@ -64,7 +64,7 @@
     "react-native-vector-icons": "^10.3.0",
     "react-native-video": "^6.17.0",
     "reactotron-react-native": "^5.1.18",
-    "rn-kore-bot-socket-lib-v79": "^0.0.7"
+    "rn-kore-bot-socket-lib-v79": "^0.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

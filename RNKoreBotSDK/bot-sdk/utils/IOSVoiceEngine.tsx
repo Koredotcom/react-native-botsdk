@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import {isNativeVoiceModuleAvailable} from './VoiceNativeModule';
 
 interface VoiceCallbacks {
   onSpeechStart: () => void;
@@ -21,6 +22,11 @@ export class IOSVoiceEngine {
   private initializeEngine() {
     if (Platform.OS !== 'ios') {
       console.warn('IOSVoiceEngine: Not running on iOS platform');
+      return;
+    }
+
+    if (!isNativeVoiceModuleAvailable()) {
+      console.warn('IOSVoiceEngine: Native voice module is not linked; voice is disabled');
       return;
     }
 

@@ -27,6 +27,10 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "React-Core"
+  # Permissions are used by the SDK's media flows. Voice is intentionally not
+  # declared here because speech recognition is optional and must not become a
+  # CocoaPods requirement for clients that hide the microphone.
+  s.dependency "RNPermissions"
 
   # Don't install the dependencies when we run `pod install` in the old architecture.
   if ENV['RCT_NEW_ARCH_ENABLED'] == '1' then
